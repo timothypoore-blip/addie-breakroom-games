@@ -1,0 +1,2475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Hospital Escape — Addie Break Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+/* ── BRAND TOKENS ── */
+:root{
+  --navy:#081829;
+  --blue:#185793;
+  --green:#8BC53F;
+  --green-dark:#6fa030;
+  --white:#ffffff;
+  --gray-50:#f8fafc;
+  --gray-100:#f1f5f9;
+  --gray-200:#e2e8f0;
+  --gray-400:#94a3b8;
+  --gray-600:#475569;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Poppins',sans-serif;
+  background:#fff;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:16px 12px 40px;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* ── FLOW FIELD BG ── */
+#bgCanvas{
+  position:fixed;inset:0;
+  width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+
+/* ── PAGE LAYOUT ── */
+.page{
+  position:relative;z-index:1;
+  width:100%;max-width:860px;
+  display:flex;flex-direction:column;
+  align-items:center;gap:14px;
+}
+
+/* ── ADDIE HEADER ── */
+.header{text-align:center;padding-top:8px;}
+.addie-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.9);
+  border:1px solid var(--gray-200);
+  border-radius:100px;padding:4px 14px 4px 8px;
+  margin-bottom:10px;
+  box-shadow:0 2px 10px rgba(8,24,41,0.06);
+}
+.badge-mark{
+  width:24px;height:24px;
+  background:linear-gradient(135deg,var(--blue),var(--green));
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:11px;color:#fff;
+}
+.badge-text{font-size:0.72rem;font-weight:600;color:var(--navy);}
+.badge-text span{color:var(--green-dark);}
+h1{font-size:clamp(1.4rem,4.5vw,2rem);font-weight:900;color:var(--navy);margin-bottom:2px;}
+h1 em{color:var(--green);font-style:normal;}
+.header-sub{font-size:0.78rem;color:var(--gray-400);}
+
+/* ── GAME CARD ── */
+.game-card{
+  background:rgba(255,255,255,0.97);
+  backdrop-filter:blur(16px);
+  border-radius:22px;
+  box-shadow:0 6px 40px rgba(8,24,41,0.13);
+  border:1px solid rgba(255,255,255,0.9);
+  padding:18px;
+  width:100%;
+}
+
+/* ── STATS BAR (above canvas) ── */
+.stats-bar{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+.stat-pill{
+  background:var(--gray-50);
+  border:1.5px solid var(--gray-200);
+  border-radius:100px;
+  padding:5px 10px;
+  text-align:center;
+}
+.stat-pill .label{
+  font-size:0.6rem;font-weight:600;
+  color:var(--gray-400);text-transform:uppercase;
+  letter-spacing:.05em;display:block;
+}
+.stat-pill .value{
+  font-size:0.88rem;font-weight:800;color:var(--navy);
+}
+.stat-pill.ambulance .value{color:#dc2626;}
+.stat-pill.score-pill .value{color:var(--green-dark);}
+
+/* Energy bar pill */
+.energy-pill{
+  background:var(--gray-50);
+  border:1.5px solid var(--gray-200);
+  border-radius:100px;
+  padding:5px 10px;
+  display:flex;align-items:center;gap:8px;
+}
+.energy-pill .label{
+  font-size:0.6rem;font-weight:600;
+  color:var(--gray-400);text-transform:uppercase;
+  letter-spacing:.05em;white-space:nowrap;
+}
+.energy-track{
+  flex:1;height:8px;
+  background:var(--gray-200);
+  border-radius:100px;overflow:hidden;
+}
+.energy-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--green-dark),var(--green));
+  border-radius:100px;
+  transition:width .1s linear, background .3s;
+  width:100%;
+}
+.energy-fill.low{background:linear-gradient(90deg,#dc2626,#f87171);}
+.energy-fill.medium{background:linear-gradient(90deg,#d97706,#fbbf24);}
+
+/* ── CANVAS WRAPPER ── */
+.canvas-wrap{
+  position:relative;
+  width:100%;
+  border-radius:14px;
+  overflow:hidden;
+  border:2px solid var(--gray-200);
+  background:var(--navy);
+  /* enforce aspect ratio */
+  aspect-ratio:16/7;
+}
+#gameCanvas{
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+/* ── START SCREEN OVERLAY ── */
+#startScreen{
+  position:absolute;inset:0;
+  background:rgba(8,24,41,0.93);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:6px;
+  z-index:10;
+  overflow:hidden;
+  padding:8px;
+  cursor:pointer;
+}
+.start-badge{
+  background:linear-gradient(135deg,var(--blue),var(--green));
+  color:#fff;font-size:0.68rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 16px;border-radius:100px;
+}
+.start-title{
+  font-size:clamp(1.1rem,3.5vw,1.9rem);
+  font-weight:900;color:#fff;text-align:center;
+  line-height:1.15;
+  margin:0;
+}
+.start-title em{color:var(--green);font-style:normal;}
+.start-sub{
+  font-size:0.7rem;color:rgba(255,255,255,0.6);
+  text-align:center;max-width:420px;line-height:1.4;
+  margin:0;
+}
+.start-controls{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:4px 12px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:10px;
+  padding:8px 14px;
+  width:min(440px,96%);
+}
+.ctrl{display:flex;align-items:center;gap:6px;font-size:0.64rem;color:rgba(255,255,255,0.75);}
+.ctrl kbd{
+  background:rgba(255,255,255,0.12);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:4px;
+  padding:1px 5px;font-size:0.62rem;
+  font-family:'Poppins',sans-serif;
+  color:#fff;white-space:nowrap;
+  flex-shrink:0;
+}
+.ambulance-countdown{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(220,38,38,0.15);
+  border:1px solid rgba(220,38,38,0.35);
+  border-radius:100px;
+  padding:4px 12px;
+  font-size:0.68rem;font-weight:700;
+  color:#fca5a5;
+  margin:0;
+}
+.amb-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#dc2626;
+  animation:ambPulse 1s ease-in-out infinite;
+}
+@keyframes ambPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+
+.start-btn{
+  background:linear-gradient(135deg,var(--green-dark),var(--green));
+  color:#fff;border:none;
+  border-radius:100px;padding:12px 40px;
+  font-size:1rem;font-weight:800;
+  font-family:'Poppins',sans-serif;
+  cursor:pointer;
+  box-shadow:0 4px 20px rgba(139,197,63,0.4);
+  transition:transform .15s,box-shadow .15s;
+  letter-spacing:.03em;
+}
+.start-btn:hover{transform:scale(1.04);box-shadow:0 6px 28px rgba(139,197,63,0.5);}
+
+/* ── CONTROLS HINT (below canvas) ── */
+.controls-hint{
+  display:flex;flex-wrap:wrap;gap:6px 16px;
+  justify-content:center;
+  padding:10px 0 4px;
+  font-size:0.7rem;color:var(--gray-400);
+}
+.controls-hint kbd{
+  background:var(--gray-100);
+  border:1px solid var(--gray-200);
+  border-radius:4px;
+  padding:1px 6px;
+  font-size:0.66rem;
+  font-family:'Poppins',sans-serif;
+  color:var(--gray-600);
+}
+.hint-sep{color:var(--gray-200);}
+
+/* ── MOBILE TOUCH CONTROLS ── */
+.touch-controls{
+  display:none;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:8px;
+  padding:10px 0 0;
+  width:100%;
+}
+@media(max-width:600px){.touch-controls{display:grid;}}
+.touch-group{display:flex;gap:6px;}
+.touch-center{display:flex;justify-content:center;gap:8px;}
+.t-btn{
+  width:52px;height:52px;border-radius:14px;
+  background:var(--navy);
+  border:2px solid rgba(255,255,255,0.12);
+  color:#fff;font-size:1.2rem;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  transition:background .1s,transform .1s;
+}
+.t-btn:active{background:var(--blue);transform:scale(.93);}
+.t-btn.fire{background:rgba(220,38,38,0.25);border-color:rgba(220,38,38,0.4);}
+.t-btn.fire:active{background:rgba(220,38,38,0.6);}
+.t-btn.jump{background:rgba(139,197,63,0.2);border-color:rgba(139,197,63,0.4);}
+.t-btn.jump:active{background:rgba(139,197,63,0.5);}
+.t-btn.coffee{background:rgba(139,83,19,0.3);border-color:rgba(139,83,19,0.5);}
+.t-btn.coffee:active{background:rgba(139,83,19,0.6);}
+
+/* ── TOAST NOTIFICATIONS ── */
+#toast{
+  position:absolute;
+  top:14px;left:50%;transform:translateX(-50%);
+  background:rgba(8,24,41,0.88);
+  color:#fff;font-size:0.75rem;font-weight:700;
+  padding:6px 18px;border-radius:100px;
+  white-space:nowrap;z-index:20;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+  border:1px solid rgba(255,255,255,0.15);
+}
+#toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- Flow field background -->
+<canvas id="bgCanvas"></canvas>
+
+<div class="page">
+
+  <!-- ── ADDIE HEADER ── -->
+  <div class="header">
+    <div class="addie-badge">
+      <div class="badge-mark">A</div>
+      <span class="badge-text">Addie <span>Break Room</span></span>
+    </div>
+    <h1>🏥 Hospital <em>Escape</em></h1>
+    <p class="header-sub">Wheel your patient out before the ambulance leaves. Dodge everything. Fire the sales reps.</p>
+  </div>
+
+  <!-- ── GAME CARD ── -->
+  <div class="game-card">
+
+    <!-- Stats bar -->
+    <div class="stats-bar">
+      <div class="stat-pill score-pill">
+        <span class="label">Score</span>
+        <span class="value" id="scoreVal">0</span>
+      </div>
+      <div class="energy-pill">
+        <span class="label">Energy</span>
+        <div class="energy-track">
+          <div class="energy-fill" id="energyFill"></div>
+        </div>
+      </div>
+      <div class="stat-pill">
+        <span class="label">Sales Reps 💼</span>
+        <span class="value" id="repsVal">0</span>
+      </div>
+      <div class="stat-pill ambulance">
+        <span class="label">🚑 Ambulance</span>
+        <span class="value" id="ambVal">2:00</span>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-wrap">
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- Toast -->
+      <div id="toast"></div>
+
+      <!-- Start screen overlay -->
+      <div id="startScreen">
+        <div class="start-badge">🏥 Addie Break Room</div>
+        <div class="start-title">Hospital <em>Escape</em></div>
+        <p class="start-sub">Wheel your patient out before the ambulance leaves! Dodge chaos, grab coffee, fire sales reps at admins.</p>
+        <div class="ambulance-countdown">
+          <div class="amb-dot"></div>
+          Ambulance departs in <strong id="startAmbTime">2:00</strong>
+        </div>
+        <div class="start-controls">
+          <div class="ctrl"><kbd>← →</kbd> Move</div>
+          <div class="ctrl"><kbd>↑ Space</kbd> Jump</div>
+          <div class="ctrl"><kbd>Shift</kbd> Coffee boost</div>
+          <div class="ctrl"><kbd>F</kbd> Fire rep 💼</div>
+          <div class="ctrl"><kbd>☕</kbd> +Energy</div>
+          <div class="ctrl"><kbd>💼</kbd> Collect rep</div>
+        </div>
+        <button class="start-btn" id="startBtn">▶ START SHIFT</button>
+        <p style="font-size:0.62rem;color:rgba(255,255,255,0.35);margin:0;">Click anywhere or press any key to start</p>
+      </div>
+    </div>
+
+    <!-- Controls hint -->
+    <div class="controls-hint">
+      <span><kbd>← →</kbd> Move</span>
+      <span class="hint-sep">|</span>
+      <span><kbd>↑</kbd> or <kbd>Space</kbd> Jump</span>
+      <span class="hint-sep">|</span>
+      <span><kbd>Shift</kbd> Coffee Boost</span>
+      <span class="hint-sep">|</span>
+      <span><kbd>F</kbd> Fire Sales Rep</span>
+    </div>
+
+    <!-- Mobile touch controls -->
+    <div class="touch-controls" id="touchControls">
+      <div class="touch-group">
+        <div class="t-btn" id="tLeft">◀</div>
+        <div class="t-btn" id="tRight">▶</div>
+      </div>
+      <div class="touch-center">
+        <div class="t-btn fire" id="tFire">💼</div>
+        <div class="t-btn coffee" id="tBoost">☕</div>
+      </div>
+      <div class="touch-group">
+        <div class="t-btn jump" id="tJump">▲</div>
+      </div>
+    </div>
+
+  </div><!-- /game-card -->
+</div><!-- /page -->
+
+<script>
+/* ════════════════════════════════════════════════
+   FLOW FIELD BACKGROUND (shared brand asset)
+   ════════════════════════════════════════════════ */
+(function(){
+  const bg = document.getElementById('bgCanvas');
+  const bx = bg.getContext('2d');
+  const P_COUNT = 55;
+  const PAL = ['#8BC53F','#185793','#0d4a8a','#6fa030','#3a7fc1','#5da832'];
+  let W,H,pts;
+
+  function resize(){
+    W = bg.width  = window.innerWidth;
+    H = bg.height = window.innerHeight;
+  }
+  function mkPt(){
+    return {
+      x:Math.random()*W, y:Math.random()*H,
+      vx:(Math.random()-.5)*1.2, vy:(Math.random()-.5)*1.2,
+      r:Math.random()*2+1,
+      color:PAL[Math.floor(Math.random()*PAL.length)],
+      angle:Math.random()*Math.PI*2, speed:Math.random()*.6+.3
+    };
+  }
+  function init(){ pts=Array.from({length:P_COUNT},mkPt); }
+  function step(){
+    bx.fillStyle='rgba(255,255,255,0.018)';
+    bx.fillRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.angle+=.018; p.x+=Math.cos(p.angle)*p.speed; p.y+=Math.sin(p.angle)*p.speed;
+      if(p.x<-10)p.x=W+10; if(p.x>W+10)p.x=-10;
+      if(p.y<-10)p.y=H+10; if(p.y>H+10)p.y=-10;
+      bx.beginPath();bx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      bx.fillStyle=p.color;bx.fill();
+    });
+    requestAnimationFrame(step);
+  }
+  window.addEventListener('resize',()=>{resize();init();});
+  resize(); init(); step();
+})();
+
+/* ════════════════════════════════════════════════
+   AMBULANCE COUNTDOWN — SHARED BETWEEN
+   START SCREEN AND HUD
+   ════════════════════════════════════════════════ */
+const TOTAL_AMB_SECONDS = 120; // 2 minutes
+let ambSecondsLeft = TOTAL_AMB_SECONDS;
+let ambInterval = null;
+
+function fmtTime(sec){
+  const m = Math.floor(sec/60);
+  const s = sec%60;
+  return m+':'+(s<10?'0':'')+s;
+}
+
+// Update HUD + start screen display
+function updateAmbDisplay(){
+  const t = fmtTime(ambSecondsLeft);
+  document.getElementById('ambVal').textContent = t;
+  const startEl = document.getElementById('startAmbTime');
+  if(startEl) startEl.textContent = t;
+
+  // Pulse red when under 30s
+  const pill = document.querySelector('.stat-pill.ambulance .value');
+  if(ambSecondsLeft <= 30) pill.style.animation='ambPulse .6s ease-in-out infinite';
+  else pill.style.animation='';
+}
+
+// Called when game actually starts
+function startAmbTimer(onExpire){
+  ambSecondsLeft = TOTAL_AMB_SECONDS;
+  updateAmbDisplay();
+  clearInterval(ambInterval);
+  ambInterval = setInterval(()=>{
+    ambSecondsLeft--;
+    updateAmbDisplay();
+    if(ambSecondsLeft <= 0){
+      clearInterval(ambInterval);
+      onExpire();
+    }
+  }, 1000);
+}
+
+/* ════════════════════════════════════════════════
+   START SCREEN LOGIC
+   ════════════════════════════════════════════════ */
+const startScreen = document.getElementById('startScreen');
+const startBtn    = document.getElementById('startBtn');
+
+// Animate the countdown on start screen before game begins
+let previewInterval = setInterval(()=>{
+  // Just show it ticking — will reset to full when game starts
+}, 1000);
+
+function hideStartScreen(){
+  startScreen.style.transition='opacity .5s';
+  startScreen.style.opacity='0';
+  setTimeout(()=>{ startScreen.style.display='none'; }, 500);
+}
+
+/* ════════════════════════════════════════════════
+   TOAST HELPER
+   ════════════════════════════════════════════════ */
+let toastTimeout = null;
+function showToast(msg, dur=1400){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(()=>t.classList.remove('show'), dur);
+}
+
+/* ════════════════════════════════════════════════
+   CANVAS + GAME ENGINE BOOTSTRAP
+   (Physics, drawing, and game logic added in
+    Sections 2–5)
+   ════════════════════════════════════════════════ */
+const canvas  = document.getElementById('gameCanvas');
+const ctx     = canvas.getContext('2d');
+
+// Fixed internal resolution — 800×350 matches the 16/7 CSS aspect-ratio
+// exactly. CSS stretches the canvas element to fill the wrapper visually,
+// so game coordinates are always consistent regardless of screen size.
+canvas.width  = 800;
+canvas.height = 350;
+
+// Draw a holding frame until game starts
+(function holdFrame(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // Hospital corridor gradient
+  const grad = ctx.createLinearGradient(0,0,0,canvas.height);
+  grad.addColorStop(0,'#0d2a4a');
+  grad.addColorStop(1,'#081829');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // Floor
+  ctx.fillStyle='#1a3a5e';
+  ctx.fillRect(0, canvas.height-40, canvas.width, 40);
+
+  // Ceiling tiles
+  for(let i=0;i<Math.ceil(canvas.width/80);i++){
+    ctx.fillStyle = i%2===0 ? '#0f2840' : '#122d48';
+    ctx.fillRect(i*80,0,80,20);
+  }
+  // Floor tiles
+  for(let i=0;i<Math.ceil(canvas.width/60);i++){
+    ctx.strokeStyle='rgba(255,255,255,0.04)';
+    ctx.strokeRect(i*60, canvas.height-40, 60, 40);
+  }
+})();
+
+// Helper — is the start screen still showing?
+function startScreenVisible(){
+  const ss = document.getElementById('startScreen');
+  return ss && ss.style.display !== 'none' && ss.style.opacity !== '0';
+}
+function doStartGame(){
+  if(!startScreenVisible()) return;
+  hideStartScreen();
+  if(typeof initGame === 'function') initGame();
+}
+
+// Start button click
+startBtn.addEventListener('click', function(e){ e.stopPropagation(); doStartGame(); });
+
+// Click ANYWHERE on the start overlay
+document.getElementById('startScreen').addEventListener('click', doStartGame);
+
+// ANY key press starts the game (except modifier-only keys)
+window.addEventListener('keydown', function(e){
+  const skip = ['Shift','Control','Alt','Meta','CapsLock','Tab'];
+  if(skip.includes(e.key)) return;
+  if(e.key === ' ') e.preventDefault();
+  doStartGame();
+});
+
+/* ════════════════════════════════════════════════
+   SECTION 2 — INPUT, PHYSICS, PLAYER ART, CAMERA
+   ════════════════════════════════════════════════ */
+
+/* ── Key State ── */
+const keys = {
+  left:false, right:false, jump:false,
+  boost:false, fire:false
+};
+let jumpPressedLastFrame = false;
+
+window.addEventListener('keydown', e=>{
+  if(e.key==='ArrowLeft'  || e.key==='a') keys.left  = true;
+  if(e.key==='ArrowRight' || e.key==='d') keys.right = true;
+  if(e.key==='ArrowUp' || e.key===' ' || e.key==='w') keys.jump  = true;
+  if(e.key==='Shift') keys.boost = true;
+  if(e.key==='f' || e.key==='F') { keys.fire = true; }
+  e.key===' ' && e.preventDefault();
+});
+window.addEventListener('keyup', e=>{
+  if(e.key==='ArrowLeft'  || e.key==='a') keys.left  = false;
+  if(e.key==='ArrowRight' || e.key==='d') keys.right = false;
+  if(e.key==='ArrowUp' || e.key===' ' || e.key==='w') keys.jump  = false;
+  if(e.key==='Shift') keys.boost = false;
+  if(e.key==='f' || e.key==='F') keys.fire = false;
+});
+
+/* ── Mobile touch wiring ── */
+function wireTouch(el, key){
+  if(!el) return;
+  el.addEventListener('touchstart', e=>{ e.preventDefault(); keys[key]=true;  }, {passive:false});
+  el.addEventListener('touchend',   e=>{ e.preventDefault(); keys[key]=false; }, {passive:false});
+  el.addEventListener('mousedown',  ()=>keys[key]=true);
+  el.addEventListener('mouseup',    ()=>keys[key]=false);
+}
+wireTouch(document.getElementById('tLeft'),  'left');
+wireTouch(document.getElementById('tRight'), 'right');
+wireTouch(document.getElementById('tJump'),  'jump');
+wireTouch(document.getElementById('tBoost'), 'boost');
+wireTouch(document.getElementById('tFire'),  'fire');
+
+/* ── Player Object ── */
+const GROUND_Y   = 282;   // matches FLOOR_Y — world-space ground surface Y
+const GRAVITY    = 0.65;
+const JUMP_V     = -14;
+const RUN_SPEED  = 4.2;
+const BOOST_MULT = 1.7;   // coffee speed multiplier
+
+const player = {
+  // world position
+  x: 120, y: GROUND_Y,
+  w: 70,  h: 72,        // bounding box (wheelchair width + case manager)
+  vx: 0,  vy: 0,
+  onGround: false,
+  facingRight: true,
+  // states
+  coffeeBoosted: false,
+  boostTimer: 0,
+  invincible: false,
+  invTimer: 0,
+  // animation
+  legFrame: 0,
+  legTick: 0,
+  // collected reps (filled in Section 4)
+  reps: 0,
+};
+
+/* ── Camera ── */
+const cam = { x: 0 };
+
+function updateCamera(){
+  // Keep player roughly 30% from left edge
+  const target = player.x - canvas.width * 0.30;
+  cam.x += (target - cam.x) * 0.12;
+  if(cam.x < 0) cam.x = 0;
+  // max scroll set in Section 3 based on world width
+}
+
+/* ── Physics Update ── */
+function updatePlayer(platforms){
+  // Horizontal
+  let spd = RUN_SPEED * (player.coffeeBoosted ? BOOST_MULT : 1);
+  if(keys.left  && !keys.right){ player.vx = -spd; player.facingRight = false; }
+  else if(keys.right && !keys.left){ player.vx =  spd; player.facingRight = true; }
+  else { player.vx *= 0.75; } // friction
+
+  // Jump — only on fresh press
+  if(keys.jump && !jumpPressedLastFrame && player.onGround){
+    player.vy = JUMP_V;
+    player.onGround = false;
+  }
+  jumpPressedLastFrame = keys.jump;
+
+  // Gravity
+  player.vy += GRAVITY;
+  if(player.vy > 18) player.vy = 18; // terminal velocity
+
+  // Move
+  player.x += player.vx;
+  player.y += player.vy;
+
+  // Left bound
+  if(player.x < 10) { player.x = 10; player.vx = 0; }
+
+  // Platform collisions — swept check so high velocity can't punch through
+  player.onGround = false;
+  if(platforms){
+    for(const p of platforms){
+      // Horizontal overlap
+      if(player.x + player.w <= p.x || player.x >= p.x + p.w) continue;
+      const currBottom = player.y + player.h;
+      const prevBottom = currBottom - player.vy; // where bottom was before this frame's move
+      // Top-surface landing: was above, now at/below platform top
+      if(player.vy >= 0 && prevBottom <= p.y + 1 && currBottom >= p.y){
+        player.y      = p.y - player.h;
+        player.vy     = 0;
+        player.onGround = true;
+      }
+    }
+  }
+
+  // ── SAFETY NET ── catch any fall-through regardless of cause
+  if(player.y + player.h > FLOOR_Y + 60){
+    player.y      = FLOOR_Y - player.h;
+    player.vy     = 0;
+    player.onGround = true;
+  }
+
+  // Coffee boost timer
+  if(player.coffeeBoosted){
+    player.boostTimer--;
+    if(player.boostTimer <= 0) player.coffeeBoosted = false;
+  }
+
+  // Invincibility frames
+  if(player.invincible){
+    player.invTimer--;
+    if(player.invTimer <= 0) player.invincible = false;
+  }
+
+  // Walking animation tick
+  if(Math.abs(player.vx) > 0.5 && player.onGround){
+    player.legTick++;
+    if(player.legTick > 8){ player.legTick=0; player.legFrame=(player.legFrame+1)%2; }
+  } else { player.legFrame=0; player.legTick=0; }
+}
+
+/* ── DRAW PLAYER (Case Manager + Wheelchair + Patient) ── */
+function drawPlayer(){
+  const px = Math.round(player.x - cam.x);
+  const py = Math.round(player.y);
+  const fr = player.facingRight;
+  const flash = player.invincible && Math.floor(Date.now()/80)%2===0;
+  if(flash) return; // blink when invincible
+
+  ctx.save();
+  // Flip if facing left
+  if(!fr){
+    ctx.translate(px + player.w, py);
+    ctx.scale(-1, 1);
+  } else {
+    ctx.translate(px, py);
+  }
+
+  const W = player.w, H = player.h;
+
+  /* ── WHEELCHAIR ── */
+  // Main seat frame (navy blue)
+  ctx.fillStyle = '#1a4a7a';
+  ctx.beginPath();
+  ctx.roundRect(8, H-38, 34, 22, 3);
+  ctx.fill();
+
+  // Back rest
+  ctx.fillStyle = '#1a4a7a';
+  ctx.fillRect(8, H-60, 5, 26);
+
+  // Foot rest
+  ctx.fillStyle = '#2a5a8a';
+  ctx.fillRect(30, H-20, 14, 4);
+
+  // Push handles (extending to the right = behind case manager)
+  ctx.strokeStyle = '#2a5a8a';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(10, H-55); ctx.lineTo(10, H-38); // back upright
+  ctx.stroke();
+
+  // Big rear wheel
+  ctx.strokeStyle = '#222';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(18, H-10, 14, 0, Math.PI*2);
+  ctx.stroke();
+  ctx.strokeStyle='#444'; ctx.lineWidth=1.5;
+  // spokes
+  for(let a=0;a<4;a++){
+    const ang = a*Math.PI/4;
+    ctx.beginPath();
+    ctx.moveTo(18,H-10);
+    ctx.lineTo(18+Math.cos(ang)*12, H-10+Math.sin(ang)*12);
+    ctx.stroke();
+  }
+  ctx.fillStyle='#333';
+  ctx.beginPath(); ctx.arc(18,H-10,3,0,Math.PI*2); ctx.fill();
+
+  // Small front wheel
+  ctx.strokeStyle = '#222'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(38, H-8, 7, 0, Math.PI*2); ctx.stroke();
+  ctx.fillStyle='#333';
+  ctx.beginPath(); ctx.arc(38,H-8,2,0,Math.PI*2); ctx.fill();
+
+  /* ── PATIENT (sitting in wheelchair) ── */
+  // Body — hospital gown (pale blue)
+  ctx.fillStyle = '#b8d4f0';
+  ctx.beginPath();
+  ctx.roundRect(10, H-58, 22, 22, 4);
+  ctx.fill();
+
+  // Head
+  ctx.fillStyle = '#f5d0a9'; // skin tone
+  ctx.beginPath(); ctx.arc(21, H-64, 10, 0, Math.PI*2); ctx.fill();
+
+  // Hair (grey — elderly patient)
+  ctx.fillStyle = '#aaa';
+  ctx.beginPath();
+  ctx.arc(21, H-71, 8, Math.PI, 2*Math.PI);
+  ctx.fill();
+
+  // Patient eyes (tired / resting)
+  ctx.fillStyle='#555';
+  ctx.fillRect(17, H-66, 3, 2);
+  ctx.fillRect(23, H-66, 3, 2);
+
+  // Patient arm (waving)
+  ctx.strokeStyle='#f5d0a9'; ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(10, H-52);
+  ctx.quadraticCurveTo(3, H-58, 2, H-64);
+  ctx.stroke();
+
+  /* ── CASE MANAGER ── */
+  // Positioned to the right side of the chair, pushing
+  const cmX = 38;
+
+  // Legs (animated walking)
+  ctx.fillStyle = '#2d5016'; // dark scrub pants
+  if(player.legFrame===0){
+    ctx.fillRect(cmX+4, H-24, 7, 22);
+    ctx.fillRect(cmX+13, H-24, 7, 22);
+  } else {
+    // Stride
+    ctx.save();
+    ctx.fillRect(cmX+1,  H-24, 7, 20); // back leg
+    ctx.fillRect(cmX+15, H-24, 7, 20); // front leg
+    ctx.restore();
+  }
+  // Shoes
+  ctx.fillStyle='#1a1a1a';
+  ctx.fillRect(cmX+2, H-4, 10, 5);
+  ctx.fillRect(cmX+12, H-4, 10, 5);
+
+  // Body — green scrubs (Addie brand green)
+  ctx.fillStyle = player.coffeeBoosted ? '#a8e040' : '#8BC53F';
+  ctx.beginPath();
+  ctx.roundRect(cmX+2, H-52, 22, 30, 4);
+  ctx.fill();
+
+  // White coat lapels
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  ctx.beginPath();
+  ctx.moveTo(cmX+8, H-52);
+  ctx.lineTo(cmX+13, H-40);
+  ctx.lineTo(cmX+2, H-40);
+  ctx.closePath(); ctx.fill();
+
+  // Badge / ID
+  ctx.fillStyle='#fff';
+  ctx.fillRect(cmX+14, H-48, 7, 9);
+  ctx.fillStyle='#185793';
+  ctx.fillRect(cmX+15, H-47, 5, 2);
+  ctx.fillRect(cmX+15, H-44, 5, 1);
+
+  // Arms — pushing the chair
+  ctx.strokeStyle='#f5d0a9'; ctx.lineWidth=4;
+  ctx.beginPath();
+  ctx.moveTo(cmX+4, H-46);
+  ctx.lineTo(cmX-2, H-42); // left arm → handle
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cmX+4, H-40);
+  ctx.lineTo(cmX-2, H-38); // right arm → handle
+  ctx.stroke();
+
+  // Head
+  ctx.fillStyle='#f5d0a9';
+  ctx.beginPath(); ctx.arc(cmX+13, H-62, 11, 0, Math.PI*2); ctx.fill();
+
+  // Hair (brown)
+  ctx.fillStyle='#6b3a2a';
+  ctx.beginPath();
+  ctx.arc(cmX+13, H-70, 9, Math.PI, 2*Math.PI);
+  ctx.fill();
+  ctx.fillRect(cmX+4, H-68, 18, 6);
+
+  // Eyes
+  ctx.fillStyle='#333';
+  ctx.beginPath(); ctx.arc(cmX+9,  H-63, 2, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cmX+17, H-63, 2, 0, Math.PI*2); ctx.fill();
+
+  // Determined expression (slight smile)
+  ctx.strokeStyle='#333'; ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.arc(cmX+13, H-62, 4, 0.1, Math.PI-0.1);
+  ctx.stroke();
+
+  // Coffee boost glow aura
+  if(player.coffeeBoosted){
+    ctx.shadowColor='#fbbf24';
+    ctx.shadowBlur=18;
+    ctx.strokeStyle='rgba(251,191,36,0.5)';
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.ellipse(cmX+13, H-40, 20, 38, 0, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.shadowBlur=0;
+  }
+
+  ctx.restore();
+}
+
+/* ── HUD ENERGY UPDATE ── */
+function updateEnergyHUD(energy){
+  const fill = document.getElementById('energyFill');
+  fill.style.width = Math.max(0, energy) + '%';
+  fill.className = 'energy-fill';
+  if(energy < 25)      fill.classList.add('low');
+  else if(energy < 55) fill.classList.add('medium');
+}
+
+/* ── SCORE HUD ── */
+function updateScoreHUD(score){
+  document.getElementById('scoreVal').textContent = score;
+}
+
+/* ── REPS HUD ── */
+function updateRepsHUD(reps){
+  document.getElementById('repsVal').textContent = reps;
+}
+
+/* ════════════════════════════════════════════════
+   SECTION 3 — HOSPITAL WORLD, CORRIDOR & OBSTACLES
+   ════════════════════════════════════════════════ */
+
+/* ── WORLD DIMENSIONS ── */
+const WORLD_W  = 3400;   // total level width (world units)
+const FLOOR_Y  = 282;    // top of floor — fits within 800×350 canvas (350-282=68px floor strip)
+const CEIL_Y   = 28;     // bottom of ceiling
+const CAM_MAX  = WORLD_W - 800; // max camera scroll
+
+/* ── PLATFORMS (ground + raised ledges) ── */
+const platforms = [
+  // Main floor — one solid surface the whole way. No pits; obstacles & enemies are the challenge.
+  { x:0, y:FLOOR_Y, w:WORLD_W+200, h:100, type:'floor' },
+
+  // Raised ledges (jump over obstacles or grab coffee)
+  { x:400,  y:FLOOR_Y-90,  w:120, h:16, type:'ledge' },
+  { x:700,  y:FLOOR_Y-120, w:100, h:16, type:'ledge' },
+  { x:1100, y:FLOOR_Y-100, w:130, h:16, type:'ledge' },
+  { x:1400, y:FLOOR_Y-110, w:110, h:16, type:'ledge' },
+  { x:1780, y:FLOOR_Y-95,  w:120, h:16, type:'ledge' },
+  { x:2050, y:FLOOR_Y-130, w:100, h:16, type:'ledge' },
+  { x:2450, y:FLOOR_Y-105, w:130, h:16, type:'ledge' },
+  { x:2750, y:FLOOR_Y-120, w:110, h:16, type:'ledge' },
+];
+
+/* ── OBSTACLES ── */
+// type: 'cabinet' | 'sign' | 'wetfloor' | 'iv_pole' | 'paperstack' | 'cart'
+// 16 obstacles total across 3400px — roughly one every ~210px with clear open gaps
+const obstacles = [
+  // Zone 1  (400–850)
+  { x:440,  y:FLOOR_Y-28, w:22, h:28, type:'wetfloor',  label:null },
+  { x:640,  y:FLOOR_Y-60, w:36, h:60, type:'cabinet',   label:null },
+
+  // Zone 2  (950–1350)
+  { x:980,  y:FLOOR_Y-70, w:12, h:70, type:'iv_pole',   label:null },
+  { x:1140, y:FLOOR_Y-44, w:80, h:44, type:'sign',      label:'MANDATORY\nMEETING →' },
+
+  // Zone 3  (1450–1800)
+  { x:1460, y:FLOOR_Y-30, w:30, h:30, type:'paperstack', label:'PRIOR\nAUTH' },
+  { x:1680, y:FLOOR_Y-52, w:50, h:52, type:'cart',       label:null },
+
+  // Zone 4  (1900–2250)
+  { x:1920, y:FLOOR_Y-60, w:36, h:60, type:'cabinet',   label:null },
+  { x:2100, y:FLOOR_Y-44, w:80, h:44, type:'sign',      label:'COULD\'VE\nBEEN EMAIL' },
+
+  // Zone 5  (2350–2700)
+  { x:2360, y:FLOOR_Y-28, w:22, h:28, type:'wetfloor',  label:null },
+  { x:2520, y:FLOOR_Y-70, w:12, h:70, type:'iv_pole',   label:null },
+  { x:2680, y:FLOOR_Y-30, w:30, h:30, type:'paperstack', label:'PA\nDENIED' },
+
+  // Zone 6  (2800–3200)
+  { x:2840, y:FLOOR_Y-44, w:80, h:44, type:'sign',      label:'STAFF MTG\nNOW!' },
+  { x:3020, y:FLOOR_Y-52, w:50, h:52, type:'cart',      label:null },
+  { x:3180, y:FLOOR_Y-60, w:36, h:60, type:'cabinet',   label:null },
+];
+
+/* ── PARALLAX BACKGROUND LAYERS ── */
+// Painted once per frame at different scroll speeds
+const BG_LAYERS = [
+  { speed: 0.15, drawFn: drawBgFar  },
+  { speed: 0.45, drawFn: drawBgMid  },
+  { speed: 0.75, drawFn: drawBgNear },
+];
+
+/* ── DRAW: FAR BACKGROUND (hospital exterior + sky through windows) ── */
+function drawBgFar(scrollX){
+  const W = canvas.width, H = canvas.height;
+  const ox = -scrollX;
+
+  // Ceiling strip — fluorescent panels
+  ctx.fillStyle = '#e8f4fb';
+  ctx.fillRect(0, 0, W, CEIL_Y);
+
+  // Fluorescent light fixtures
+  for(let lx = (ox % 140); lx < W; lx += 140){
+    ctx.fillStyle = '#fff9e6';
+    ctx.fillRect(lx + 20, 4, 80, 14);
+    ctx.fillStyle = 'rgba(255,249,200,0.25)';
+    ctx.fillRect(lx + 10, 0, 100, CEIL_Y + 30);
+  }
+
+  // Wall — hospital corridor colour (light mint-blue)
+  ctx.fillStyle = '#d6ecf3';
+  ctx.fillRect(0, CEIL_Y, W, H - CEIL_Y);
+
+  // Wainscoting / lower-wall stripe
+  ctx.fillStyle = '#b8d8e8';
+  ctx.fillRect(0, H * 0.55, W, H * 0.12);
+
+  // Repeating windows in far bg
+  for(let wx = ((ox * 0.15) % 280 + 280) % 280; wx < W + 140; wx += 280){
+    // Window frame
+    ctx.fillStyle = '#7ab8d4';
+    ctx.fillRect(wx, 50, 110, 90);
+    // Sky view through window
+    ctx.fillStyle = '#bde4f5';
+    ctx.fillRect(wx + 6, 56, 98, 78);
+    // Ambulance outside!
+    const ambX = wx + 18 + ((Date.now()/12) % 80);
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(ambX, 100, 40, 20);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(ambX + 30, 103, 8, 14);
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath();
+    ctx.arc(ambX + 6, 120, 4, 0, Math.PI*2);
+    ctx.arc(ambX + 34, 120, 4, 0, Math.PI*2);
+    ctx.fill();
+    // Cross symbol
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(ambX + 14, 105, 10, 4);
+    ctx.fillRect(ambX + 17, 102, 4, 10);
+  }
+}
+
+/* ── DRAW: MID BACKGROUND (corridor walls, notice boards) ── */
+function drawBgMid(scrollX){
+  const W = canvas.width, H = canvas.height;
+  const ox = -scrollX;
+
+  // Notice / bulletin boards
+  for(let bx = ((ox * 0.45) % 380 + 380) % 380; bx < W + 160; bx += 380){
+    ctx.fillStyle = '#8b6914';
+    ctx.fillRect(bx, 70, 130, 90);
+    ctx.fillStyle = '#c8a84b';
+    ctx.fillRect(bx + 4, 74, 122, 82);
+    // Pinned papers
+    const notices = [
+      'MANDATORY\nFLU SHOT','STAFF MTG\n9AM SHARP',
+      'PA DENIED\n(again)','NEW EHR\nUPDATE','NO COFFEE\nIN EMR ROOM'
+    ];
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(bx + 8, 78, 50, 36);
+    ctx.fillRect(bx + 66, 78, 50, 36);
+    ctx.fillRect(bx + 37, 120, 50, 28);
+    ctx.font = 'bold 6px Poppins, sans-serif';
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'center';
+    const ni = Math.floor((bx/380))%notices.length;
+    const lines = notices[ni].split('\n');
+    lines.forEach((l,i)=>ctx.fillText(l, bx+33, 90+i*8));
+    ctx.textAlign = 'left';
+  }
+
+  // Hand sanitizer dispensers on wall
+  for(let hx = ((ox * 0.45) % 200 + 200) % 200; hx < W + 30; hx += 200){
+    ctx.fillStyle = '#4a90d9';
+    ctx.beginPath();
+    ctx.roundRect(hx, 115, 18, 28, 3);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(hx + 4, 118, 10, 4);
+  }
+}
+
+/* ── DRAW: NEAR BACKGROUND (floor tiles, wall trim) ── */
+function drawBgNear(scrollX){
+  const W = canvas.width, H = canvas.height;
+  const ox = -scrollX;
+
+  // Floor — linoleum tile pattern
+  ctx.fillStyle = '#e8f0f5';
+  ctx.fillRect(0, FLOOR_Y, W, H - FLOOR_Y);
+
+  const tileSize = 52;
+  const tileOffX = ((ox * 0.75) % tileSize + tileSize) % tileSize - tileSize;
+  for(let tx = tileOffX; tx < W; tx += tileSize){
+    for(let ty = FLOOR_Y; ty < H; ty += tileSize){
+      const col = Math.round((tx - tileOffX)/tileSize) + Math.round((ty - FLOOR_Y)/tileSize);
+      ctx.strokeStyle = 'rgba(180,200,215,0.5)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(tx, ty, tileSize, tileSize);
+      if(col % 7 === 0){
+        ctx.fillStyle = 'rgba(200,215,228,0.4)';
+        ctx.fillRect(tx+1, ty+1, tileSize-2, tileSize-2);
+      }
+    }
+  }
+
+  // Baseboard
+  ctx.fillStyle = '#7ab8d4';
+  ctx.fillRect(0, FLOOR_Y - 8, W, 8);
+
+  // Ceiling edge
+  ctx.fillStyle = '#7ab8d4';
+  ctx.fillRect(0, CEIL_Y, W, 6);
+}
+
+/* ── DRAW: PLATFORMS ── */
+function drawPlatforms(){
+  for(const p of platforms){
+    const sx = p.x - cam.x;
+    if(sx + p.w < 0 || sx > canvas.width) continue;
+
+    if(p.type === 'floor'){
+      // Floor section — same style as near-bg floor
+      ctx.fillStyle = '#d8e8f0';
+      ctx.fillRect(sx, p.y, p.w, p.h);
+      // Top edge stripe
+      ctx.fillStyle = '#7ab8d4';
+      ctx.fillRect(sx, p.y, p.w, 6);
+
+    } else if(p.type === 'ledge'){
+      // Floating ledge — looks like a counter/shelf
+      ctx.fillStyle = '#c5d8e8';
+      ctx.beginPath();
+      ctx.roundRect(sx, p.y, p.w, p.h, 3);
+      ctx.fill();
+      ctx.fillStyle = '#7ab8d4';
+      ctx.fillRect(sx, p.y, p.w, 4);
+      // Shadow underneath
+      ctx.fillStyle = 'rgba(0,0,0,0.1)';
+      ctx.fillRect(sx + 4, p.y + p.h, p.w - 4, 5);
+    }
+  }
+}
+
+/* ── DRAW: OBSTACLES ── */
+function drawObstacles(){
+  for(const o of obstacles){
+    if(o.destroyed) continue;
+    const sx = o.x - cam.x;
+    if(sx + o.w < -20 || sx > canvas.width + 20) continue;
+    const sy = o.y;
+
+    switch(o.type){
+
+      case 'cabinet': {
+        // Metal filing cabinet — grey-blue
+        ctx.fillStyle = '#7a9ab0';
+        ctx.beginPath(); ctx.roundRect(sx, sy, o.w, o.h, 3); ctx.fill();
+        ctx.fillStyle = '#6a8aa0';
+        // Drawer lines
+        [0.3, 0.55, 0.78].forEach(f=>{
+          ctx.fillRect(sx+2, sy + o.h*f, o.w-4, 2);
+          // Drawer pull
+          ctx.fillStyle='#c0d0dc';
+          ctx.fillRect(sx + o.w/2-6, sy + o.h*f - 5, 12, 4);
+          ctx.fillStyle='#6a8aa0';
+        });
+        // Label on top drawer
+        ctx.fillStyle='rgba(255,255,255,0.8)';
+        ctx.fillRect(sx+4, sy+4, o.w-8, 12);
+        ctx.font='bold 5px Poppins,sans-serif';
+        ctx.fillStyle='#334';
+        ctx.textAlign='center';
+        ctx.fillText('FILES', sx + o.w/2, sy+13);
+        ctx.textAlign='left';
+        break;
+      }
+
+      case 'sign': {
+        // Meeting sign — red warning board on a post
+        // Post
+        ctx.fillStyle='#888';
+        ctx.fillRect(sx + o.w/2 - 2, sy + o.h - 2, 4, 20);
+        // Board backing
+        ctx.fillStyle='#dc2626';
+        ctx.beginPath(); ctx.roundRect(sx, sy, o.w, o.h - 6, 5); ctx.fill();
+        // White border
+        ctx.strokeStyle='#fff';
+        ctx.lineWidth=2;
+        ctx.beginPath(); ctx.roundRect(sx+3, sy+3, o.w-6, o.h-12, 3); ctx.stroke();
+        // ⚠ icon
+        ctx.fillStyle='#fbbf24';
+        ctx.font='bold 11px sans-serif';
+        ctx.textAlign='center';
+        ctx.fillText('⚠', sx + o.w/2, sy+14);
+        // Label text
+        ctx.font='bold 6px Poppins,sans-serif';
+        ctx.fillStyle='#fff';
+        const lines = o.label.split('\n');
+        lines.forEach((l,i)=>ctx.fillText(l, sx+o.w/2, sy+22+i*8));
+        ctx.textAlign='left';
+        break;
+      }
+
+      case 'wetfloor': {
+        // Yellow wet floor cone
+        ctx.fillStyle='#fbbf24';
+        ctx.beginPath();
+        ctx.moveTo(sx + o.w/2, sy);
+        ctx.lineTo(sx, sy + o.h);
+        ctx.lineTo(sx + o.w, sy + o.h);
+        ctx.closePath(); ctx.fill();
+        // Stripes
+        ctx.strokeStyle='#dc2626';
+        ctx.lineWidth=1.5;
+        ctx.beginPath();
+        ctx.moveTo(sx+4, sy+10); ctx.lineTo(sx+o.w-4, sy+10);
+        ctx.moveTo(sx+2, sy+18); ctx.lineTo(sx+o.w-2, sy+18);
+        ctx.stroke();
+        // Text
+        ctx.font='bold 5px sans-serif';
+        ctx.fillStyle='#333';
+        ctx.textAlign='center';
+        ctx.fillText('WET', sx+o.w/2, sy+o.h-2);
+        ctx.textAlign='left';
+        break;
+      }
+
+      case 'iv_pole': {
+        // Tall IV drip stand
+        ctx.fillStyle='#aaa';
+        ctx.fillRect(sx+4, sy+8, 4, o.h - 8);   // pole
+        // Base cross
+        ctx.fillRect(sx, sy+o.h-6, o.w, 4);
+        ctx.fillRect(sx+2, sy+o.h-10, o.w-4, 4);
+        // Top hook
+        ctx.strokeStyle='#999'; ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.moveTo(sx+6, sy+8);
+        ctx.lineTo(sx+6, sy);
+        ctx.lineTo(sx+14, sy);
+        ctx.stroke();
+        // IV bag
+        ctx.fillStyle='rgba(180,230,255,0.85)';
+        ctx.beginPath(); ctx.roundRect(sx+8, sy+2, 16, 22, 4); ctx.fill();
+        ctx.strokeStyle='#7ab8d4'; ctx.lineWidth=1;
+        ctx.strokeRect(sx+8, sy+2, 16, 22);
+        // Tube
+        ctx.strokeStyle='rgba(150,200,220,0.8)'; ctx.lineWidth=1.5;
+        ctx.beginPath();
+        ctx.moveTo(sx+16, sy+24);
+        ctx.bezierCurveTo(sx+20, sy+38, sx+8, sy+42, sx+12, sy+o.h-10);
+        ctx.stroke();
+        break;
+      }
+
+      case 'paperstack': {
+        // Stack of papers / prior auth forms
+        const colors = ['#fff','#fef9e7','#fef3c7','#fff'];
+        colors.forEach((c,i)=>{
+          ctx.fillStyle=c;
+          ctx.beginPath();
+          ctx.roundRect(sx + i, sy + i*3, o.w - i*2, (o.h/colors.length)+4, 1);
+          ctx.fill();
+          ctx.strokeStyle='#ccc'; ctx.lineWidth=0.5;
+          ctx.strokeRect(sx+i, sy+i*3, o.w-i*2, (o.h/colors.length)+4);
+        });
+        // Stamp "DENIED"
+        ctx.save();
+        ctx.translate(sx+o.w/2, sy+o.h/2+2);
+        ctx.rotate(-0.3);
+        ctx.font='bold 7px Poppins,sans-serif';
+        ctx.fillStyle='#dc2626';
+        ctx.textAlign='center';
+        ctx.fillText(o.label ? o.label.split('\n')[0] : 'DENIED', 0, 0);
+        if(o.label && o.label.includes('\n'))
+          ctx.fillText(o.label.split('\n')[1], 0, 9);
+        ctx.restore();
+        ctx.textAlign='left';
+        break;
+      }
+
+      case 'cart': {
+        // Medical supply cart (blue)
+        ctx.fillStyle='#2563eb';
+        ctx.beginPath(); ctx.roundRect(sx, sy+8, o.w, o.h-8, 4); ctx.fill();
+        // Drawers
+        ctx.fillStyle='#1d4ed8';
+        [0.35, 0.65].forEach(f=>{
+          ctx.fillRect(sx+3, sy+8+( o.h-8)*f, o.w-6, 2);
+          ctx.fillStyle='#60a5fa';
+          ctx.fillRect(sx+o.w/2-8, sy+8+(o.h-8)*f-5, 16, 4);
+          ctx.fillStyle='#1d4ed8';
+        });
+        // Wheels
+        ctx.fillStyle='#1e293b';
+        [8, o.w-14].forEach(wx=>{
+          ctx.beginPath(); ctx.arc(sx+wx, sy+o.h, 6, 0, Math.PI*2); ctx.fill();
+        });
+        // Red cross on side
+        ctx.fillStyle='#ef4444';
+        ctx.fillRect(sx+o.w/2-5, sy+14, 10, 4);
+        ctx.fillRect(sx+o.w/2-2, sy+11, 4, 10);
+        break;
+      }
+    }
+  }
+}
+
+/* ── DRAW BACKGROUND (all parallax layers) ── */
+function drawBackground(){
+  for(const layer of BG_LAYERS){
+    layer.drawFn(cam.x * layer.speed);
+  }
+}
+
+/* ── EXIT DOOR (the goal!) ── */
+const exitDoor = { x: WORLD_W - 160, y: FLOOR_Y - 120, w: 80, h: 120 };
+
+function drawExitDoor(){
+  const sx = exitDoor.x - cam.x;
+  if(sx + exitDoor.w < 0 || sx > canvas.width) return;
+
+  // Door frame
+  ctx.fillStyle = '#6fa030';
+  ctx.beginPath();
+  ctx.roundRect(sx - 8, exitDoor.y - 8, exitDoor.w + 16, exitDoor.h + 8, 6);
+  ctx.fill();
+  // Door panel
+  ctx.fillStyle = '#8BC53F';
+  ctx.beginPath();
+  ctx.roundRect(sx, exitDoor.y, exitDoor.w, exitDoor.h, 4);
+  ctx.fill();
+  // Door window
+  ctx.fillStyle='rgba(180,230,255,0.7)';
+  ctx.beginPath();
+  ctx.roundRect(sx+18, exitDoor.y+12, 44, 30, 3);
+  ctx.fill();
+  // Ambulance visible through window (flashing)
+  if(Math.floor(Date.now()/400)%2===0){
+    ctx.fillStyle='#dc2626';
+    ctx.fillRect(sx+22, exitDoor.y+16, 36, 22);
+    ctx.fillStyle='#fff';
+    ctx.font='bold 6px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('🚑', sx+40, exitDoor.y+31);
+    ctx.textAlign='left';
+  }
+  // "EXIT" text
+  ctx.font='bold 13px Poppins,sans-serif';
+  ctx.fillStyle='#fff';
+  ctx.textAlign='center';
+  ctx.fillText('EXIT', sx + exitDoor.w/2, exitDoor.y + exitDoor.h - 16);
+  ctx.font='bold 8px Poppins,sans-serif';
+  ctx.fillText('→ AMBULANCE', sx + exitDoor.w/2, exitDoor.y + exitDoor.h - 4);
+  ctx.textAlign='left';
+
+  // Pulsing glow ring
+  const pulse = 0.5 + 0.5 * Math.sin(Date.now()/300);
+  ctx.save();
+  ctx.shadowColor='#8BC53F';
+  ctx.shadowBlur = 16 + pulse * 12;
+  ctx.strokeStyle='rgba(139,197,63,0.5)';
+  ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.roundRect(sx-4, exitDoor.y-4, exitDoor.w+8, exitDoor.h+4, 6);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ── PROGRESS INDICATOR (mini-map strip) ── */
+function drawProgressBar(){
+  const barW = canvas.width - 40;
+  const barH = 6;
+  const barX = 20;
+  const barY = canvas.height - 12;
+
+  // Track
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath(); ctx.roundRect(barX, barY, barW, barH, 3); ctx.fill();
+
+  // Fill
+  const pct = Math.min(1, player.x / (WORLD_W - 200));
+  ctx.fillStyle = '#8BC53F';
+  ctx.beginPath(); ctx.roundRect(barX, barY, barW * pct, barH, 3); ctx.fill();
+
+  // Player dot
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(barX + barW * pct, barY + barH/2, 5, 0, Math.PI*2);
+  ctx.fill();
+
+  // Exit dot
+  ctx.fillStyle = '#8BC53F';
+  ctx.beginPath();
+  ctx.arc(barX + barW - 4, barY + barH/2, 4, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.font='bold 5px sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('🚑', barX + barW, barY + barH/2 + 2);
+  ctx.textAlign='left';
+}
+
+/* ── OBSTACLE COLLISION CHECK ── */
+function checkObstacleCollisions(){
+  for(const o of obstacles){
+    if(o.destroyed) continue;
+    // AABB
+    if( player.x + player.w > o.x + 4 &&
+        player.x < o.x + o.w - 4 &&
+        player.y + player.h > o.y + 4 &&
+        player.y < o.y + o.h ){
+      // Bounce player back
+      player.x -= player.vx * 2;
+      player.vx = 0;
+      return true; // hit
+    }
+  }
+  return false;
+}
+
+/* ── GAME STATE ── */
+let gameRunning  = false;
+let gameEnded    = false;
+let score        = 0;
+let energy       = 100;
+let frameId      = null;
+
+/* ── MAIN GAME LOOP ── */
+/* ── INIT GAME CORE (base reset — Section 4 calls this) ── */
+function _initGameCore(){
+  // Reset state
+  gameEnded    = false;
+  gameRunning  = true;
+  score        = 0;
+  energy       = 100;
+  player.x     = 120;
+  player.y     = FLOOR_Y - player.h;
+  player.vx    = 0;
+  player.vy    = 0;
+  player.reps  = 0;
+  player.coffeeBoosted = false;
+  player.boostTimer    = 0;
+  player.invincible    = false;
+  player.invTimer      = 0;
+  cam.x        = 0;
+
+  // Restore destroyed obstacles
+  obstacles.forEach(o => o.destroyed = false);
+
+  // Start ambulance timer
+  startAmbTimer(()=>{
+    if(!gameEnded && typeof triggerGameOver === 'function')
+      triggerGameOver('ambulance');
+  });
+
+  // Kick off loop
+  if(frameId) cancelAnimationFrame(frameId);
+  gameLoop();
+  showToast('🚑 Get that patient to the ambulance!', 2200);
+}
+
+/* ════════════════════════════════════════════════
+   SECTION 4 — ENEMIES, PATROL AI, SALES REPS & FIRING
+   ════════════════════════════════════════════════ */
+
+/* ── ENEMY DEFINITIONS ── */
+// admin  → slowest, highest drain, triggers "meeting" stun
+// doctor → medium speed, medium drain
+// nurse  → fastest, lowest drain, homing
+const ENEMY_TYPES = {
+  admin:  { color:'#1e3a5f', hatColor:'#0f2040', speed:1.1, drain:22, w:38, h:64, label:'ADMIN',   stunDur:180 },
+  doctor: { color:'#ffffff', hatColor:'#185793', speed:1.6, drain:10, w:34, h:60, label:'DOCTOR',  stunDur:60  },
+  nurse:  { color:'#ff6eb4', hatColor:'#c0305a', speed:2.1, drain:5,  w:30, h:56, label:'NURSE',   stunDur:40  },
+};
+
+/* ── ENEMY SPAWN LIST ── */
+let enemies = [
+  // Admins — 4 spread across the level, each guarding a major zone
+  { type:'admin',  x:780,  y:0, dir:-1, alive:true, stun:0, walkTick:0, walkFrame:0 },
+  { type:'admin',  x:1550, y:0, dir:1,  alive:true, stun:0, walkTick:0, walkFrame:0 },
+  { type:'admin',  x:2300, y:0, dir:-1, alive:true, stun:0, walkTick:0, walkFrame:0 },
+  { type:'admin',  x:3050, y:0, dir:1,  alive:true, stun:0, walkTick:0, walkFrame:0 },
+  // Doctors — 3, one per major section
+  { type:'doctor', x:500,  y:0, dir:-1, alive:true, stun:0, walkTick:0, walkFrame:0 },
+  { type:'doctor', x:1900, y:0, dir:1,  alive:true, stun:0, walkTick:0, walkFrame:0 },
+  { type:'doctor', x:2750, y:0, dir:-1, alive:true, stun:0, walkTick:0, walkFrame:0 },
+  // Nurses — 5, spaced with clear gaps between them
+  { type:'nurse',  x:340,  y:0, dir:1,  alive:true, stun:0, walkTick:0, walkFrame:0 },
+  { type:'nurse',  x:1100, y:0, dir:-1, alive:true, stun:0, walkTick:0, walkFrame:0 },
+  { type:'nurse',  x:1720, y:0, dir:1,  alive:true, stun:0, walkTick:0, walkFrame:0 },
+  { type:'nurse',  x:2520, y:0, dir:-1, alive:true, stun:0, walkTick:0, walkFrame:0 },
+  { type:'nurse',  x:3200, y:0, dir:1,  alive:true, stun:0, walkTick:0, walkFrame:0 },
+];
+
+// Snap all enemies to ground on init
+enemies.forEach(e => {
+  const def = ENEMY_TYPES[e.type];
+  e.y = FLOOR_Y - def.h;
+  e.w = def.w;
+  e.h = def.h;
+  e.patrolMin = Math.max(0,    e.x - 160);
+  e.patrolMax = Math.min(WORLD_W, e.x + 160);
+});
+
+/* ── SALES REP COLLECTIBLES ── */
+let salesReps = [
+  // 8 reps total — one per major zone, well-spaced
+  { x:360,  y:FLOOR_Y-32, collected:false },
+  { x:860,  y:FLOOR_Y-32, collected:false },
+  { x:1300, y:FLOOR_Y-32, collected:false },
+  { x:1820, y:FLOOR_Y-32, collected:false },
+  { x:2200, y:FLOOR_Y-32, collected:false },
+  { x:2680, y:FLOOR_Y-32, collected:false },
+  { x:3050, y:FLOOR_Y-32, collected:false },
+  // One on a ledge as a bonus
+  { x:1120, y:FLOOR_Y-100-32, collected:false },
+];
+const REP_W = 24, REP_H = 32;
+
+/* ── COFFEE POWER-UPS ── */
+let coffees = [
+  // 6 coffees total — treat them as meaningful rewards, not wallpaper
+  { x:580,  y:FLOOR_Y-40, collected:false },
+  { x:1150, y:FLOOR_Y-40, collected:false },
+  { x:1680, y:FLOOR_Y-40, collected:false },
+  { x:2350, y:FLOOR_Y-40, collected:false },
+  { x:2880, y:FLOOR_Y-40, collected:false },
+  // One on a ledge as a bonus
+  { x:2060, y:FLOOR_Y-130-30, collected:false },
+];
+const COFFEE_W = 22, COFFEE_H = 28;
+const COFFEE_BOOST_FRAMES = 300; // 5s at 60fps
+
+/* ── FIRED PROJECTILES (sales reps launched at enemies) ── */
+let projectiles = [];
+let fireCooldown = 0;
+let firePressedLast = false;
+
+function fireSalesRep(){
+  if(player.reps <= 0) { showToast('💼 No sales reps! Collect some first.', 1200); return; }
+  if(fireCooldown > 0) return;
+  player.reps--;
+  updateRepsHUD(player.reps);
+  fireCooldown = 28; // frames before next shot
+  projectiles.push({
+    x: player.x + (player.facingRight ? player.w : 0),
+    y: player.y + 20,
+    vx: player.facingRight ? 11 : -11,
+    vy: -2,
+    alive: true,
+    frame: 0,
+  });
+  showToast('💼 Sales rep launched!', 900);
+}
+
+/* ── UPDATE ENEMIES ── */
+// meeting stun state for player
+let playerStunned = 0;    // frames remaining in meeting stun
+let playerStunType = '';  // which enemy type caused it
+
+function updateEnemies(){
+  for(const e of enemies){
+    if(!e.alive) continue;
+    const def = ENEMY_TYPES[e.type];
+
+    // Walk animation
+    e.walkTick++;
+    if(e.walkTick > 10){ e.walkTick=0; e.walkFrame=(e.walkFrame+1)%2; }
+
+    // Stun — frozen while showing speech bubble
+    if(e.stun > 0){ e.stun--; continue; }
+
+    // Chase logic: if player within 160px, home in; else patrol
+    const dist = player.x - e.x;
+    if(Math.abs(dist) < 160){
+      e.dir = dist > 0 ? 1 : -1;
+    } else {
+      // Patrol bounce
+      if(e.x <= e.patrolMin) e.dir =  1;
+      if(e.x >= e.patrolMax) e.dir = -1;
+    }
+    e.x += e.dir * def.speed;
+
+    // Keep on floor
+    e.y = FLOOR_Y - def.h;
+  }
+}
+
+/* ── UPDATE PROJECTILES ── */
+function updateProjectiles(){
+  for(const p of projectiles){
+    if(!p.alive) continue;
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.vy += 0.3; // slight arc
+    p.frame++;
+
+    // Off screen
+    if(p.x < cam.x - 60 || p.x > cam.x + canvas.width + 60 || p.y > FLOOR_Y + 20){
+      p.alive = false; continue;
+    }
+
+    // Hit enemy?
+    for(const e of enemies){
+      if(!e.alive) continue;
+      if( p.x > e.x && p.x < e.x + e.w && p.y > e.y && p.y < e.y + e.h ){
+        p.alive = false;
+        e.alive = false;
+        score += e.type === 'admin' ? 500 : e.type === 'doctor' ? 200 : 100;
+        updateScoreHUD(score);
+        showToast(
+          e.type==='admin'  ? '🎉 Admin distracted! +500' :
+          e.type==='doctor' ? '💉 Doctor dodged! +200'   :
+                              '🩺 Nurse sidestepped! +100', 1100
+        );
+        spawnPopText(e.x - cam.x, e.y, e.type==='admin' ? '+500' : e.type==='doctor' ? '+200' : '+100', '#8BC53F');
+        break;
+      }
+    }
+  }
+  // Cooldown
+  if(fireCooldown > 0) fireCooldown--;
+
+  // Handle fire key (fresh press only)
+  if(keys.fire && !firePressedLast) fireSalesRep();
+  firePressedLast = keys.fire;
+}
+
+/* ── CHECK ENEMY → PLAYER COLLISIONS ── */
+function checkEnemyCollisions(){
+  if(player.invincible || playerStunned > 0) return;
+  for(const e of enemies){
+    if(!e.alive) continue;
+    const def = ENEMY_TYPES[e.type];
+    // Overlap check (slightly generous hitbox)
+    if( player.x + player.w - 8 > e.x + 4 &&
+        player.x + 8 < e.x + e.w - 4 &&
+        player.y + player.h > e.y + 8 &&
+        player.y < e.y + e.h ){
+
+      if(e.type === 'admin'){
+        // MEETING STUN — freeze player, drain big energy chunk
+        playerStunned   = def.stunDur;
+        playerStunType  = 'admin';
+        energy = Math.max(0, energy - def.drain);
+        player.vx = 0; player.vy = 0;
+        e.stun = def.stunDur + 20;
+        showToast('📋 Pulled into a meeting! Energy lost!', 1800);
+        spawnPopText(player.x - cam.x + 10, player.y - 10, 'MEETING!', '#dc2626');
+      } else {
+        // Doctor / Nurse — energy drain + invincibility frames
+        energy = Math.max(0, energy - def.drain);
+        player.invincible = true;
+        player.invTimer   = 80;
+        player.vx = player.facingRight ? -3 : 3; // knockback
+        player.vy = -4;
+        spawnPopText(player.x - cam.x + 10, player.y - 10,
+          e.type==='doctor' ? '-10 ⚕️' : '-5 🩺', '#f87171');
+      }
+    }
+  }
+}
+
+/* ── COLLECT SALES REPS ── */
+function checkRepCollisions(){
+  for(const r of salesReps){
+    if(r.collected) continue;
+    if( player.x + player.w > r.x &&
+        player.x < r.x + REP_W &&
+        player.y + player.h > r.y &&
+        player.y < r.y + REP_H ){
+      r.collected = true;
+      player.reps++;
+      updateRepsHUD(player.reps);
+      score += 25;
+      showToast('💼 Sales rep collected! Press F to fire.', 1100);
+      spawnPopText(r.x - cam.x, r.y, '+1 💼', '#185793');
+    }
+  }
+}
+
+/* ── COLLECT COFFEE ── */
+function checkCoffeeCollisions(){
+  for(const c of coffees){
+    if(c.collected) continue;
+    if( player.x + player.w > c.x &&
+        player.x < c.x + COFFEE_W &&
+        player.y + player.h > c.y &&
+        player.y < c.y + COFFEE_H ){
+      c.collected = true;
+      energy = Math.min(100, energy + 30);
+      player.coffeeBoosted = true;
+      player.boostTimer    = COFFEE_BOOST_FRAMES;
+      score += 50;
+      updateEnergyHUD(energy);
+      showToast('☕ Coffee boost! Speed up!', 1200);
+      spawnPopText(c.x - cam.x, c.y, '+30 ☕', '#fbbf24');
+    }
+  }
+}
+
+/* ── POP-TEXT PARTICLES ── */
+const popTexts = [];
+function spawnPopText(sx, sy, text, color){
+  popTexts.push({ sx, sy, text, color, life:55, vy:-1.2 });
+}
+function updateDrawPopTexts(){
+  for(let i = popTexts.length-1; i>=0; i--){
+    const p = popTexts[i];
+    p.sy += p.vy; p.life--;
+    if(p.life <= 0){ popTexts.splice(i,1); continue; }
+    ctx.globalAlpha = Math.min(1, p.life/20);
+    ctx.font = 'bold 13px Poppins,sans-serif';
+    ctx.fillStyle = p.color;
+    ctx.textAlign = 'center';
+    ctx.fillText(p.text, p.sx, p.sy);
+    ctx.globalAlpha = 1;
+    ctx.textAlign = 'left';
+  }
+}
+
+/* ── DRAW: SALES REP COLLECTIBLE (briefcase person) ── */
+function drawSalesReps(){
+  const bounce = Math.sin(Date.now()/300) * 3;
+  for(const r of salesReps){
+    if(r.collected) continue;
+    const sx = r.x - cam.x;
+    if(sx + REP_W < -20 || sx > canvas.width + 20) continue;
+    const sy = r.y + bounce;
+
+    // Body — suit (dark navy)
+    ctx.fillStyle = '#1e3a5f';
+    ctx.beginPath(); ctx.roundRect(sx+4, sy+12, 16, 18, 3); ctx.fill();
+    // Tie
+    ctx.fillStyle='#dc2626';
+    ctx.beginPath();
+    ctx.moveTo(sx+12, sy+13); ctx.lineTo(sx+10, sy+22); ctx.lineTo(sx+14, sy+22);
+    ctx.closePath(); ctx.fill();
+    // Head
+    ctx.fillStyle='#f5d0a9';
+    ctx.beginPath(); ctx.arc(sx+12, sy+8, 7, 0, Math.PI*2); ctx.fill();
+    // Hair
+    ctx.fillStyle='#4a2c0a';
+    ctx.beginPath(); ctx.arc(sx+12, sy+3, 6, Math.PI, 2*Math.PI); ctx.fill();
+    // Smile (cheesy sales grin)
+    ctx.strokeStyle='#333'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.arc(sx+12, sy+8, 3, 0.2, Math.PI-0.2); ctx.stroke();
+    // Briefcase
+    ctx.fillStyle='#8b6914';
+    ctx.beginPath(); ctx.roundRect(sx+14, sy+20, 10, 8, 2); ctx.fill();
+    ctx.strokeStyle='#c8a84b'; ctx.lineWidth=1;
+    ctx.strokeRect(sx+14, sy+20, 10, 8);
+    ctx.fillStyle='#c8a84b';
+    ctx.fillRect(sx+17, sy+18, 4, 3);
+    // Glow ring
+    ctx.strokeStyle='rgba(24,87,147,0.4)';
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(sx+12, sy+16, 16, 0, Math.PI*2); ctx.stroke();
+    // Label
+    ctx.font='bold 7px Poppins,sans-serif';
+    ctx.fillStyle='#185793'; ctx.textAlign='center';
+    ctx.fillText('💼', sx+12, sy-4);
+    ctx.textAlign='left';
+  }
+}
+
+/* ── DRAW: COFFEE CUP COLLECTIBLE ── */
+function drawCoffees(){
+  const bounce = Math.sin(Date.now()/250 + 1) * 3;
+  for(const c of coffees){
+    if(c.collected) continue;
+    const sx = c.x - cam.x;
+    if(sx + COFFEE_W < -20 || sx > canvas.width + 20) continue;
+    const sy = c.y + bounce;
+
+    // Cup body
+    ctx.fillStyle='#6b3a1f';
+    ctx.beginPath();
+    ctx.moveTo(sx+3, sy+6);
+    ctx.lineTo(sx+5, sy+COFFEE_H);
+    ctx.lineTo(sx+COFFEE_W-5, sy+COFFEE_H);
+    ctx.lineTo(sx+COFFEE_W-3, sy+6);
+    ctx.closePath(); ctx.fill();
+    // Sleeve
+    ctx.fillStyle='#8BC53F';
+    ctx.fillRect(sx+3, sy+12, COFFEE_W-6, 10);
+    // Lid
+    ctx.fillStyle='#333';
+    ctx.beginPath(); ctx.roundRect(sx+1, sy+4, COFFEE_W-2, 6, 2); ctx.fill();
+    // Steam wisps
+    const t = Date.now()/400;
+    ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=1.5;
+    [sx+7, sx+12, sx+17].forEach((wx,i)=>{
+      ctx.beginPath();
+      ctx.moveTo(wx, sy+3);
+      ctx.quadraticCurveTo(wx+Math.sin(t+i)*4, sy-4, wx, sy-10);
+      ctx.stroke();
+    });
+    // Logo "A" on sleeve
+    ctx.font='bold 8px Poppins,sans-serif';
+    ctx.fillStyle='#fff'; ctx.textAlign='center';
+    ctx.fillText('A', sx+COFFEE_W/2, sy+20);
+    // Glow
+    ctx.strokeStyle='rgba(251,191,36,0.4)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(sx+COFFEE_W/2, sy+14, 15, 0, Math.PI*2); ctx.stroke();
+    ctx.textAlign='left';
+  }
+}
+
+/* ── DRAW: ENEMY CHARACTERS ── */
+function drawEnemies(){
+  for(const e of enemies){
+    if(!e.alive) continue;
+    const sx = e.x - cam.x;
+    if(sx + e.w < -20 || sx > canvas.width + 20) continue;
+    const def = ENEMY_TYPES[e.type];
+    const sy = e.y;
+    const stunned = e.stun > 0;
+    const facingR = e.dir >= 0;
+
+    ctx.save();
+    if(!facingR){ ctx.translate(sx+e.w, sy); ctx.scale(-1,1); }
+    else         { ctx.translate(sx, sy); }
+
+    const W=e.w, H=e.h;
+
+    if(e.type === 'admin'){
+      /* ADMIN — dark navy suit, clipboard, menacing */
+      // Legs
+      ctx.fillStyle='#0f1e38';
+      const leg = e.walkFrame===0;
+      ctx.fillRect(4, H-26, 10, 24);  // left leg
+      ctx.fillRect(18,H-26, 10, 24);  // right leg
+      if(leg){ ctx.fillRect(2, H-10, 12, 8); }
+      else    { ctx.fillRect(16,H-10, 12, 8); }
+      // Shoes
+      ctx.fillStyle='#111';
+      ctx.fillRect(2, H-5, 14, 6);
+      ctx.fillRect(16,H-5, 14, 6);
+      // Body — dark suit
+      ctx.fillStyle='#1e3a5f';
+      ctx.beginPath(); ctx.roundRect(2, H-54, W-4, 30, 3); ctx.fill();
+      // White shirt & tie
+      ctx.fillStyle='#e8eef5';
+      ctx.fillRect(W/2-4, H-53, 8, 26);
+      ctx.fillStyle='#dc2626';
+      ctx.beginPath();
+      ctx.moveTo(W/2, H-52); ctx.lineTo(W/2-3,H-38); ctx.lineTo(W/2+3,H-38);
+      ctx.closePath(); ctx.fill();
+      // Clipboard
+      ctx.fillStyle='#c8a84b';
+      ctx.beginPath(); ctx.roundRect(W-14, H-48, 14, 18, 2); ctx.fill();
+      ctx.fillStyle='#fff';
+      ctx.fillRect(W-13, H-46, 12, 14);
+      ctx.fillStyle='#333'; ctx.font='4px sans-serif';
+      ['────','────','────','────'].forEach((l,i)=>ctx.fillText(l,W-13,H-43+i*4));
+      // Head
+      ctx.fillStyle='#f0c89a';
+      ctx.beginPath(); ctx.arc(W/2, H-62, 12, 0, Math.PI*2); ctx.fill();
+      // Hair (slicked back)
+      ctx.fillStyle='#111';
+      ctx.beginPath(); ctx.arc(W/2, H-71, 10, Math.PI, 2*Math.PI); ctx.fill();
+      ctx.fillRect(W/2-10, H-72, 20, 6);
+      // Eyes — stern
+      ctx.fillStyle='#1a1a1a';
+      ctx.fillRect(W/2-6, H-65, 4, 3);
+      ctx.fillRect(W/2+2, H-65, 4, 3);
+      // Frown
+      ctx.strokeStyle='#333'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(W/2, H-58, 4, Math.PI+0.3, 2*Math.PI-0.3); ctx.stroke();
+      // Name badge
+      ctx.fillStyle='#fff'; ctx.fillRect(4, H-50, 14, 10);
+      ctx.fillStyle='#185793'; ctx.font='bold 4px sans-serif';
+      ctx.textAlign='center'; ctx.fillText('ADMIN', 11, H-43); ctx.textAlign='left';
+
+    } else if(e.type === 'doctor'){
+      /* DOCTOR — white coat, stethoscope */
+      // Legs
+      ctx.fillStyle='#2a4a6a';
+      ctx.fillRect(3, H-24, 9, 22);
+      ctx.fillRect(16,H-24, 9, 22);
+      ctx.fillStyle='#111';
+      ctx.fillRect(1, H-4, 12, 5);
+      ctx.fillRect(15,H-4, 12, 5);
+      // Body — white coat
+      ctx.fillStyle='#f0f4f8';
+      ctx.beginPath(); ctx.roundRect(1, H-50, W-2, 28, 3); ctx.fill();
+      // Lapels
+      ctx.fillStyle='#2563eb';
+      ctx.fillRect(W/2-3, H-50, 6, 22);
+      // Stethoscope
+      ctx.strokeStyle='#444'; ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.moveTo(W/2, H-46);
+      ctx.quadraticCurveTo(W-4, H-40, W-4, H-30);
+      ctx.stroke();
+      ctx.fillStyle='#666';
+      ctx.beginPath(); ctx.arc(W-4, H-28, 3, 0, Math.PI*2); ctx.fill();
+      // Pocket pen
+      ctx.fillStyle='#185793';
+      ctx.fillRect(4, H-48, 2, 10);
+      ctx.fillRect(6, H-48, 2, 10);
+      // Head
+      ctx.fillStyle='#f5c89a';
+      ctx.beginPath(); ctx.arc(W/2, H-58, 10, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle='#5a3010';
+      ctx.beginPath(); ctx.arc(W/2, H-66, 8, Math.PI, 2*Math.PI); ctx.fill();
+      ctx.fillStyle='#2a2a2a';
+      ctx.fillRect(W/2-4,H-61,3,3); ctx.fillRect(W/2+1,H-61,3,3);
+      ctx.strokeStyle='#444'; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.arc(W/2, H-56, 3, 0.1, Math.PI-0.1); ctx.stroke();
+
+    } else {
+      /* NURSE — pink scrubs, cap */
+      // Legs
+      ctx.fillStyle='#c0305a';
+      ctx.fillRect(2, H-22, 8, 20);
+      ctx.fillRect(14,H-22, 8, 20);
+      ctx.fillStyle='#111';
+      ctx.fillRect(0, H-4, 11, 5);
+      ctx.fillRect(13,H-4, 11, 5);
+      // Body — pink scrubs
+      ctx.fillStyle='#ff6eb4';
+      ctx.beginPath(); ctx.roundRect(1, H-46, W-2, 26, 3); ctx.fill();
+      // White cross
+      ctx.fillStyle='#fff';
+      ctx.fillRect(W/2-5, H-40, 10, 4);
+      ctx.fillRect(W/2-2, H-43, 4, 10);
+      // Head
+      ctx.fillStyle='#f5c89a';
+      ctx.beginPath(); ctx.arc(W/2, H-54, 9, 0, Math.PI*2); ctx.fill();
+      // Nurse cap
+      ctx.fillStyle='#fff';
+      ctx.beginPath();
+      ctx.moveTo(W/2-10, H-60);
+      ctx.lineTo(W/2+10, H-60);
+      ctx.lineTo(W/2+8,  H-66);
+      ctx.lineTo(W/2-8,  H-66);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#c0305a';
+      ctx.fillRect(W/2-2, H-65, 4, 4);
+      // Eyes
+      ctx.fillStyle='#222';
+      ctx.fillRect(W/2-4,H-56,3,3); ctx.fillRect(W/2+1,H-56,3,3);
+    }
+
+    // STUN speech bubble — "Got a minute?" / "Meeting time!"
+    if(stunned){
+      const bubW = 90, bubH = 28;
+      const bx = W/2 - bubW/2;
+      const by = -38;
+      ctx.fillStyle='#fff';
+      ctx.beginPath(); ctx.roundRect(bx, by, bubW, bubH, 6); ctx.fill();
+      ctx.strokeStyle='#dc2626'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(bx, by, bubW, bubH, 6); ctx.stroke();
+      // Tail
+      ctx.fillStyle='#fff';
+      ctx.beginPath();
+      ctx.moveTo(W/2-5, by+bubH);
+      ctx.lineTo(W/2+5, by+bubH);
+      ctx.lineTo(W/2,   by+bubH+8);
+      ctx.closePath(); ctx.fill();
+      const msgs = ['Got a minute?','Quick meeting!','Syncing up?','Let\'s align!','Touch base?'];
+      const msg = msgs[Math.floor(e.x/300)%msgs.length];
+      ctx.font='bold 7px Poppins,sans-serif';
+      ctx.fillStyle='#dc2626'; ctx.textAlign='center';
+      ctx.fillText(msg, W/2, by+12);
+      ctx.fillStyle='#666'; ctx.font='6px sans-serif';
+      ctx.fillText('📋 This could\'ve been an email', W/2, by+23);
+      ctx.textAlign='left';
+    }
+
+    ctx.restore();
+  }
+}
+
+/* ── DRAW: PROJECTILE (flying sales rep) ── */
+function drawProjectiles(){
+  for(const p of projectiles){
+    if(!p.alive) continue;
+    const sx = p.x - cam.x;
+    const rotation = p.vx > 0 ? p.frame * 0.3 : -p.frame * 0.3;
+    ctx.save();
+    ctx.translate(sx, p.y);
+    ctx.rotate(rotation);
+    // Tiny flying sales rep
+    ctx.fillStyle='#1e3a5f';
+    ctx.beginPath(); ctx.roundRect(-8,-10,16,14,2); ctx.fill();
+    ctx.fillStyle='#f5d0a9';
+    ctx.beginPath(); ctx.arc(0,-14,6,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#8b6914';
+    ctx.beginPath(); ctx.roundRect(-5,-8,10,6,1); ctx.fill();
+    // Speed lines
+    ctx.strokeStyle='rgba(139,197,63,0.5)'; ctx.lineWidth=1.5;
+    const dir = p.vx > 0 ? 1 : -1;
+    [-8,-14,-20].forEach(ox=>{
+      ctx.beginPath();
+      ctx.moveTo(-dir*12 + ox*dir, -12+ox/4);
+      ctx.lineTo(-dir*18 + ox*dir, -12+ox/4);
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+}
+
+/* ── DRAW: MEETING STUN OVERLAY ── */
+function drawStunOverlay(){
+  if(playerStunned <= 0) return;
+  playerStunned--;
+
+  // Dim overlay
+  ctx.fillStyle='rgba(220,38,38,0.18)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // Big speech bubble centred on screen
+  const bw=320, bh=90;
+  const bx=(canvas.width-bw)/2, by=40;
+  ctx.fillStyle='rgba(255,255,255,0.97)';
+  ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,10); ctx.fill();
+  ctx.strokeStyle='#dc2626'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,10); ctx.stroke();
+  ctx.font='bold 14px Poppins,sans-serif';
+  ctx.fillStyle='#dc2626'; ctx.textAlign='center';
+  ctx.fillText('📋 MANDATORY MEETING IN PROGRESS', canvas.width/2, by+24);
+  ctx.font='11px Poppins,sans-serif';
+  ctx.fillStyle='#475569';
+  ctx.fillText('"This could\'ve been an email."', canvas.width/2, by+46);
+  ctx.fillText('Press any direction to break free!', canvas.width/2, by+64);
+  // Progress bar showing time remaining
+  const pct = playerStunned / ENEMY_TYPES.admin.stunDur;
+  ctx.fillStyle='#f1f5f9';
+  ctx.fillRect(bx+20, by+74, bw-40, 8);
+  ctx.fillStyle='#dc2626';
+  ctx.fillRect(bx+20, by+74, (bw-40)*pct, 8);
+  ctx.textAlign='left';
+
+  // Break free on movement
+  if(keys.left || keys.right || keys.jump) playerStunned = 0;
+}
+
+/* ── GAME LOOP (single authoritative version) ── */
+function gameLoop(){
+  if(!gameRunning) return;
+  frameId = requestAnimationFrame(gameLoop);
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // World
+  drawBackground();
+  drawPlatforms();
+  drawObstacles();
+  drawExitDoor();
+
+  // Collectibles
+  drawSalesReps();
+  drawCoffees();
+
+  // Enemies & projectiles
+  drawEnemies();
+  drawProjectiles();
+
+  // Physics
+  updatePlayer(platforms);
+  updateCamera();
+  if(cam.x > CAM_MAX) cam.x = CAM_MAX;
+
+  // Collision checks
+  checkObstacleCollisions();
+  checkRepCollisions();
+  checkCoffeeCollisions();
+  checkEnemyCollisions();
+
+  // AI
+  updateEnemies();
+  updateProjectiles();
+
+  // Player on top
+  drawPlayer();
+
+  // Stun overlay (admin meeting)
+  drawStunOverlay();
+
+  // Pop texts
+  updateDrawPopTexts();
+
+  // Progress bar
+  drawProgressBar();
+
+  // Passive energy drain
+  energy = Math.max(0, energy - 0.018);
+  updateEnergyHUD(energy);
+  updateScoreHUD(score);
+  updateRepsHUD(player.reps);
+
+  // Distance score
+  score = Math.max(score, Math.floor(player.x / 10));
+
+  // Game-over / win checks
+  if(energy <= 0 && !gameEnded){
+    if(typeof triggerGameOver === 'function') triggerGameOver('energy');
+  }
+  if( player.x + player.w > exitDoor.x &&
+      player.y + player.h > exitDoor.y &&
+      player.y < exitDoor.y + exitDoor.h &&
+      !gameEnded ){
+    if(typeof triggerWin === 'function') triggerWin();
+  }
+}
+
+/* ── INIT GAME (single authoritative version — called by start button & Play Again) ── */
+function initGame(){
+  // Reset enemies
+  enemies.forEach(e=>{
+    e.alive=true; e.stun=0; e.walkTick=0; e.walkFrame=0;
+    const def = ENEMY_TYPES[e.type];
+    e.y = FLOOR_Y - def.h;
+  });
+  // Reset collectibles
+  salesReps.forEach(r=>r.collected=false);
+  coffees.forEach(c=>c.collected=false);
+  // Reset projectiles
+  projectiles.length = 0;
+  fireCooldown = 0;
+  firePressedLast = false;
+  playerStunned = 0;
+  popTexts.length = 0;
+
+  // Run core state reset + kick off loop
+  _initGameCore();
+}
+
+/* ════════════════════════════════════════════════
+   SECTION 5 — WIN / GAME-OVER SCREENS & HIGH SCORE
+   ════════════════════════════════════════════════ */
+
+/* ── HIGH SCORE (session memory — no localStorage per policy) ── */
+let sessionHighScore = 0;
+let sessionBestTime  = null; // seconds to win
+
+/* ── GRADE CALCULATOR ── */
+function calcGrade(pct){
+  if(pct >= 0.90) return { letter:'A+', label:'Discharge Champion!',   color:'#8BC53F' };
+  if(pct >= 0.80) return { letter:'A',  label:'Expert Case Manager',    color:'#6fa030' };
+  if(pct >= 0.70) return { letter:'B',  label:'Solid Escape!',          color:'#185793' };
+  if(pct >= 0.55) return { letter:'C',  label:'Made It — Barely',       color:'#d97706' };
+  return               { letter:'D',  label:'Prior Auth Delayed You',   color:'#dc2626' };
+}
+
+/* ── END-GAME OVERLAY (shared canvas draw) ── */
+function drawEndOverlay(cfg){
+  // Dark backdrop
+  ctx.fillStyle = 'rgba(8,24,41,0.92)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  const cx = canvas.width/2;
+  const cy = canvas.height/2;
+
+  // Card
+  const cw=Math.min(480, canvas.width-32), ch=260;
+  const cx0=cx-cw/2, cy0=cy-ch/2;
+  ctx.fillStyle='#0d2a4a';
+  ctx.beginPath(); ctx.roundRect(cx0,cy0,cw,ch,16); ctx.fill();
+  ctx.strokeStyle=cfg.borderColor; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.roundRect(cx0,cy0,cw,ch,16); ctx.stroke();
+
+  // Emoji / icon
+  ctx.font=`${Math.min(52,cw*0.11)}px sans-serif`;
+  ctx.textAlign='center';
+  ctx.fillText(cfg.emoji, cx, cy0+52);
+
+  // Title
+  ctx.font=`bold ${Math.min(22,cw*0.046)}px Poppins,sans-serif`;
+  ctx.fillStyle=cfg.titleColor;
+  ctx.fillText(cfg.title, cx, cy0+82);
+
+  // Subtitle
+  ctx.font=`${Math.min(12,cw*0.027)}px Poppins,sans-serif`;
+  ctx.fillStyle='rgba(255,255,255,0.65)';
+  ctx.fillText(cfg.subtitle, cx, cy0+103);
+
+  // Stat row — score | reps fired | time
+  const statY = cy0+130;
+  const cols   = [cx-cw*0.28, cx, cx+cw*0.28];
+  const labels = ['SCORE', 'REPS FIRED', 'TIME'];
+  const vals   = [cfg.score, cfg.repsFired, cfg.timeStr];
+  cols.forEach((bx,i)=>{
+    ctx.font=`bold ${Math.min(20,cw*0.042)}px Poppins,sans-serif`;
+    ctx.fillStyle='#ffffff';
+    ctx.fillText(vals[i], bx, statY);
+    ctx.font=`${Math.min(9,cw*0.02)}px Poppins,sans-serif`;
+    ctx.fillStyle='rgba(255,255,255,0.45)';
+    ctx.fillText(labels[i], bx, statY+14);
+  });
+
+  // Grade badge (win only)
+  if(cfg.grade){
+    ctx.fillStyle=cfg.grade.color;
+    ctx.beginPath();
+    ctx.roundRect(cx-34, cy0+152, 68, 34, 8);
+    ctx.fill();
+    ctx.font=`bold ${Math.min(18,cw*0.037)}px Poppins,sans-serif`;
+    ctx.fillStyle='#fff';
+    ctx.fillText(cfg.grade.letter, cx, cy0+170);
+    ctx.font=`${Math.min(8,cw*0.018)}px Poppins,sans-serif`;
+    ctx.fillText(cfg.grade.label, cx, cy0+181);
+  }
+
+  // High-score banner
+  if(cfg.newHigh){
+    ctx.fillStyle='rgba(139,197,63,0.18)';
+    ctx.beginPath(); ctx.roundRect(cx-90,cy0+152,180,22,6); ctx.fill();
+    ctx.font=`bold ${Math.min(10,cw*0.022)}px Poppins,sans-serif`;
+    ctx.fillStyle='#8BC53F';
+    ctx.fillText('🏆 NEW SESSION HIGH SCORE!', cx, cy0+167);
+  }
+
+  // Play-again hint
+  ctx.font=`${Math.min(11,cw*0.024)}px Poppins,sans-serif`;
+  ctx.fillStyle='rgba(255,255,255,0.45)';
+  ctx.fillText('Press  ENTER  or click  PLAY AGAIN  to restart', cx, cy0+ch-14);
+
+  ctx.textAlign='left';
+}
+
+/* ── WIN SCREEN STATE ── */
+let winAnimFrame = 0;
+const confettiParts = [];
+function spawnConfetti(){
+  const cols=['#8BC53F','#185793','#fbbf24','#f87171','#60a5fa','#a3e635'];
+  for(let i=0;i<80;i++){
+    confettiParts.push({
+      x: Math.random()*canvas.width,
+      y: -10 - Math.random()*canvas.height*0.5,
+      vx:(Math.random()-0.5)*3,
+      vy: 2+Math.random()*3,
+      rot:Math.random()*Math.PI*2,
+      rv:(Math.random()-0.5)*0.15,
+      w: 8+Math.random()*8,
+      h: 4+Math.random()*4,
+      color:cols[Math.floor(Math.random()*cols.length)],
+    });
+  }
+}
+function updateDrawConfetti(){
+  for(let i=confettiParts.length-1;i>=0;i--){
+    const p=confettiParts[i];
+    p.x+=p.vx; p.y+=p.vy; p.rot+=p.rv;
+    if(p.y>canvas.height+20){ confettiParts.splice(i,1); continue; }
+    ctx.save();
+    ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+    ctx.fillStyle=p.color;
+    ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    ctx.restore();
+  }
+}
+
+/* ── TRIGGER WIN ── */
+function triggerWin(){
+  if(gameEnded) return;
+  gameEnded   = true;
+  gameRunning = false;
+  clearInterval(ambInterval);
+
+  const elapsed  = TOTAL_AMB_SECONDS - ambSecondsLeft;
+  const timeStr  = fmtTime(elapsed);
+  const repsFired= salesReps.filter(r=>r.collected).length;
+  const maxScore = WORLD_W/10 + 300; // rough max
+  const pct      = Math.min(1, score / maxScore);
+  const grade    = calcGrade(pct);
+  const newHigh  = score > sessionHighScore;
+  if(newHigh) sessionHighScore = score;
+  if(!sessionBestTime || elapsed < sessionBestTime) sessionBestTime = elapsed;
+
+  spawnConfetti();
+
+  const winCfg = {
+    emoji:'🚑💨', title:'PATIENT DISCHARGED!',
+    subtitle:`You made it to the ambulance in ${timeStr}!`,
+    titleColor:'#8BC53F', borderColor:'#8BC53F',
+    score, repsFired, timeStr, grade, newHigh,
+  };
+
+  // Run win draw loop
+  function winLoop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drawBackground();
+    drawPlatforms();
+    drawExitDoor();
+    drawPlayer();
+    updateDrawConfetti();
+    drawEndOverlay(winCfg);
+    if(confettiParts.length > 0 || winAnimFrame < 180){
+      winAnimFrame++;
+      requestAnimationFrame(winLoop);
+    }
+  }
+  winAnimFrame=0;
+  winLoop();
+
+  showToast('🎉 Discharge complete! The ambulance is leaving!', 2500);
+}
+
+/* ── TRIGGER GAME OVER ── */
+function triggerGameOver(reason){
+  if(gameEnded) return;
+  gameEnded   = true;
+  gameRunning = false;
+  clearInterval(ambInterval);
+
+  const elapsed  = TOTAL_AMB_SECONDS - ambSecondsLeft;
+  const timeStr  = fmtTime(elapsed);
+  const repsFired= salesReps.filter(r=>r.collected).length;
+  const newHigh  = score > sessionHighScore;
+  if(newHigh) sessionHighScore = score;
+
+  const cfgs = {
+    energy: {
+      emoji:'😴💀',
+      title:'CASE MANAGER DOWN!',
+      subtitle:'You ran out of energy. Too many meetings, not enough coffee.',
+      titleColor:'#f87171', borderColor:'#dc2626',
+    },
+    ambulance: {
+      emoji:'🚑💨',
+      title:'AMBULANCE LEFT WITHOUT YOU!',
+      subtitle:'The non-emergency ambulance couldn\'t wait any longer. Prior auth issues?',
+      titleColor:'#fbbf24', borderColor:'#d97706',
+    },
+  };
+
+  const cfg = { ...cfgs[reason] || cfgs.energy, score, repsFired, timeStr, grade:null, newHigh };
+
+  // Shake effect before showing overlay
+  let shakeFrames = 18;
+  function shakeLoop(){
+    if(shakeFrames > 0){
+      shakeFrames--;
+      const dx = (Math.random()-0.5)*10;
+      const dy = (Math.random()-0.5)*6;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.save(); ctx.translate(dx,dy);
+      drawBackground(); drawPlatforms(); drawObstacles(); drawExitDoor();
+      drawSalesReps(); drawCoffees(); drawEnemies();
+      drawPlayer();
+      ctx.restore();
+      // Red flash
+      ctx.fillStyle=`rgba(220,38,38,${0.3*(shakeFrames/18)})`;
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      requestAnimationFrame(shakeLoop);
+    } else {
+      // Show static game over
+      function overLoop(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        drawBackground();
+        drawEndOverlay(cfg);
+        requestAnimationFrame(overLoop);
+      }
+      overLoop();
+    }
+  }
+  shakeLoop();
+
+  const msgs = {
+    energy:    '😴 Burnout! More coffee next time.',
+    ambulance: '🚑 The ambulance couldn\'t wait!',
+  };
+  showToast(msgs[reason] || '💀 Game over!', 2200);
+}
+
+/* ── KEYBOARD RESTART ── */
+window.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && gameEnded){
+    initGame();
+  }
+});
+
+/* ── PLAY AGAIN BUTTON (appears below canvas after game ends) ── */
+// We detect game-ended state and show a real DOM button for accessibility
+const playAgainBtn = document.createElement('button');
+playAgainBtn.textContent = '↩ PLAY AGAIN';
+playAgainBtn.style.cssText=`
+  display:none;position:absolute;bottom:16px;left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(135deg,#6fa030,#8BC53F);
+  color:#fff;border:none;border-radius:100px;
+  padding:10px 34px;font-size:0.9rem;font-weight:800;
+  font-family:'Poppins',sans-serif;cursor:pointer;z-index:30;
+  box-shadow:0 4px 18px rgba(139,197,63,0.45);
+  letter-spacing:.04em;
+`;
+playAgainBtn.addEventListener('click', ()=>{
+  playAgainBtn.style.display='none';
+  initGame();
+});
+document.querySelector('.canvas-wrap').appendChild(playAgainBtn);
+
+// Show/hide Play Again based on gameEnded — poll every 200ms
+setInterval(()=>{
+  playAgainBtn.style.display = gameEnded ? 'block' : 'none';
+}, 200);
+
+/* ── HIGH SCORE DISPLAY update on win/lose ── */
+function updateHSDisplay(){
+  const el = document.getElementById('scoreVal');
+  if(el && sessionHighScore > 0){
+    el.title = `Session best: ${sessionHighScore}`;
+  }
+}
+
+/* ── AMBULANCE URGENCY — flash the HUD timer red when ≤ 20s ── */
+const origUpdateAmbDisplay = updateAmbDisplay;
+// Already handled in Section 1 — just ensure ≤20s also shakes the pill
+function updateAmbDisplay(){
+  const t = fmtTime(ambSecondsLeft);
+  document.getElementById('ambVal').textContent = t;
+  const pill = document.querySelector('.stat-pill.ambulance');
+  if(ambSecondsLeft <= 20){
+    pill.style.background='rgba(220,38,38,0.15)';
+    pill.style.borderColor='#dc2626';
+  } else if(ambSecondsLeft <= 45){
+    pill.style.background='rgba(217,119,6,0.12)';
+    pill.style.borderColor='#d97706';
+  } else {
+    pill.style.background='';
+    pill.style.borderColor='';
+  }
+  const val = document.querySelector('.stat-pill.ambulance .value');
+  if(val){
+    if(ambSecondsLeft<=20) val.style.animation='ambPulse .5s ease-in-out infinite';
+    else val.style.animation='';
+  }
+}
+
+/* ── KICK OFF: draw idle corridor frame while waiting to start ── */
+(function idleFrame(){
+  if(gameRunning) return; // game took over
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // Draw a static hospital hallway so the canvas isn't blank
+  const g=ctx.createLinearGradient(0,0,0,canvas.height);
+  g.addColorStop(0,'#0d2a4a'); g.addColorStop(1,'#081829');
+  ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Ceil
+  for(let i=0;i<Math.ceil(canvas.width/80);i++){
+    ctx.fillStyle=i%2===0?'#0f2840':'#122d48';
+    ctx.fillRect(i*80,0,80,22);
+    // Light glow
+    ctx.fillStyle='rgba(255,249,200,0.07)';
+    ctx.fillRect(i*80+10,0,60,CEIL_Y+20);
+  }
+  // Floor
+  ctx.fillStyle='#1a3a5e';
+  ctx.fillRect(0,canvas.height-48,canvas.width,48);
+  for(let i=0;i<Math.ceil(canvas.width/56);i++){
+    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+    ctx.strokeRect(i*56,canvas.height-48,56,48);
+  }
+  ctx.fillStyle='#7ab8d4'; ctx.fillRect(0,canvas.height-48,canvas.width,5);
+  // Wainscoting
+  ctx.fillStyle='rgba(122,184,212,0.25)';
+  ctx.fillRect(0,canvas.height*0.54,canvas.width,canvas.height*0.1);
+  // Ambulance teaser text
+  ctx.font='bold 13px Poppins,sans-serif';
+  ctx.fillStyle='rgba(139,197,63,0.55)';
+  ctx.textAlign='center';
+  ctx.fillText('🚑  Your ambulance is waiting…', canvas.width/2, canvas.height/2-8);
+  ctx.font='10px Poppins,sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.25)';
+  ctx.fillText('Press START SHIFT to begin', canvas.width/2, canvas.height/2+12);
+  ctx.textAlign='left';
+
+  if(!gameRunning && !gameEnded) requestAnimationFrame(idleFrame);
+})();
+
+</script>
+
+</body>
+</html>

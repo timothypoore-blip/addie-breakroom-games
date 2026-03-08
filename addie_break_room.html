@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Break Room — Addie by PEP Inc.</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#081829;
+    --blue:#185793;
+    --green:#8BC53F;
+    --green-dark:#6fa030;
+    --white:#ffffff;
+    --gray-50:#f8fafc;
+    --gray-100:#f1f5f9;
+    --gray-200:#e2e8f0;
+    --gray-400:#94a3b8;
+    --gray-600:#475569;
+    --gray-800:#1e293b;
+    --cat-policy:#185793;
+    --cat-workforce:#8BC53F;
+    --cat-clinical:#e67e22;
+    --cat-tech:#7c3aed;
+    --cat-community:#0891b2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Poppins',sans-serif;background:#fff;color:var(--gray-800);overflow-x:hidden;}
+
+  /* ── NAV ── */
+  nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;height:72px;display:flex;align-items:center;justify-content:space-between;}
+  .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .nav-logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--green));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;}
+  .nav-logo-text{font-weight:700;font-size:1.1rem;color:var(--navy);}
+  .nav-logo-text span{color:var(--green);}
+  .nav-links{display:flex;gap:28px;align-items:center;}
+  .nav-links a{text-decoration:none;color:var(--gray-600);font-size:0.875rem;font-weight:500;transition:color .2s;}
+  .nav-links a:hover,.nav-links a.active{color:var(--navy);}
+  .nav-cta{background:var(--green);color:#fff;padding:9px 22px;border-radius:8px;font-size:0.875rem;font-weight:600;text-decoration:none;transition:background .2s;}
+  .nav-cta:hover{background:var(--green-dark);}
+
+  /* ── HERO ── */
+  .hero{position:relative;min-height:520px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff;}
+  .hero-canvas-wrap{position:absolute;inset:0;}
+  .hero-canvas-wrap canvas{display:block;width:100%;height:100%;}
+  .hero-content{position:relative;z-index:2;text-align:center;padding:120px 24px 80px;}
+  .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(139,197,63,0.12);border:1px solid rgba(139,197,63,0.3);border-radius:100px;padding:6px 16px;font-size:0.8rem;font-weight:600;color:var(--green-dark);margin-bottom:20px;}
+  .hero-title{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;color:var(--navy);line-height:1.1;margin-bottom:16px;}
+  .hero-title span{color:var(--green);}
+  .hero-sub{font-size:1.1rem;color:var(--gray-600);max-width:560px;margin:0 auto 32px;line-height:1.7;}
+  .hero-stats{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;}
+  .hero-stat{text-align:center;}
+  .hero-stat-num{font-size:2rem;font-weight:800;color:var(--navy);}
+  .hero-stat-lbl{font-size:0.78rem;color:var(--gray-600);font-weight:500;margin-top:2px;}
+
+  /* ── FILTER BAR ── */
+  .filter-bar{position:sticky;top:72px;z-index:900;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);padding:12px 0;}
+  .filter-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .filter-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:100px;font-size:0.8rem;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-200);background:#fff;color:var(--gray-600);transition:all .2s;white-space:nowrap;}
+  .filter-chip:hover{border-color:var(--blue);color:var(--blue);}
+  .filter-chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .filter-chip.cat-policy.active{background:var(--cat-policy);border-color:var(--cat-policy);}
+  .filter-chip.cat-workforce.active{background:var(--cat-workforce);border-color:var(--cat-workforce);color:var(--navy);}
+  .filter-chip.cat-clinical.active{background:var(--cat-clinical);border-color:var(--cat-clinical);}
+  .filter-chip.cat-tech.active{background:var(--cat-tech);border-color:var(--cat-tech);}
+  .filter-chip.cat-community.active{background:var(--cat-community);border-color:var(--cat-community);}
+  .filter-divider{width:1px;height:28px;background:var(--gray-200);margin:0 4px;}
+
+  /* ── MAIN CONTENT ── */
+  .main-content{max-width:1200px;margin:0 auto;padding:56px 32px;}
+
+  /* ── FEATURED ARTICLE ── */
+  .section-label{font-size:0.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green-dark);margin-bottom:16px;}
+  .featured-card{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:20px;overflow:hidden;box-shadow:0 4px 32px rgba(8,24,41,0.1);background:#fff;margin-bottom:56px;transition:transform .3s,box-shadow .3s;}
+  .featured-card:hover{transform:translateY(-4px);box-shadow:0 12px 48px rgba(8,24,41,0.15);}
+  .featured-img{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 60%,#1a6bb5 100%);position:relative;min-height:320px;display:flex;align-items:flex-end;padding:32px;}
+  .featured-img-art{position:absolute;inset:0;opacity:0.15;}
+  .featured-img-art svg{width:100%;height:100%;}
+  .featured-cat-badge{position:relative;z-index:1;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:100px;padding:5px 14px;color:#fff;font-size:0.75rem;font-weight:600;}
+  .featured-body{padding:40px 44px;display:flex;flex-direction:column;justify-content:center;}
+  .featured-meta{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .featured-cat{font-size:0.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  .featured-date{font-size:0.75rem;color:var(--gray-400);}
+  .featured-title{font-size:1.55rem;font-weight:800;color:var(--navy);line-height:1.25;margin-bottom:12px;}
+  .featured-excerpt{font-size:0.92rem;color:var(--gray-600);line-height:1.7;margin-bottom:24px;}
+  .btn-read{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;padding:11px 24px;border-radius:10px;font-size:0.875rem;font-weight:600;text-decoration:none;transition:background .2s;}
+  .btn-read:hover{background:var(--blue);}
+
+  /* ── ARTICLE GRID ── */
+  .articles-section{margin-bottom:64px;}
+  .articles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  .article-card{border-radius:16px;overflow:hidden;background:#fff;border:1px solid var(--gray-200);transition:transform .25s,box-shadow .25s;cursor:pointer;}
+  .article-card:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(8,24,41,0.1);}
+  .article-card.hidden{display:none;}
+  .article-thumb{height:160px;position:relative;display:flex;align-items:flex-end;padding:16px;}
+  .article-thumb-inner{position:absolute;inset:0;}
+  .article-cat-dot{position:relative;z-index:1;width:8px;height:8px;border-radius:50%;margin-right:6px;display:inline-block;}
+  .article-cat-badge{position:relative;z-index:1;display:inline-flex;align-items:center;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:100px;padding:4px 12px;color:#fff;font-size:0.7rem;font-weight:600;}
+  .article-body{padding:20px 22px 22px;}
+  .article-meta{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .article-cat-label{font-size:0.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  .article-date{font-size:0.7rem;color:var(--gray-400);}
+  .article-title{font-size:1rem;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:8px;}
+  .article-excerpt{font-size:0.82rem;color:var(--gray-600);line-height:1.6;margin-bottom:14px;}
+  .article-read-link{font-size:0.8rem;font-weight:600;color:var(--blue);text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+  .article-read-link:hover{color:var(--green-dark);}
+  .no-results{text-align:center;padding:60px 24px;color:var(--gray-400);font-size:1rem;display:none;}
+
+  /* ── GAMES SECTION ── */
+  .games-section{background:var(--navy);border-radius:28px;padding:56px 48px;margin-bottom:64px;position:relative;overflow:hidden;}
+  .games-bg-canvas{position:absolute;inset:0;opacity:0.35;}
+  .games-bg-canvas canvas{display:block;width:100%;height:100%;}
+  .games-header{position:relative;z-index:2;text-align:center;margin-bottom:40px;}
+  .games-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(139,197,63,0.2);border:1px solid rgba(139,197,63,0.35);border-radius:100px;padding:6px 16px;font-size:0.78rem;font-weight:600;color:var(--green);margin-bottom:14px;}
+  .games-title{font-size:2rem;font-weight:800;color:#fff;margin-bottom:8px;}
+  .games-sub{font-size:0.95rem;color:rgba(255,255,255,0.65);}
+  .games-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+  .game-card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:28px;cursor:pointer;transition:all .25s;text-decoration:none;display:block;}
+  .game-card:hover{background:rgba(255,255,255,0.12);border-color:var(--green);transform:translateY(-3px);}
+  .game-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:16px;}
+  .game-card-title{font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:6px;}
+  .game-card-desc{font-size:0.83rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:16px;}
+  .game-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(139,197,63,0.2);border-radius:100px;padding:4px 12px;font-size:0.72rem;font-weight:600;color:var(--green);}
+  .game-badge-new{background:rgba(124,58,237,0.25);color:#c4b5fd;}
+  .game-badge-ext{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);}
+
+  /* ── QUIZ BOWL MODAL ── */
+  .quiz-overlay{position:fixed;inset:0;background:rgba(8,24,41,0.85);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s;}
+  .quiz-overlay.open{opacity:1;pointer-events:all;}
+  .quiz-modal{background:#fff;border-radius:24px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,0.35);}
+  .quiz-modal-header{background:linear-gradient(135deg,var(--navy),var(--blue));padding:28px 32px;border-radius:24px 24px 0 0;position:sticky;top:0;z-index:10;}
+  .quiz-modal-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .quiz-modal-title{font-size:1.25rem;font-weight:800;color:#fff;}
+  .quiz-close{background:rgba(255,255,255,0.15);border:none;border-radius:8px;color:#fff;width:36px;height:36px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+  .quiz-close:hover{background:rgba(255,255,255,0.25);}
+  .quiz-progress-track{background:rgba(255,255,255,0.2);border-radius:100px;height:6px;overflow:hidden;}
+  .quiz-progress-fill{height:100%;background:var(--green);border-radius:100px;transition:width .4s ease;}
+  .quiz-progress-lbl{display:flex;justify-content:space-between;margin-top:6px;}
+  .quiz-progress-lbl span{font-size:0.73rem;color:rgba(255,255,255,0.7);}
+  .quiz-body{padding:32px;}
+  .quiz-cert-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(139,197,63,0.12);border:1px solid rgba(139,197,63,0.25);border-radius:100px;padding:4px 12px;font-size:0.72rem;font-weight:600;color:var(--green-dark);margin-bottom:16px;}
+  .quiz-question-text{font-size:1.05rem;font-weight:700;color:var(--navy);line-height:1.5;margin-bottom:8px;}
+  .quiz-riddle{background:var(--gray-50);border-left:3px solid var(--green);border-radius:0 10px 10px 0;padding:14px 18px;font-size:0.88rem;color:var(--gray-600);line-height:1.7;font-style:italic;margin-bottom:20px;}
+  .quiz-options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+  .quiz-opt{display:flex;align-items:center;gap:12px;padding:13px 18px;border-radius:12px;border:1.5px solid var(--gray-200);cursor:pointer;transition:all .2s;font-size:0.9rem;color:var(--gray-800);}
+  .quiz-opt:hover:not(.selected):not(.correct):not(.wrong){background:var(--gray-50);border-color:var(--blue);}
+  .quiz-opt.selected{background:rgba(24,87,147,0.07);border-color:var(--blue);color:var(--blue);}
+  .quiz-opt.correct{background:rgba(139,197,63,0.1);border-color:var(--green-dark);color:#3d6e0f;}
+  .quiz-opt.wrong{background:rgba(220,38,38,0.07);border-color:#dc2626;color:#dc2626;}
+  .quiz-opt-letter{width:28px;height:28px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0;transition:all .2s;}
+  .quiz-opt.correct .quiz-opt-letter{background:var(--green);color:#fff;}
+  .quiz-opt.wrong .quiz-opt-letter{background:#dc2626;color:#fff;}
+  .quiz-feedback{padding:14px 18px;border-radius:12px;font-size:0.88rem;line-height:1.6;margin-bottom:16px;display:none;}
+  .quiz-feedback.correct{background:rgba(139,197,63,0.12);border:1px solid rgba(139,197,63,0.3);color:#3d6e0f;display:block;}
+  .quiz-feedback.wrong{background:rgba(220,38,38,0.07);border:1px solid rgba(220,38,38,0.2);color:#b91c1c;display:block;}
+  .quiz-actions{display:flex;gap:12px;justify-content:flex-end;}
+  .quiz-btn{padding:11px 28px;border-radius:10px;font-size:0.875rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:'Poppins',sans-serif;}
+  .quiz-btn-primary{background:var(--navy);color:#fff;}
+  .quiz-btn-primary:hover{background:var(--blue);}
+  .quiz-btn-primary:disabled{opacity:0.4;cursor:not-allowed;}
+  .quiz-results{text-align:center;padding:16px 0;}
+  .quiz-results-score{font-size:3.5rem;font-weight:900;color:var(--navy);line-height:1;}
+  .quiz-results-label{font-size:1rem;color:var(--gray-600);margin-bottom:24px;}
+  .quiz-results-grade{font-size:1.3rem;font-weight:700;margin-bottom:8px;}
+  .quiz-results-msg{font-size:0.9rem;color:var(--gray-600);margin-bottom:28px;line-height:1.6;}
+  .quiz-results-certs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:28px;}
+  .quiz-cert-pill{background:var(--gray-100);border-radius:100px;padding:5px 14px;font-size:0.75rem;font-weight:600;color:var(--gray-600);}
+  .quiz-btn-restart{background:var(--green);color:#fff;}
+  .quiz-btn-restart:hover{background:var(--green-dark);}
+
+  /* ── SUBSCRIBE ── */
+  .subscribe-section{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);border-radius:24px;padding:56px 48px;text-align:center;margin-bottom:48px;position:relative;overflow:hidden;}
+  .subscribe-section::before{content:'';position:absolute;top:-40px;right:-40px;width:280px;height:280px;border-radius:50%;background:rgba(139,197,63,0.1);pointer-events:none;}
+  .subscribe-section::after{content:'';position:absolute;bottom:-60px;left:-30px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none;}
+  .subscribe-title{font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:10px;position:relative;z-index:1;}
+  .subscribe-sub{color:rgba(255,255,255,0.7);margin-bottom:28px;position:relative;z-index:1;}
+  .subscribe-form{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1;}
+  .subscribe-input{padding:13px 20px;border-radius:10px;border:none;font-size:0.9rem;font-family:'Poppins',sans-serif;min-width:280px;outline:none;}
+  .subscribe-input::placeholder{color:#94a3b8;}
+  .subscribe-btn{background:var(--green);color:#fff;padding:13px 28px;border-radius:10px;font-weight:600;font-size:0.9rem;border:none;cursor:pointer;font-family:'Poppins',sans-serif;transition:background .2s;white-space:nowrap;}
+  .subscribe-btn:hover{background:var(--green-dark);}
+
+  /* ── FOOTER STRIP ── */
+  .footer-strip{text-align:center;padding:24px;color:var(--gray-400);font-size:0.8rem;border-top:1px solid var(--gray-200);}
+
+  /* ── CAT COLORS ── */
+  .cc-policy{color:var(--cat-policy);}
+  .cc-workforce{color:var(--cat-workforce);}
+  .cc-clinical{color:var(--cat-clinical);}
+  .cc-tech{color:var(--cat-tech);}
+  .cc-community{color:var(--cat-community);}
+  .bg-policy{background:linear-gradient(135deg,#0f3460 0%,var(--blue) 100%);}
+  .bg-workforce{background:linear-gradient(135deg,#3d6e0f 0%,#8BC53F 100%);}
+  .bg-clinical{background:linear-gradient(135deg,#92400e 0%,#e67e22 100%);}
+  .bg-tech{background:linear-gradient(135deg,#4c1d95 0%,#7c3aed 100%);}
+  .bg-community{background:linear-gradient(135deg,#164e63 0%,#0891b2 100%);}
+
+  @media(max-width:900px){
+    .featured-card{grid-template-columns:1fr;}
+    .articles-grid{grid-template-columns:repeat(2,1fr);}
+    .games-grid{grid-template-columns:1fr;}
+    .games-section{padding:40px 24px;}
+  }
+  @media(max-width:600px){
+    .articles-grid{grid-template-columns:1fr;}
+    .main-content{padding:40px 20px;}
+    .nav-links{display:none;}
+    .subscribe-section{padding:40px 24px;}
+    .filter-inner{gap:7px;}
+    .filter-chip{padding:6px 12px;font-size:0.75rem;}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <div class="nav-logo-mark">A</div>
+      <span class="nav-logo-text">addie<span> by PEP</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="/platform">Platform</a>
+      <a href="/plans">Plans</a>
+      <a href="/about">About</a>
+      <a href="/break-room" class="active">Break Room</a>
+    </div>
+    <a href="/demo" class="nav-cta">Request Demo</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-canvas-wrap" id="heroCanvasWrap"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">☕ The Break Room</div>
+    <h1 class="hero-title">Insights &amp; Tools for<br/><span>Case Managers</span> Who Care</h1>
+    <p class="hero-sub">Field-tested perspectives, policy updates, and a little fun — built for the people doing the hardest work in healthcare.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">10</div><div class="hero-stat-lbl">Articles</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-lbl">Games &amp; Tools</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">5</div><div class="hero-stat-lbl">Topic Areas</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" id="filterBar">
+  <div class="filter-inner">
+    <button class="filter-chip active" data-filter="all">All</button>
+    <button class="filter-chip" data-filter="articles">📄 Articles</button>
+    <button class="filter-chip" data-filter="games">🎮 Games &amp; Tools</button>
+    <div class="filter-divider"></div>
+    <button class="filter-chip cat-policy" data-filter="policy">Policy &amp; Regulation</button>
+    <button class="filter-chip cat-workforce" data-filter="workforce">Workforce</button>
+    <button class="filter-chip cat-clinical" data-filter="clinical">Clinical Ops</button>
+    <button class="filter-chip cat-tech" data-filter="tech">Technology</button>
+    <button class="filter-chip cat-community" data-filter="community">Community</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-content" id="mainContent">
+
+  <!-- FEATURED ARTICLE -->
+  <div id="featuredSection">
+    <div class="section-label">Featured Article</div>
+    <a href="https://www.pepinc.io/post/moral-injury-in-the-case-management-field" target="_blank" class="featured-card" data-cat="workforce" style="text-decoration:none;color:inherit;">
+      <div class="featured-img bg-workforce">
+        <div class="featured-img-art">
+          <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <circle cx="80" cy="80" r="120" fill="rgba(255,255,255,0.08)"/>
+            <circle cx="400" cy="240" r="100" fill="rgba(255,255,255,0.06)"/>
+            <circle cx="240" cy="160" r="60" fill="rgba(255,255,255,0.05)"/>
+          </svg>
+        </div>
+        <span class="featured-cat-badge">💚 Workforce Wellbeing</span>
+      </div>
+      <div class="featured-body">
+        <div class="featured-meta">
+          <span class="featured-cat cc-workforce" style="font-size:0.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;">Workforce Wellbeing</span>
+          <span class="featured-date">2024</span>
+        </div>
+        <h2 class="featured-title">Moral Injury in the Case Management Field</h2>
+        <p class="featured-excerpt">Case managers are trained to advocate, coordinate, and protect — but what happens when the system makes that impossible? Moral injury is the wound left behind when clinicians cannot uphold their own ethical standards. This piece explores the roots of moral injury in post-acute transitions and what leaders can do to protect their teams.</p>
+        <span class="btn-read">Read Article →</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- ARTICLES GRID -->
+  <div class="articles-section" id="articlesSection">
+    <div class="section-label">All Articles</div>
+    <div class="articles-grid" id="articlesGrid">
+
+      <!-- 1 -->
+      <a href="https://www.pepinc.io/post/cms-staffing-recommendations-for-case-management" target="_blank" class="article-card" data-cat="policy" style="text-decoration:none;color:inherit;">
+        <div class="article-thumb bg-policy">
+          <span class="article-cat-badge">📋 Policy &amp; Regulation</span>
+        </div>
+        <div class="article-body">
+          <div class="article-meta">
+            <span class="article-cat-label cc-policy">Policy</span>
+            <span class="article-date">2024</span>
+          </div>
+          <div class="article-title">CMS Staffing Recommendations for Case Management</div>
+          <div class="article-excerpt">Breaking down the latest CMS staffing guidance and what it means for your case management department — from ratios to documentation expectations.</div>
+          <span class="article-read-link">Read more →</span>
+        </div>
+      </a>
+
+      <!-- 2 -->
+      <a href="https://www.pepinc.io/post/ghost-networks-and-what-they-mean-for-case-managers" target="_blank" class="article-card" data-cat="policy" style="text-decoration:none;color:inherit;">
+        <div class="article-thumb bg-policy">
+          <span class="article-cat-badge">📋 Policy &amp; Regulation</span>
+        </div>
+        <div class="article-body">
+          <div class="article-meta">
+            <span class="article-cat-label cc-policy">Policy</span>
+            <span class="article-date">2024</span>
+          </div>
+          <div class="article-title">Ghost Networks and What They Mean for Case Managers</div>
+          <div class="article-excerpt">Ghost networks — provider directories listing physicians who don't actually accept patients — create dangerous dead-ends in care transitions. Here's how to spot them and protect your patients.</div>
+          <span class="article-read-link">Read more →</span>
+        </div>
+      </a>
+
+      <!-- 3 (already featured, show smaller) -->
+      <a href="https://www.pepinc.io/post/moral-injury-in-the-case-management-field" target="_blank" class="article-card" data-cat="workforce" style="text-decoration:none;color:inherit;">
+        <div class="article-thumb bg-workforce">
+          <span class="article-cat-badge">💚 Workforce Wellbeing</span>
+        </div>
+        <div class="article-body">
+          <div class="article-meta">
+            <span class="article-cat-label cc-workforce">Workforce</span>
+            <span class="article-date">2024</span>
+          </div>
+          <div class="article-title">Moral Injury in the Case Management Field</div>
+          <div class="article-excerpt">When ethical standards collide with systemic barriers, case managers pay the price. Understanding and addressing moral injury before it becomes burnout.</div>
+          <span class="article-read-link">Read more →</span>
+        </div>
+      </a>
+
+      <!-- 4 -->
+      <a href="https://www.pepinc.io/post/resource-over-extension-in-case-management" target="_blank" class="article-card" data-cat="workforce" style="text-decoration:none;color:inherit;">
+        <div class="article-thumb bg-workforce">
+          <span class="article-cat-badge">💚 Workforce Wellbeing</span>
+        </div>
+        <div class="article-body">
+          <div class="article-meta">
+            <span class="article-cat-label cc-workforce">Workforce</span>
+            <span class="article-date">2024</span>
+          </div>
+          <div class="article-title">Resource Over-Extension in Case Management</div>
+          <div class="article-excerpt">When one case manager is expected to do the work of three, patients and clinicians both suffer. A look at over-extension, its causes, and practical remedies for healthcare teams.</div>
+          <span class="article-read-link">Read more →</span>
+        </div>
+      </a>
+
+      <!-- 5 -->
+      <a href="https://www.pepinc.io/post/the-emotional-toll-of-extended-hospital-stays-on-case-managers" target="_blank" class="article-card" data-cat="workforce" style="text-decoration:none;color:inherit;">
+        <div class="article-thumb bg-workforce">
+          <span class="article-cat-badge">💚 Workforce Wellbeing</span>
+        </div>
+        <div class="article-body">
+          <div class="article-meta">
+            <span class="article-cat-label cc-workforce">Workforce</span>
+            <span class="article-date">2024</span>
+          </div>
+          <div class="article-title">The Emotional Toll of Extended Hospital Stays on Case Managers</div>
+          <div class="article-excerpt">Prolonged boarding doesn't just harm patients — it compounds pressure on the care team. Exploring the psychological burden and what supportive leadership looks like in practice.</div>
+          <span class="article-read-link">Read more →</span>
+        </div>
+      </a>
+
+      <!-- 6 -->
+      <a href="https://www.pepinc.io/post/prolonged-hospital-stays-a-case-management-perspective" target="_blank" class="article-card" data-cat="clinical" style="text-decoration:none;color:inherit;">
+        <div class="article-thumb bg-clinical">
+          <span class="article-cat-badge">🏥 Clinical Operations</span>
+        </div>
+        <div class="article-body">
+          <div class="article-meta">
+            <span class="article-cat-label cc-clinical">Clinical Ops</span>
+            <span class="article-date">2024</span>
+          </div>
+          <div class="article-title">Prolonged Hospital Stays: A Case Management Perspective</div>
+          <div class="article-excerpt">Boarding beyond medical necessity drives readmissions, increases infection risk, and strains capacity. A deep look at the operational and clinical drivers case managers must navigate daily.</div>
+          <span class="article-read-link">Read more →</span>
+        </div>
+      </a>
+
+      <!-- 7 -->
+      <a href="https://www.pepinc.io/post/palliative-care-resources-for-case-managers" target="_blank" class="article-card" data-cat="clinical" style="text-decoration:none;color:inherit;">
+        <div class="article-thumb bg-clinical">
+          <span class="article-cat-badge">🏥 Clinical Operations</span>
+        </div>
+        <div class="article-body">
+          <div class="article-meta">
+            <span class="article-cat-label cc-clinical">Clinical Ops</span>
+            <span class="article-date">2024</span>
+          </div>
+          <div class="article-title">Palliative Care Resources for Case Managers</div>
+          <div class="article-excerpt">Navigating goals-of-care conversations and palliative transitions is one of the most complex challenges in case management. A curated resource guide for clinical teams.</div>
+          <span class="article-read-link">Read more →</span>
+        </div>
+      </a>
+
+      <!-- 8 -->
+      <a href="https://www.pepinc.io/post/cyber-attack-preparedness-for-healthcare-organizations" target="_blank" class="article-card" data-cat="tech" style="text-decoration:none;color:inherit;">
+        <div class="article-thumb bg-tech">
+          <span class="article-cat-badge">💻 Technology</span>
+        </div>
+        <div class="article-body">
+          <div class="article-meta">
+            <span class="article-cat-label cc-tech">Technology</span>
+            <span class="article-date">2024</span>
+          </div>
+          <div class="article-title">Cyber Attack Preparedness for Healthcare Organizations</div>
+          <div class="article-excerpt">Ransomware attacks on hospitals disrupt care transitions and patient safety in real-time. What case management departments need to know — and plan for — before it happens to them.</div>
+          <span class="article-read-link">Read more →</span>
+        </div>
+      </a>
+
+      <!-- 9 -->
+      <a href="https://www.pepinc.io/post/osint-primer-for-case-managers" target="_blank" class="article-card" data-cat="tech" style="text-decoration:none;color:inherit;">
+        <div class="article-thumb bg-tech">
+          <span class="article-cat-badge">💻 Technology</span>
+        </div>
+        <div class="article-body">
+          <div class="article-meta">
+            <span class="article-cat-label cc-tech">Technology</span>
+            <span class="article-date">2024</span>
+          </div>
+          <div class="article-title">OSINT Primer for Case Managers</div>
+          <div class="article-excerpt">Open-source intelligence isn't just for security teams. Learn how case managers can use publicly available data to verify providers, identify care gaps, and find community resources faster.</div>
+          <span class="article-read-link">Read more →</span>
+        </div>
+      </a>
+
+      <!-- 10 -->
+      <a href="https://www.pepinc.io/post/community-resource-assessment-guide" target="_blank" class="article-card" data-cat="community" style="text-decoration:none;color:inherit;">
+        <div class="article-thumb bg-community">
+          <span class="article-cat-badge">🤝 Community</span>
+        </div>
+        <div class="article-body">
+          <div class="article-meta">
+            <span class="article-cat-label cc-community">Community</span>
+            <span class="article-date">2024</span>
+          </div>
+          <div class="article-title">Community Resource Assessment Guide</div>
+          <div class="article-excerpt">A practical framework for evaluating the community resources available to your patients post-discharge — from housing stability to transportation access and food security.</div>
+          <span class="article-read-link">Read more →</span>
+        </div>
+      </a>
+
+    </div>
+    <div class="no-results" id="noResults">No articles match this filter.</div>
+  </div>
+
+  <!-- GAMES SECTION -->
+  <div class="games-section" id="gamesSection">
+    <div class="games-bg-canvas" id="gamesBgWrap"></div>
+    <div class="games-header">
+      <div class="games-eyebrow">🎮 Break Room Games &amp; Tools</div>
+      <h2 class="games-title">Take a Well-Deserved Break</h2>
+      <p class="games-sub">You earned it. Challenge yourself, sharpen your skills, or just have fun.</p>
+    </div>
+    <div class="games-grid">
+
+      <!-- Quiz Bowl -->
+      <div class="game-card" onclick="openQuiz()">
+        <div class="game-icon" style="background:linear-gradient(135deg,var(--blue),#1a6bb5);">📚</div>
+        <div class="game-card-title">Case Management Quiz Bowl</div>
+        <div class="game-card-desc">Test your knowledge with riddles and rhymes covering CCM, ASWB, ACM, C-SWSM, and C-ASWCM exam content. 20 questions, instant feedback, score tracking.</div>
+        <span class="game-badge">▶ Play Now</span>
+      </div>
+
+      <!-- Bed Locator -->
+      <a href="https://timothypoore-blip.github.io/addie-breakroom-games/addie_bed_locator_game.html" target="_blank" class="game-card">
+        <div class="game-icon" style="background:linear-gradient(135deg,#0891b2,#0e7490);">🏥</div>
+        <div class="game-card-title">Medicaid Pending Bed Locator</div>
+        <div class="game-card-desc">Real-time tool to locate available post-acute beds for Medicaid pending patients. Cut placement time and reduce ED boarding for your most complex cases.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="game-badge" style="background:rgba(8,145,178,0.25);color:#67e8f9;">🔧 Tool</span>
+          <span class="game-badge game-badge-ext">↗ External</span>
+        </div>
+      </a>
+
+      <!-- Magic 8 Ball -->
+      <a href="https://timothypoore-blip.github.io/addie-breakroom-games/addie_magic8ball.html" target="_blank" class="game-card">
+        <div class="game-icon" style="background:linear-gradient(135deg,#4c1d95,#7c3aed);">🎱</div>
+        <div class="game-card-title">Healthcare Magic 8 Ball</div>
+        <div class="game-card-desc">Ask the oracle your burning case management questions. "Will my prior auth be approved?" "Is this a safe discharge?" Let fate decide. 😄</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="game-badge game-badge-new">✨ Fun</span>
+          <span class="game-badge game-badge-ext">↗ External</span>
+        </div>
+      </a>
+
+      <!-- Sudoku -->
+      <a href="https://timothypoore-blip.github.io/addie-breakroom-games/addie_sudoku.html" target="_blank" class="game-card">
+        <div class="game-icon" style="background:linear-gradient(135deg,#3d6e0f,var(--green));">🔢</div>
+        <div class="game-card-title">Sudoku</div>
+        <div class="game-card-desc">Classic number puzzle to clear your mind between cases. Multiple difficulty levels — from "I need a quick win" to "please challenge me."</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="game-badge">🧩 Puzzle</span>
+          <span class="game-badge game-badge-ext">↗ External</span>
+        </div>
+      </a>
+
+      <!-- Hospital Escape -->
+      <a href="https://timothypoore-blip.github.io/addie-breakroom-games/addie_hospital_escape.html" target="_blank" class="game-card">
+        <div class="game-icon" style="background:linear-gradient(135deg,#b45309,#d97706);">🚨</div>
+        <div class="game-card-title">Hospital Escape</div>
+        <div class="game-card-desc">Think you can navigate the halls, dodge the paperwork, and discharge your patient before the insurance authorization expires? Put your critical thinking to the test in this hospital-themed escape room!</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <span class="game-badge">▶ Play Now</span>
+          <span class="game-badge game-badge-new">🎮 Game</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- SUBSCRIBE -->
+  <div class="subscribe-section">
+    <h2 class="subscribe-title">Stay in the Loop</h2>
+    <p class="subscribe-sub">Get the latest articles, policy updates, and Break Room additions delivered to your inbox.</p>
+    <div class="subscribe-form">
+      <input type="email" class="subscribe-input" placeholder="your@email.com"/>
+      <button class="subscribe-btn">Subscribe →</button>
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+
+<!-- FOOTER -->
+<div class="footer-strip">© 2025 PEP Inc. · Addie Platform · <a href="/privacy" style="color:inherit;">Privacy</a></div>
+
+<!-- QUIZ BOWL MODAL -->
+<div class="quiz-overlay" id="quizOverlay" onclick="closeQuizOnOverlay(event)">
+  <div class="quiz-modal" id="quizModal">
+    <div class="quiz-modal-header">
+      <div class="quiz-modal-header-top">
+        <span class="quiz-modal-title">📚 Case Management Quiz Bowl</span>
+        <button class="quiz-close" onclick="closeQuiz()">✕</button>
+      </div>
+      <div class="quiz-progress-track">
+        <div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div>
+      </div>
+      <div class="quiz-progress-lbl">
+        <span id="quizProgressLbl">Question 1 of 20</span>
+        <span id="quizScoreLbl">Score: 0</span>
+      </div>
+    </div>
+    <div class="quiz-body" id="quizBody">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════
+   FLOW FIELD ENGINE
+══════════════════════════════ */
+function FlowField(container, opts){
+  var o = Object.assign({particles:500,speed:0.75,fade:0.13,bgR:255,bgG:255,bgB:255,palette:['#8BC53F','#185793','#0d4a8a','#6fa030','#3a7fc1','#5da832']}, opts||{});
+  var c = document.createElement('canvas');
+  c.style.cssText='position:absolute;inset:0;width:100%;height:100%;';
+  container.appendChild(c);
+  var ctx = c.getContext('2d');
+  var W,H,pts=[],mouse={x:-9999,y:-9999};
+  function hex(h){var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return[r,g,b];}
+  var pal = o.palette.map(hex);
+  function resize(){
+    W=c.width=container.offsetWidth||window.innerWidth;
+    H=c.height=container.offsetHeight||400;
+  }
+  function rand(a,b){return a+Math.random()*(b-a);}
+  function mkPt(){
+    var ci=Math.floor(Math.random()*pal.length), col=pal[ci];
+    return{x:rand(0,W),y:rand(0,H),vx:0,vy:0,life:rand(0,1),r:col[0],g:col[1],b:col[2],a:rand(0.15,0.55),sz:rand(1.2,2.4)};
+  }
+  for(var i=0;i<o.particles;i++) pts.push(mkPt());
+  window.addEventListener('resize',resize);
+  container.addEventListener('mousemove',function(e){
+    var r=c.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;
+  });
+  var t=0,raf;
+  function loop(){
+    raf=requestAnimationFrame(loop);
+    ctx.fillStyle='rgba('+o.bgR+','+o.bgG+','+o.bgB+','+o.fade+')';
+    ctx.fillRect(0,0,W,H);
+    t+=0.003;
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      var angle=(Math.cos(p.x*0.0046)+Math.sin(p.y*0.0046))*Math.PI + t;
+      var dx=mouse.x-p.x, dy=mouse.y-p.y, dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<155){var rep=1-dist/155;p.vx-=dx/dist*rep*2.2;p.vy-=dy/dist*rep*2.2;}
+      p.vx+=Math.cos(angle)*0.32;p.vy+=Math.sin(angle)*0.32;
+      p.vx*=0.94;p.vy*=0.94;
+      p.x+=p.vx*o.speed;p.y+=p.vy*o.speed;
+      p.life+=0.004;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
+      ctx.fillStyle='rgba('+p.r+','+p.g+','+p.b+','+p.a+')';ctx.fill();
+      if(p.x<-20||p.x>W+20||p.y<-20||p.y>H+20||p.life>1){
+        var np=mkPt();np.x=Math.random()<0.5?-5:W+5;np.y=rand(0,H);pts[i]=np;
+      }
+    }
+  }
+  resize();loop();
+  return{destroy:function(){cancelAnimationFrame(raf);}};
+}
+
+// Hero flow field
+(function(){
+  var wrap = document.getElementById('heroCanvasWrap');
+  new FlowField(wrap,{particles:700,speed:0.8,fade:0.12,bgR:255,bgG:255,bgB:255});
+})();
+
+// Games bg flow field
+(function(){
+  var wrap = document.getElementById('gamesBgWrap');
+  new FlowField(wrap,{particles:300,speed:0.6,fade:0.18,bgR:8,bgG:24,bgB:41});
+})();
+
+/* ══════════════════════════════
+   FILTER LOGIC
+══════════════════════════════ */
+(function(){
+  var chips = document.querySelectorAll('.filter-chip');
+  var cards = document.querySelectorAll('#articlesGrid .article-card');
+  var featured = document.getElementById('featuredSection');
+  var gamesSection = document.getElementById('gamesSection');
+  var noResults = document.getElementById('noResults');
+
+  function applyFilter(f){
+    chips.forEach(function(c){c.classList.remove('active');});
+    document.querySelector('[data-filter="'+f+'"]').classList.add('active');
+
+    // Featured visibility
+    if(f === 'all' || f === 'articles' || f === 'workforce'){
+      featured.style.display='';
+    } else {
+      featured.style.display='none';
+    }
+
+    // Games section visibility
+    if(f === 'all' || f === 'games'){
+      gamesSection.style.display='';
+    } else {
+      gamesSection.style.display='none';
+    }
+
+    // Article cards
+    var visible = 0;
+    cards.forEach(function(card){
+      var cat = card.getAttribute('data-cat');
+      var show = false;
+      if(f === 'all' || f === 'articles') show = true;
+      else if(f === 'games') show = false;
+      else show = (cat === f);
+      card.classList.toggle('hidden', !show);
+      if(show) visible++;
+    });
+
+    var articlesSection = document.getElementById('articlesSection');
+    if(f === 'games'){
+      articlesSection.style.display='none';
+      noResults.style.display='none';
+    } else {
+      articlesSection.style.display='';
+      noResults.style.display = (visible === 0) ? 'block' : 'none';
+    }
+  }
+
+  chips.forEach(function(chip){
+    chip.addEventListener('click',function(){
+      applyFilter(chip.getAttribute('data-filter'));
+    });
+  });
+})();
+
+/* ══════════════════════════════
+   QUIZ BOWL
+══════════════════════════════ */
+var QUESTIONS = [
+  {
+    cert:'CCM',
+    q:'What principle guides this?',
+    riddle:'I keep the patient front and center of the plan,\nAdvocating for their goals as best I can.\nI balance resources, risks, and right-to-choose —\nIn case management ethics, which principle do I use?',
+    opts:['Beneficence','Autonomy','Justice','Non-maleficence'],
+    answer:1,
+    explain:'Autonomy means respecting the patient\'s right to make informed decisions about their own care — a cornerstone of ethical case management practice.'
+  },
+  {
+    cert:'CCM',
+    q:'Name this care transition model.',
+    riddle:'A nurse coach calls within 48 hours of discharge,\nRed flag symptoms tracked on a personalized card purchase.\nTwo weeks, a follow-up call to ensure no fall —\nWhich transition model covers it all?',
+    opts:['BOOST','INTERACT','Coleman Care Transitions Intervention','Project RED'],
+    answer:2,
+    explain:'The Coleman Care Transitions Intervention uses a personal health record, coach calls, and red-flag awareness to reduce 30-day readmissions.'
+  },
+  {
+    cert:'ASWB',
+    q:'True or False: A social worker may share PHI with a patient\'s family member without consent if the patient is medically stable and competent.',
+    riddle:null,
+    type:'tf',
+    opts:['True','False'],
+    answer:1,
+    explain:'False. HIPAA requires patient consent (or legal exception) before sharing PHI. Medical stability does not override confidentiality rights.'
+  },
+  {
+    cert:'CCM',
+    q:'Identify this utilization management term.',
+    riddle:'I review a stay before the patient hits the floor,\nDetermining if the level of care is right — and nothing more.\nI\'m not concurrent, I\'m not retrospective — you see,\nWhat type of utilization review am I?',
+    opts:['Prospective Review','Concurrent Review','Retrospective Review','Peer Review'],
+    answer:0,
+    explain:'Prospective (or pre-authorization) review occurs before services are rendered to determine medical necessity and appropriate level of care.'
+  },
+  {
+    cert:'ACM',
+    q:'What is the primary goal of discharge planning?',
+    riddle:'I start on admission, not when the bags are packed,\nI coordinate the post-acute team and keep nothing stacked.\nI prevent the bounce-back, the preventable return —\nWhat process am I, as a case manager you\'ve earned?',
+    opts:['Reducing length of stay','Ensuring continuity of care post-discharge','Completing insurance authorization','Documenting nursing assessments'],
+    answer:1,
+    explain:'Discharge planning aims to ensure safe, appropriate continuity of care after leaving the acute setting — starting at admission, not at discharge.'
+  },
+  {
+    cert:'CCM',
+    q:'True or False: The biopsychosocial model considers only medical and psychological factors.',
+    riddle:null,
+    type:'tf',
+    opts:['True','False'],
+    answer:1,
+    explain:'False. The biopsychosocial model explicitly includes biological, psychological, AND social factors — recognizing that social determinants profoundly affect health outcomes.'
+  },
+  {
+    cert:'C-SWSM',
+    q:'Name this reimbursement model.',
+    riddle:'Hospitals, physicians, and post-acute share one payment pool,\nThey coordinate care together — collaboration is the tool.\nReducing fragmentation, waste, and readmission rates —\nName this bundled approach that aligns financial fates.',
+    opts:['Fee-for-Service','Bundled Payments for Care Improvement (BPCI)','Capitation','Global Budget Revenue'],
+    answer:1,
+    explain:'BPCI (Bundled Payments for Care Improvement) groups related services into one payment to incentivize coordination across the care episode.'
+  },
+  {
+    cert:'CCM',
+    q:'Identify the screening tool.',
+    riddle:'Five questions about mood, sleep, and feeling alone,\nUsed in the emergency department, clinic, or home.\nI screen for risk of self-harm with brevity and care —\nWhich validated instrument am I? Name me if you dare.',
+    opts:['PHQ-9','Columbia Suicide Severity Rating Scale (C-SSRS)','GAD-7','CAGE-AID'],
+    answer:1,
+    explain:'The Columbia Suicide Severity Rating Scale (C-SSRS) is the gold standard for suicide risk screening in clinical and emergency settings.'
+  },
+  {
+    cert:'ASWB',
+    q:'True or False: Informed consent must include disclosure of potential risks AND benefits of proposed treatment.',
+    riddle:null,
+    type:'tf',
+    opts:['True','False'],
+    answer:0,
+    explain:'True. Valid informed consent requires disclosure of risks, benefits, and alternatives so the patient can make a truly autonomous, informed decision.'
+  },
+  {
+    cert:'CCM',
+    q:'Match this to its level of care.',
+    riddle:'I provide 24-hour skilled care but no acute physician rounding,\nMy patients need rehab, wound care — short-term care confounding.\nMedicare Part A covers up to 100 days if criteria are met —\nWhich post-acute level of care am I? Don\'t forget.',
+    opts:['Long-Term Acute Care Hospital (LTACH)','Skilled Nursing Facility (SNF)','Inpatient Rehabilitation Facility (IRF)','Assisted Living Facility (ALF)'],
+    answer:1,
+    explain:'A Skilled Nursing Facility (SNF) provides 24-hour skilled nursing and rehabilitation services, covered by Medicare Part A following a qualifying 3-night hospital stay.'
+  },
+  {
+    cert:'C-ASWCM',
+    q:'Define this social determinant.',
+    riddle:'No roof, no address, no safe place to sleep,\nI impact your health in ways both wide and deep.\nI make discharge planning complex — where will they go?\nWhich social determinant of health am I? You know.',
+    opts:['Food insecurity','Housing instability/homelessness','Transportation barriers','Social isolation'],
+    answer:1,
+    explain:'Housing instability and homelessness are critical social determinants affecting discharge safety, medication adherence, and readmission risk.'
+  },
+  {
+    cert:'CCM',
+    q:'True or False: A case manager can authorize a patient\'s insurance coverage or benefits independently.',
+    riddle:null,
+    type:'tf',
+    opts:['True','False'],
+    answer:1,
+    explain:'False. Case managers facilitate the authorization process and advocate for patients, but payers authorize coverage — not case managers.'
+  },
+  {
+    cert:'ACM',
+    q:'Identify this clinical tool.',
+    riddle:'I use seven domains to flag the frail and complex case,\nGeriatric syndromes, polypharmacy, falls — each gets its place.\nHospitals use me at admission to plan ahead —\nWhich geriatric risk assessment tool am I instead?',
+    opts:['Katz ADL Scale','LACE Index','Comprehensive Geriatric Assessment (CGA)','Braden Scale'],
+    answer:2,
+    explain:'The Comprehensive Geriatric Assessment (CGA) evaluates medical, psychological, functional, and social domains in older adults to guide care planning.'
+  },
+  {
+    cert:'C-SWSM',
+    q:'Name this federal program.',
+    riddle:'I fund long-term services for low-income patients in need,\nSNF, HCBS, and community waiver programs I seed.\nI\'m jointly funded by the state and Uncle Sam\'s budget plan —\nWhich public insurance program am I? Tell me if you can.',
+    opts:['Medicare','Medicaid','CHIP','VA Benefits'],
+    answer:1,
+    explain:'Medicaid is the joint federal-state program funding long-term care, community waivers, and skilled nursing for eligible low-income individuals.'
+  },
+  {
+    cert:'CCM',
+    q:'Identify this care model.',
+    riddle:'A physician-led team coordinates all my primary care,\nFrom prevention to chronic disease, they\'re always there.\nI integrate behavioral health and track my gaps — it\'s true —\nWhich value-based primary care model am I pointing to?',
+    opts:['Accountable Care Organization (ACO)','Patient-Centered Medical Home (PCMH)','Integrated Delivery Network (IDN)','Health Maintenance Organization (HMO)'],
+    answer:1,
+    explain:'The Patient-Centered Medical Home (PCMH) model emphasizes coordinated, team-based primary care with a focus on whole-person care and care management.'
+  },
+  {
+    cert:'ASWB',
+    q:'True or False: Transference occurs when the clinician projects feelings onto the patient.',
+    riddle:null,
+    type:'tf',
+    opts:['True','False'],
+    answer:1,
+    explain:'False. Transference is when the CLIENT projects feelings (often from past relationships) onto the clinician. Counter-transference is the clinician\'s emotional reaction to the client.'
+  },
+  {
+    cert:'CCM',
+    q:'Match this outcome metric.',
+    riddle:'I measure patients who return to the hospital within a month,\nA quality indicator payers and hospitals confront.\nReduce me and your value-based scores will rise —\nWhich quality metric am I? Open your eyes.',
+    opts:['Hospital-Acquired Infection Rate','30-Day All-Cause Readmission Rate','Patient Satisfaction (HCAHPS)','Average Length of Stay'],
+    answer:1,
+    explain:'The 30-Day All-Cause Readmission Rate is a key quality metric tied to Medicare reimbursement (HRRP) and a primary target for case management intervention.'
+  },
+  {
+    cert:'C-ASWCM',
+    q:'Identify this ethical principle.',
+    riddle:'I do no harm — it\'s my simplest creed,\nAvoiding actions that cause hurt or lead to greed.\nFirst, do no harm — which bioethical principle am I?\nCase managers hold me close as patients say goodbye.',
+    opts:['Autonomy','Beneficence','Non-maleficence','Justice'],
+    answer:2,
+    explain:'"First, do no harm" — Non-maleficence is the duty to avoid causing harm. It pairs with Beneficence (acting for the patient\'s benefit) in ethical case management.'
+  },
+  {
+    cert:'ACM',
+    q:'Name this post-acute level of care.',
+    riddle:'Three hours of therapy each day, five days a week,\nI serve the stroke, the hip fracture, the TBI unique.\nPhysicians must round daily; my bar is set high —\nWhich post-acute level of care am I?',
+    opts:['Skilled Nursing Facility (SNF)','Long-Term Acute Care Hospital (LTACH)','Inpatient Rehabilitation Facility (IRF)','Home Health Agency (HHA)'],
+    answer:2,
+    explain:'An Inpatient Rehabilitation Facility (IRF) requires 3+ hours of therapy daily, 5 days/week, with daily physician oversight — serving complex rehab patients.'
+  },
+  {
+    cert:'CCM',
+    q:'True or False: The Case Management Society of America (CMSA) Standards of Practice require that case managers obtain patient consent before initiating case management services.',
+    riddle:null,
+    type:'tf',
+    opts:['True','False'],
+    answer:0,
+    explain:'True. CMSA Standards require case managers to obtain client consent (verbal or written) before initiating services, respecting patient autonomy and the voluntary nature of case management.'
+  }
+];
+
+var quizState = {
+  idx: 0,
+  score: 0,
+  answered: false,
+  total: QUESTIONS.length
+};
+
+function openQuiz(){
+  quizState.idx = 0;
+  quizState.score = 0;
+  quizState.answered = false;
+  renderQuestion();
+  document.getElementById('quizOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeQuiz(){
+  document.getElementById('quizOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function closeQuizOnOverlay(e){
+  if(e.target === document.getElementById('quizOverlay')) closeQuiz();
+}
+
+function renderQuestion(){
+  var q = QUESTIONS[quizState.idx];
+  var pct = ((quizState.idx)/quizState.total)*100;
+  document.getElementById('quizProgressFill').style.width = pct+'%';
+  document.getElementById('quizProgressLbl').textContent = 'Question '+(quizState.idx+1)+' of '+quizState.total;
+  document.getElementById('quizScoreLbl').textContent = 'Score: '+quizState.score;
+
+  var letters = ['A','B','C','D'];
+  var riddleHtml = q.riddle ? '<div class="quiz-riddle">'+q.riddle.replace(/\n/g,'<br/>')+'</div>' : '';
+  var optsHtml = q.opts.map(function(opt,i){
+    return '<div class="quiz-opt" data-idx="'+i+'" onclick="selectAnswer('+i+')"><span class="quiz-opt-letter">'+letters[i]+'</span>'+opt+'</div>';
+  }).join('');
+
+  document.getElementById('quizBody').innerHTML =
+    '<div class="quiz-cert-badge">🎓 '+q.cert+'</div>'+
+    '<div class="quiz-question-text">'+q.q+'</div>'+
+    riddleHtml+
+    '<div class="quiz-options" id="quizOpts">'+optsHtml+'</div>'+
+    '<div class="quiz-feedback" id="quizFeedback"></div>'+
+    '<div class="quiz-actions">'+
+      '<button class="quiz-btn quiz-btn-primary" id="quizNextBtn" onclick="nextQuestion()" disabled>Next →</button>'+
+    '</div>';
+  quizState.answered = false;
+}
+
+function selectAnswer(chosen){
+  if(quizState.answered) return;
+  quizState.answered = true;
+  var q = QUESTIONS[quizState.idx];
+  var opts = document.querySelectorAll('.quiz-opt');
+  var feedback = document.getElementById('quizFeedback');
+
+  opts.forEach(function(o,i){
+    if(i === q.answer) o.classList.add('correct');
+    else if(i === chosen) o.classList.add('wrong');
+    o.style.pointerEvents='none';
+  });
+
+  if(chosen === q.answer){
+    quizState.score++;
+    feedback.className='quiz-feedback correct';
+    feedback.textContent='✅ Correct! '+q.explain;
+  } else {
+    feedback.className='quiz-feedback wrong';
+    feedback.textContent='❌ Not quite. '+q.explain;
+  }
+
+  document.getElementById('quizScoreLbl').textContent='Score: '+quizState.score;
+  document.getElementById('quizNextBtn').disabled=false;
+}
+
+function nextQuestion(){
+  quizState.idx++;
+  if(quizState.idx >= quizState.total){
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResults(){
+  var pct = Math.round((quizState.score/quizState.total)*100);
+  document.getElementById('quizProgressFill').style.width='100%';
+  document.getElementById('quizProgressLbl').textContent='Complete!';
+  document.getElementById('quizScoreLbl').textContent='Final Score: '+quizState.score+'/'+quizState.total;
+
+  var grade, msg;
+  if(pct>=90){grade='🏆 Outstanding!';msg='You\'re ready to sit for your boards. Exceptional command of case management principles across all certification domains.';}
+  else if(pct>=75){grade='🌟 Strong Performance';msg='Great work! A few more review sessions and you\'ll be fully exam-ready. Review the questions you missed.';}
+  else if(pct>=60){grade='📖 Keep Studying';msg='Good foundation! Focus on the concepts you missed and revisit the CMSA Standards of Practice. You\'ve got this.';}
+  else{grade='💪 Room to Grow';msg='Don\'t be discouraged — every attempt builds knowledge. Review your weak areas and try again. Case management is complex!';}
+
+  document.getElementById('quizBody').innerHTML =
+    '<div class="quiz-results">'+
+    '<div class="quiz-results-score">'+pct+'<span style="font-size:1.5rem;color:var(--gray-400)">%</span></div>'+
+    '<div class="quiz-results-label">'+quizState.score+' of '+quizState.total+' correct</div>'+
+    '<div class="quiz-results-grade">'+grade+'</div>'+
+    '<div class="quiz-results-msg">'+msg+'</div>'+
+    '<div class="quiz-results-certs">'+
+      '<span class="quiz-cert-pill">CCM</span>'+
+      '<span class="quiz-cert-pill">ASWB</span>'+
+      '<span class="quiz-cert-pill">ACM</span>'+
+      '<span class="quiz-cert-pill">C-SWSM</span>'+
+      '<span class="quiz-cert-pill">C-ASWCM</span>'+
+    '</div>'+
+    '<div class="quiz-actions" style="justify-content:center;gap:12px;">'+
+      '<button class="quiz-btn quiz-btn-primary" onclick="closeQuiz()">Close</button>'+
+      '<button class="quiz-btn quiz-btn-restart" onclick="openQuiz()">🔄 Try Again</button>'+
+    '</div>'+
+    '</div>';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us — Addie by PEP Inc.</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#081829;--navy-mid:#0d2e52;--blue:#185793;--green:#8BC53F;
+  --green-dark:#6fa030;--white:#ffffff;--light:#f4f6f9;
+  --text:#1a2e45;--text-sub:#4a6080;--text-muted:#8a9ab0;
+  --border:#e2eaf4;--radius:16px;--radius-sm:10px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:#fff;color:var(--text);overflow-x:hidden}
+
+/* NAV */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:68px;
+  background:rgba(255,255,255,.9);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(8,24,41,.07);
+}
+.nav__logo{font-size:22px;font-weight:800;color:var(--navy);text-decoration:none;letter-spacing:-.02em}
+.nav__logo span{color:var(--green)}
+.nav__links{display:flex;align-items:center;gap:32px}
+.nav__link{font-size:13px;font-weight:500;color:var(--text-sub);text-decoration:none;transition:color .2s}
+.nav__link:hover,.nav__link.active{color:var(--navy)}
+.nav__cta{background:var(--navy);color:#fff;font-size:13px;font-weight:700;padding:9px 22px;border-radius:50px;text-decoration:none;transition:background .2s,transform .2s}
+.nav__cta:hover{background:var(--navy-mid);transform:translateY(-1px)}
+
+/* HERO */
+.hero{
+  position:relative;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;background:#fff;padding-top:68px;
+}
+#flow-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:0}
+.hero::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 68% 55% at 50% 50%,rgba(255,255,255,.6) 0%,transparent 100%);
+  pointer-events:none;z-index:1;
+}
+.hero__content{position:relative;z-index:2;text-align:center;padding:80px 24px 60px;max-width:760px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(139,197,63,.1);border:1px solid rgba(139,197,63,.3);
+  color:var(--green-dark);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:6px 16px;border-radius:40px;margin-bottom:24px;
+}
+.eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.hero h1{font-size:clamp(36px,6vw,72px);font-weight:900;line-height:1.05;letter-spacing:-.03em;color:var(--navy);margin-bottom:20px}
+.hero h1 em{font-style:normal;color:var(--green)}
+.hero__sub{font-size:clamp(15px,1.8vw,18px);font-weight:400;color:var(--text-sub);line-height:1.7;max-width:580px;margin:0 auto 40px}
+.hero__stats{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+.hero__stat{padding:16px 32px;text-align:center;border-right:1px solid var(--border)}
+.hero__stat:last-child{border-right:none}
+.hero__stat-num{font-size:28px;font-weight:900;color:var(--navy);letter-spacing:-.02em}
+.hero__stat-num em{color:var(--green);font-style:normal}
+.hero__stat-label{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+
+/* MISSION */
+.mission{position:relative;background:var(--navy);padding:72px 48px;text-align:center;overflow:hidden}
+.mission::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(139,197,63,.08) 1px,transparent 1px);background-size:28px 28px}
+.mission__inner{position:relative;z-index:1;max-width:780px;margin:0 auto}
+.mission__label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(139,197,63,.7);margin-bottom:20px}
+.mission blockquote{font-size:clamp(18px,2.8vw,28px);font-weight:600;color:#fff;line-height:1.45;font-style:italic}
+.mission blockquote strong{color:var(--green);font-style:normal}
+.mission__attr{margin-top:20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.4)}
+
+/* STORY */
+.story{padding:96px 48px;background:#fff}
+.story__inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.story__label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green-dark);margin-bottom:16px}
+.story h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;line-height:1.15;letter-spacing:-.02em;color:var(--navy);margin-bottom:20px}
+.story p{font-size:15px;line-height:1.8;color:var(--text-sub);margin-bottom:16px}
+.story__timeline{background:var(--light);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.story__timeline-header{background:var(--navy);padding:20px 24px}
+.story__timeline-header-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.story__timeline-header-title{font-size:18px;font-weight:800;color:#fff;margin-top:4px;letter-spacing:-.01em}
+.tl-item{display:flex;align-items:flex-start;gap:16px;padding:18px 24px;border-bottom:1px solid var(--border)}
+.tl-item:last-child{border-bottom:none}
+.tl-year{flex-shrink:0;font-size:12px;font-weight:800;color:var(--green-dark);background:rgba(139,197,63,.12);border:1px solid rgba(139,197,63,.25);border-radius:6px;padding:3px 8px;margin-top:2px;white-space:nowrap}
+.tl-text{font-size:13px;color:var(--text-sub);line-height:1.55}
+.tl-text strong{color:var(--navy);font-weight:600}
+
+/* TEAM */
+.team{padding:96px 48px;background:var(--light);position:relative;overflow:hidden}
+#team-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.3;pointer-events:none;z-index:0}
+.team__inner{position:relative;z-index:1;max-width:1160px;margin:0 auto}
+.section-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green-dark);margin-bottom:12px;text-align:center}
+.section-title{font-size:clamp(24px,3vw,38px);font-weight:800;line-height:1.15;letter-spacing:-.02em;color:var(--navy);text-align:center;margin-bottom:12px}
+.section-sub{font-size:15px;color:var(--text-muted);text-align:center;max-width:500px;margin:0 auto 56px;line-height:1.6}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+
+.team-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform .25s,box-shadow .25s;box-shadow:0 2px 12px rgba(8,24,41,.06)}
+.team-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(8,24,41,.12)}
+.team-card__photo{position:relative;height:240px;overflow:hidden;background:linear-gradient(135deg,var(--navy-mid),var(--navy))}
+.team-card__photo img{width:100%;height:100%;object-fit:cover;object-position:top center;transition:transform .4s}
+.team-card:hover .team-card__photo img{transform:scale(1.04)}
+.team-card__photo::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),var(--blue))}
+.photo-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:linear-gradient(135deg,#0d2e52,#185793)}
+.photo-placeholder svg{opacity:.3}
+.photo-placeholder-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.team-card__body{padding:22px}
+.team-card__name{font-size:17px;font-weight:800;color:var(--navy);letter-spacing:-.01em;margin-bottom:3px}
+.team-card__role{font-size:12px;font-weight:600;color:var(--green-dark);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.team-card__bio{font-size:13px;line-height:1.65;color:var(--text-sub);margin-bottom:16px}
+.team-card__links{display:flex;gap:10px}
+.team-link{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--blue);text-decoration:none;transition:color .2s}
+.team-link:hover{color:var(--navy)}
+
+.join-card{background:linear-gradient(135deg,var(--navy),var(--navy-mid));border:1px dashed rgba(139,197,63,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 28px;min-height:360px;border-radius:var(--radius)}
+.join-card svg{margin-bottom:16px;opacity:.5}
+.join-card h4{font-size:17px;font-weight:800;color:#fff;margin-bottom:8px;letter-spacing:-.01em}
+.join-card p{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6;margin-bottom:20px}
+.btn-join{font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;color:var(--navy);background:var(--green);border:none;border-radius:50px;padding:10px 22px;cursor:pointer;text-decoration:none;transition:background .2s,transform .2s}
+.btn-join:hover{background:#9ed648;transform:translateY(-1px)}
+
+/* VALUES */
+.values{padding:96px 48px;background:#fff}
+.values__inner{max-width:1160px;margin:0 auto}
+.values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+.value-card{padding:32px 28px;border:1px solid var(--border);border-radius:var(--radius);position:relative;overflow:hidden;transition:border-color .25s,box-shadow .25s}
+.value-card:hover{border-color:rgba(139,197,63,.4);box-shadow:0 8px 32px rgba(139,197,63,.1)}
+.value-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),var(--blue));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.value-card:hover::before{transform:scaleX(1)}
+.value-card__icon{width:48px;height:48px;background:rgba(139,197,63,.1);border:1px solid rgba(139,197,63,.2);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.value-card h3{font-size:18px;font-weight:800;color:var(--navy);letter-spacing:-.01em;margin-bottom:10px}
+.value-card p{font-size:13px;line-height:1.7;color:var(--text-sub)}
+
+/* TRUST */
+.trust{padding:72px 48px;background:var(--navy);position:relative;overflow:hidden}
+.trust::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(139,197,63,.06) 1px,transparent 1px);background-size:28px 28px}
+.trust__inner{position:relative;z-index:1;max-width:1160px;margin:0 auto;text-align:center}
+.trust__label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(139,197,63,.6);margin-bottom:14px}
+.trust__title{font-size:clamp(22px,3vw,34px);font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:12px}
+.trust__sub{font-size:14px;color:rgba(255,255,255,.45);max-width:480px;margin:0 auto 48px;line-height:1.6}
+.trust-badges{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.trust-badge{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:50px;padding:10px 20px}
+.trust-badge__icon{color:var(--green);flex-shrink:0}
+.trust-badge__text{font-size:12px;font-weight:600;color:rgba(255,255,255,.7)}
+.eco-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+.eco-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:28px 24px;text-align:left}
+.eco-card__icon{font-size:28px;margin-bottom:14px}
+.eco-card h4{font-size:16px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:-.01em}
+.eco-card p{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6}
+
+/* CTA */
+.cta{padding:96px 48px;background:#fff;text-align:center;position:relative;overflow:hidden}
+#cta-canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.22;pointer-events:none;z-index:0}
+.cta__inner{position:relative;z-index:1;max-width:600px;margin:0 auto}
+.cta h2{font-size:clamp(28px,4vw,48px);font-weight:900;color:var(--navy);letter-spacing:-.03em;line-height:1.1;margin-bottom:16px}
+.cta h2 em{font-style:normal;color:var(--green)}
+.cta p{font-size:16px;color:var(--text-muted);line-height:1.65;margin-bottom:36px}
+.cta__btns{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.btn-primary{font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;color:var(--navy);background:var(--green);border:none;border-radius:50px;padding:15px 32px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 28px rgba(139,197,63,.35);transition:background .2s,transform .2s}
+.btn-primary:hover{background:#9ed648;transform:translateY(-2px)}
+.btn-secondary{font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;color:var(--navy);background:none;border:1.5px solid var(--border);border-radius:50px;padding:14px 32px;cursor:pointer;text-decoration:none;transition:border-color .2s,background .2s}
+.btn-secondary:hover{border-color:var(--navy);background:var(--light)}
+
+@media(max-width:900px){
+  .story__inner,.values-grid,.team-grid,.eco-row{grid-template-columns:1fr}
+  .story__inner{gap:48px}
+  .nav{padding:0 24px}
+  .hero,.mission,.story,.team,.values,.trust,.cta{padding-left:24px;padding-right:24px}
+}
+@media(max-width:600px){
+  .hero__stat{border-right:none;border-bottom:1px solid var(--border)}
+  .hero__stat:last-child{border-bottom:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav__logo">addie<span>.</span></a>
+  <div class="nav__links">
+    <a href="/" class="nav__link">Home</a>
+    <a href="/platform" class="nav__link">Platform</a>
+    <a href="/plans" class="nav__link">Plans</a>
+    <a href="/about" class="nav__link active">About Us</a>
+  </div>
+  <a href="/demo" class="nav__cta">Request a Demo</a>
+</nav>
+
+<!-- HERO + FLOW FIELD -->
+<section class="hero" id="hero-section">
+  <canvas id="flow-canvas"></canvas>
+  <div class="hero__content">
+    <div class="eyebrow"><span class="eyebrow-dot"></span>Our Story</div>
+    <h1>Built by People Who<br>Lived the <em>Problem.</em></h1>
+    <p class="hero__sub">Addie started in a hospital discharge office, not a startup incubator. We saw the fax machines, the whiteboards, the phone tag — and built the platform we wished existed.</p>
+    <div class="hero__stats">
+      <div class="hero__stat"><div class="hero__stat-num"><em>5K+</em></div><div class="hero__stat-label">PAC Partners</div></div>
+      <div class="hero__stat"><div class="hero__stat-num"><em>92%</em></div><div class="hero__stat-label">Match Accuracy</div></div>
+      <div class="hero__stat"><div class="hero__stat-num">30 <em style="font-size:.65em;font-weight:700">days</em></div><div class="hero__stat-label">To Go-Live</div></div>
+      <div class="hero__stat"><div class="hero__stat-num">Day <em>1</em></div><div class="hero__stat-label">Immediate Value</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MISSION -->
+<section class="mission">
+  <div class="mission__inner">
+    <div class="mission__label">Our Mission</div>
+    <blockquote>"Every patient deserves a <strong>safe, timely transition</strong> to the right care — and every provider deserves the tools to make it happen without the friction."</blockquote>
+    <div class="mission__attr">— The Addie Team, PEP Inc.</div>
+  </div>
+</section>
+
+<!-- ORIGIN STORY -->
+<section class="story">
+  <div class="story__inner">
+    <div>
+      <div class="story__label">How Addie Came to Be</div>
+      <h2>The Discharge Board Shouldn't Be a Whiteboard.</h2>
+      <p>Post-acute care transitions are one of the most consequential — and most broken — workflows in American healthcare. Discharge coordinators were managing complex patient placements with fax machines, phone calls, and spreadsheets while beds backed up in the ED.</p>
+      <p>PEP Inc. was founded to fix exactly that. We built Addie — an AI-powered platform that connects hospitals, post-acute providers, and health plans in real time — so that the right patient gets to the right place as fast as medically possible.</p>
+      <p>We're not an EHR replacement. We're not another referral directory. Addie is a living network — one that gets smarter with every placement, every outcome, every discharge.</p>
+    </div>
+    <div>
+      <div class="story__timeline">
+        <div class="story__timeline-header">
+          <div class="story__timeline-header-label">The Addie Journey</div>
+          <div class="story__timeline-header-title">From Whiteboard to AI Platform</div>
+        </div>
+        <div class="tl-item"><div class="tl-year">2020</div><div class="tl-text"><strong>Problem identified.</strong> PEP Inc. founders document the scope of post-acute placement failures across 6 health systems.</div></div>
+        <div class="tl-item"><div class="tl-year">2021</div><div class="tl-text"><strong>First prototype.</strong> Addie v0.1 pilots at a 300-bed community hospital — reducing average boarding time by 31% in 60 days.</div></div>
+        <div class="tl-item"><div class="tl-year">2022</div><div class="tl-text"><strong>PAC network launches.</strong> 500+ SNF, IRF, and home health partners join the Addie network in Year 1.</div></div>
+        <div class="tl-item"><div class="tl-year">2023</div><div class="tl-text"><strong>Epic integration.</strong> Addie becomes EHR-native — discharge coordinators never leave their existing workflow.</div></div>
+        <div class="tl-item"><div class="tl-year">2024</div><div class="tl-text"><strong>Payer network opens.</strong> Health plans join Addie to gain transition visibility and reduce avoidable readmissions.</div></div>
+        <div class="tl-item"><div class="tl-year">2025+</div><div class="tl-text"><strong>5,000+ PAC partners.</strong> 92% AI match accuracy. Expanding into iSNP, PACE, and Hospital at Home.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team">
+  <canvas id="team-canvas"></canvas>
+  <div class="team__inner">
+    <div class="section-label">The Team</div>
+    <h2 class="section-title">People Behind the Platform</h2>
+    <p class="section-sub">Healthcare operators, engineers, and clinicians — united by one mission.</p>
+
+    <div class="team-grid">
+      <!-- Tim Poore -->
+      <div class="team-card">
+        <div class="team-card__photo">
+          <!-- Replace with real headshot: <img src="YOUR_URL" alt="Tim Poore"> -->
+          <div class="photo-placeholder">
+            <svg width="56" height="56" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+            <span class="photo-placeholder-label">Add Headshot in Webflow</span>
+          </div>
+        </div>
+        <div class="team-card__body">
+          <div class="team-card__name">Tim Poore</div>
+          <div class="team-card__role">Founder &amp; CEO, PEP Inc.</div>
+          <div class="team-card__bio">Tim has spent his career at the intersection of healthcare operations and technology — watching discharge coordinators fight fax machines while patients waited. He founded PEP Inc. to build the platform the industry needed but nobody had built yet.</div>
+          <div class="team-card__links">
+            <a href="https://linkedin.com/in/" class="team-link" target="_blank" rel="noopener">
+              <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              LinkedIn
+            </a>
+            <a href="mailto:timothy.poore@atphealthcare.com" class="team-link">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              Email
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- CMO placeholder -->
+      <div class="team-card">
+        <div class="team-card__photo">
+          <div class="photo-placeholder">
+            <svg width="56" height="56" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+            <span class="photo-placeholder-label">Coming Soon</span>
+          </div>
+        </div>
+        <div class="team-card__body">
+          <div class="team-card__name">Chief Medical Officer</div>
+          <div class="team-card__role">Clinical Strategy &amp; Outcomes</div>
+          <div class="team-card__bio">Healthcare executive with 20+ years in post-acute care operations, hospital quality, and clinical program development. Brings deep credibility to the clinical matching algorithms.</div>
+        </div>
+      </div>
+
+      <!-- VP Eng placeholder -->
+      <div class="team-card">
+        <div class="team-card__photo">
+          <div class="photo-placeholder">
+            <svg width="56" height="56" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+            <span class="photo-placeholder-label">Coming Soon</span>
+          </div>
+        </div>
+        <div class="team-card__body">
+          <div class="team-card__name">VP of Engineering</div>
+          <div class="team-card__role">Platform &amp; AI Infrastructure</div>
+          <div class="team-card__bio">Built enterprise healthcare software integrations for Epic and Cerner for over a decade. Leads the team responsible for Addie's EHR-native architecture and AI match engine.</div>
+        </div>
+      </div>
+
+      <!-- Join card -->
+      <div class="join-card">
+        <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="#8BC53F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+        <h4>We're Growing</h4>
+        <p>Join a team building the infrastructure for better patient transitions across America's healthcare system.</p>
+        <a href="/careers" class="btn-join">View Open Roles</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section class="values">
+  <div class="values__inner">
+    <div class="section-label" style="text-align:center">What We Believe</div>
+    <h2 class="section-title">Our Operating Principles</h2>
+    <p class="section-sub">The values that guide every product decision, partnership, and hire.</p>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-card__icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#8BC53F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></div>
+        <h3>Patient First, Always</h3>
+        <p>Every algorithm, every workflow, every product decision is filtered through one question: does this get the patient to the right place faster and more safely?</p>
+      </div>
+      <div class="value-card">
+        <div class="value-card__icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#8BC53F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></div>
+        <h3>Radical Transparency</h3>
+        <p>We show hospitals which PAC partners declined referrals and why. We show PAC providers their quality scores. Transparency builds better networks.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-card__icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#8BC53F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg></div>
+        <h3>Built to Integrate</h3>
+        <p>Addie doesn't ask hospitals to change workflows. We plug into Epic, Cerner, and MEDITECH natively — because adoption only happens when change is invisible.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-card__icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#8BC53F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+        <h3>Trust Through Compliance</h3>
+        <p>HIPAA-aligned by design. Every data flow, every integration, every API call is built with protected health information standards as the baseline — not an afterthought.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-card__icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#8BC53F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+        <h3>Speed is Clinical</h3>
+        <p>Every hour a patient waits for placement is a clinical event. We optimize for time-to-placement because we understand that speed isn't a feature — it's a care outcome.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-card__icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#8BC53F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg></div>
+        <h3>Network Effects, Shared</h3>
+        <p>Every hospital that joins makes matches better for PAC partners. Every PAC partner that joins improves outcomes for patients. We build the network — you benefit from it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="trust">
+  <div class="trust__inner">
+    <div class="trust__label">Built on Trust</div>
+    <h2 class="trust__title">Compliance &amp; Integration Standards</h2>
+    <p class="trust__sub">Built to the requirements of the most security-conscious health systems in the country.</p>
+    <div class="trust-badges">
+      <div class="trust-badge"><div class="trust-badge__icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div><span class="trust-badge__text">HIPAA-Aligned</span></div>
+      <div class="trust-badge"><div class="trust-badge__icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><span class="trust-badge__text">BAA Included</span></div>
+      <div class="trust-badge"><div class="trust-badge__icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg></div><span class="trust-badge__text">SOC 2 Compliant</span></div>
+      <div class="trust-badge"><div class="trust-badge__icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><span class="trust-badge__text">HL7 FHIR R4</span></div>
+      <div class="trust-badge"><div class="trust-badge__icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div><span class="trust-badge__text">Epic App Orchard</span></div>
+    </div>
+    <div class="eco-row">
+      <div class="eco-card"><div class="eco-card__icon">🏥</div><h4>For Hospitals</h4><p>Real-time discharge intelligence inside your EHR. Reduce boarding, reduce readmissions, and give your coordinators their time back.</p></div>
+      <div class="eco-card"><div class="eco-card__icon">🏠</div><h4>For Post-Acute</h4><p>Pre-matched, clinically appropriate referrals from 5,000+ hospital partners — no cold calls, no fax machines.</p></div>
+      <div class="eco-card"><div class="eco-card__icon">📋</div><h4>For Payers</h4><p>Transition visibility, network steering, and readmission prevention — across every member in your plan.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <canvas id="cta-canvas"></canvas>
+  <div class="cta__inner">
+    <h2>Ready to See <em>Addie</em><br>in Action?</h2>
+    <p>Join the hospitals and health systems already using Addie to cut boarding time and accelerate every patient transition.</p>
+    <div class="cta__btns">
+      <a href="/demo" class="btn-primary">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Request a Demo
+      </a>
+      <a href="/roi-calculator" class="btn-secondary">Calculate Your ROI →</a>
+    </div>
+  </div>
+</section>
+
+<script>
+// Vanilla JS port of the NeuralBackground / Flow Field component
+// Adapted for white/light backgrounds with brand colors
+(function(){
+  var PALETTE = ['#8BC53F','#185793','#0d4a8a','#6fa030','#3a7fc1','#5da832'];
+
+  function FlowField(canvasEl, containerEl, cfg) {
+    cfg = cfg || {};
+    var N    = cfg.particles  || 600;
+    var spd  = cfg.speed      || 1;
+    var fade = cfg.fade       || 0.15;
+    var bgR  = cfg.bgR !== undefined ? cfg.bgR : 255;
+    var bgG  = cfg.bgG !== undefined ? cfg.bgG : 255;
+    var bgB  = cfg.bgB !== undefined ? cfg.bgB : 255;
+
+    var ctx = canvasEl.getContext('2d');
+    var W, H, dpr, raf;
+    var pts = [];
+    var mx = -9999, my = -9999;
+
+    function P() { this.init(true); }
+    P.prototype.init = function(scatter) {
+      this.x  = Math.random() * W;
+      this.y  = Math.random() * H;
+      this.vx = 0; this.vy = 0;
+      this.age  = scatter ? Math.floor(Math.random() * 200) : 0;
+      this.life = Math.random() * 220 + 90;
+      this.col  = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+    };
+    P.prototype.tick = function() {
+      var a = (Math.cos(this.x * 0.0046) + Math.sin(this.y * 0.0046)) * Math.PI;
+      this.vx += Math.cos(a) * 0.19 * spd;
+      this.vy += Math.sin(a) * 0.19 * spd;
+      var dx = mx - this.x, dy = my - this.y, d = Math.sqrt(dx*dx+dy*dy), ir = 155;
+      if (d < ir) { var f=(ir-d)/ir; this.vx -= dx*f*0.042; this.vy -= dy*f*0.042; }
+      this.x += this.vx; this.y += this.vy;
+      this.vx *= 0.95; this.vy *= 0.95; this.age++;
+      if (this.age > this.life) this.init(false);
+      if (this.x<0) this.x=W; if (this.x>W) this.x=0;
+      if (this.y<0) this.y=H; if (this.y>H) this.y=0;
+    };
+    P.prototype.draw = function() {
+      var t = this.age / this.life;
+      var a = (1 - Math.abs(t - 0.5) * 2) * 0.6;
+      ctx.globalAlpha = a;
+      ctx.fillStyle = this.col;
+      ctx.fillRect(this.x, this.y, 1.9, 1.9);
+    };
+
+    function setup() {
+      dpr = window.devicePixelRatio || 1;
+      W = containerEl.clientWidth;
+      H = containerEl.clientHeight;
+      canvasEl.width = W * dpr; canvasEl.height = H * dpr;
+      canvasEl.style.width = W + 'px'; canvasEl.style.height = H + 'px';
+      ctx.scale(dpr, dpr);
+      pts = []; for (var i=0; i<N; i++) { var p=new P(); pts.push(p); }
+    }
+
+    function loop() {
+      ctx.fillStyle = 'rgba('+bgR+','+bgG+','+bgB+','+fade+')';
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = 1;
+      for (var i=0; i<pts.length; i++) { pts[i].tick(); pts[i].draw(); }
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(loop);
+    }
+
+    setup(); loop();
+
+    window.addEventListener('resize', setup);
+    containerEl.addEventListener('mousemove', function(e) {
+      var r = canvasEl.getBoundingClientRect();
+      mx = e.clientX - r.left; my = e.clientY - r.top;
+    });
+    containerEl.addEventListener('mouseleave', function() { mx=-9999; my=-9999; });
+  }
+
+  // Hero — white bg
+  var hc = document.getElementById('flow-canvas');
+  var hs = document.getElementById('hero-section');
+  if (hc && hs) new FlowField(hc, hs, {particles:680, speed:0.82, fade:0.13, bgR:255, bgG:255, bgB:255});
+
+  // Team — #f4f6f9 = rgb(244,246,249)
+  var tc = document.getElementById('team-canvas');
+  var ts = tc ? tc.parentElement : null;
+  if (tc && ts) new FlowField(tc, ts, {particles:320, speed:0.6, fade:0.15, bgR:244, bgG:246, bgB:249});
+
+  // CTA — white
+  var cc = document.getElementById('cta-canvas');
+  var cs = cc ? cc.parentElement : null;
+  if (cc && cs) new FlowField(cc, cs, {particles:250, speed:0.65, fade:0.16, bgR:255, bgG:255, bgB:255});
+})();
+</script>
+</body>
+</html>

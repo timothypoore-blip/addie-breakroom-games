@@ -1,0 +1,588 @@
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#081829;
+  --blue:#185793;
+  --green:#8BC53F;
+  --green-dark:#6fa030;
+  --white:#ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Poppins',sans-serif;
+  background:var(--navy);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  overflow-x:hidden;
+  position:relative;
+  color:#fff;
+}
+
+/* ── STAR FIELD BG ── */
+#bgCanvas{
+  position:fixed;inset:0;
+  width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+
+/* ── LAYOUT ── */
+.page{
+  position:relative;z-index:1;
+  width:100%;max-width:560px;
+  padding:24px 20px 40px;
+  display:flex;flex-direction:column;
+  align-items:center;
+  gap:0;
+}
+
+/* ── HEADER ── */
+.header{text-align:center;margin-bottom:20px;}
+.addie-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:100px;padding:5px 14px 5px 8px;
+  margin-bottom:14px;
+}
+.badge-mark{
+  width:26px;height:26px;
+  background:linear-gradient(135deg,var(--blue),var(--green));
+  border-radius:7px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:12px;color:#fff;
+}
+.badge-text{font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.8);}
+.badge-text span{color:var(--green);}
+h1{
+  font-size:clamp(1.8rem,6vw,2.6rem);
+  font-weight:900;color:#fff;line-height:1.05;margin-bottom:4px;
+}
+h1 em{color:var(--green);font-style:normal;}
+.header-sub{font-size:0.88rem;color:rgba(255,255,255,0.55);margin-bottom:0;}
+
+/* ── QUESTION BOX ── */
+.question-wrap{
+  width:100%;margin-bottom:20px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:16px;padding:16px;
+}
+.question-label{
+  font-size:0.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,0.45);margin-bottom:8px;
+}
+.question-row{display:flex;gap:8px;}
+#questionInput{
+  flex:1;background:rgba(255,255,255,0.07);
+  border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:10px;padding:10px 14px;
+  color:#fff;font-family:'Poppins',sans-serif;font-size:0.88rem;
+  outline:none;transition:border-color .2s;
+}
+#questionInput::placeholder{color:rgba(255,255,255,0.3);}
+#questionInput:focus{border-color:rgba(139,197,63,0.5);}
+.ask-btn{
+  background:var(--green);color:var(--navy);
+  border:none;border-radius:10px;padding:10px 18px;
+  font-family:'Poppins',sans-serif;font-size:0.85rem;font-weight:700;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.ask-btn:hover{background:var(--green-dark);color:#fff;}
+.question-display{
+  display:none;margin-top:10px;
+  font-size:0.88rem;color:rgba(255,255,255,0.7);
+  font-style:italic;line-height:1.5;
+}
+.question-display strong{color:var(--green);font-style:normal;}
+
+/* ── THE BALL ── */
+.ball-wrap{
+  margin:4px 0 20px;
+  display:flex;align-items:center;justify-content:center;
+}
+.ball{
+  width:clamp(220px,55vw,300px);
+  height:clamp(220px,55vw,300px);
+  border-radius:50%;
+  background:radial-gradient(circle at 32% 28%, #1e1e1e, #000000 70%);
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.7),
+    0 0 0 2px rgba(255,255,255,0.04),
+    inset 0 2px 4px rgba(255,255,255,0.08),
+    inset 0 -4px 8px rgba(0,0,0,0.6);
+  position:relative;cursor:pointer;
+  transition:transform .15s,box-shadow .3s;
+  user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.ball:hover{
+  transform:scale(1.03);
+  box-shadow:
+    0 28px 70px rgba(0,0,0,0.8),
+    0 0 40px rgba(139,197,63,0.12),
+    0 0 0 2px rgba(255,255,255,0.06),
+    inset 0 2px 4px rgba(255,255,255,0.1),
+    inset 0 -4px 8px rgba(0,0,0,0.6);
+}
+.ball:active{transform:scale(0.97);}
+.ball.shaking{animation:shake .5s ease-in-out 0s 3;}
+@keyframes shake{
+  0%,100%{transform:rotate(0deg) translateX(0);}
+  20%{transform:rotate(-6deg) translateX(-8px);}
+  40%{transform:rotate(6deg) translateX(8px);}
+  60%{transform:rotate(-4deg) translateX(-6px);}
+  80%{transform:rotate(4deg) translateX(6px);}
+}
+.ball-gloss{
+  position:absolute;top:14%;left:22%;
+  width:36%;height:44%;
+  background:radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.22) 0%, transparent 70%);
+  border-radius:50%;
+  transform:rotate(-20deg);
+  pointer-events:none;
+}
+.ball-eight{
+  position:absolute;top:10%;left:50%;
+  transform:translateX(-50%);
+  font-size:clamp(1.6rem,5vw,2.2rem);
+  font-weight:900;color:rgba(255,255,255,0.12);
+  letter-spacing:-.02em;
+  pointer-events:none;
+  user-select:none;
+}
+.answer-window{
+  position:absolute;
+  bottom:22%;left:50%;
+  transform:translateX(-50%);
+  width:58%;
+  aspect-ratio:1.5;
+  background:radial-gradient(ellipse at center, #0d1f3a 0%, #040d1a 100%);
+  border-radius:50%;
+  border:2.5px solid rgba(255,255,255,0.08);
+  box-shadow:inset 0 0 24px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.5);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  pointer-events:none;
+}
+.answer-idle{
+  font-size:clamp(0.7rem,2vw,0.9rem);
+  color:rgba(139,197,63,0.6);
+  font-style:italic;font-weight:500;
+  text-align:center;
+  transition:opacity .3s;
+  padding:8px;
+}
+.answer-result{
+  display:none;
+  flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:8px 10px;
+  text-align:center;
+  animation:fadeInUp .5s ease-out forwards;
+  width:100%;
+}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(12px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.answer-code{
+  font-size:clamp(0.55rem,1.4vw,0.72rem);
+  font-weight:700;color:var(--green);
+  letter-spacing:.04em;margin-bottom:2px;
+  line-height:1.2;
+}
+.answer-desc{
+  font-size:clamp(0.48rem,1.2vw,0.62rem);
+  color:rgba(255,255,255,0.85);
+  line-height:1.3;font-weight:400;
+}
+.loading-dots{
+  display:none;gap:6px;align-items:center;justify-content:center;
+  padding:8px;
+}
+.dot{
+  width:7px;height:7px;
+  background:var(--green);border-radius:50%;
+  animation:dotPulse 1.2s infinite ease-in-out;
+}
+.dot:nth-child(2){animation-delay:.25s;}
+.dot:nth-child(3){animation-delay:.5s;}
+@keyframes dotPulse{
+  0%,80%,100%{opacity:.2;transform:scale(.7);}
+  40%{opacity:1;transform:scale(1);}
+}
+
+/* ── HINT TEXT ── */
+.tap-hint{
+  font-size:0.78rem;color:rgba(255,255,255,0.35);
+  text-align:center;margin-bottom:16px;
+  transition:opacity .4s;
+}
+
+/* ── RESULT CARD ── */
+.result-card{
+  width:100%;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:16px;padding:18px 20px;
+  display:none;
+  animation:slideIn .4s ease-out;
+}
+.result-card.show{display:block;}
+@keyframes slideIn{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.result-card-label{
+  font-size:0.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);margin-bottom:8px;
+}
+.result-question{
+  font-size:0.85rem;color:rgba(255,255,255,.65);
+  font-style:italic;margin-bottom:10px;line-height:1.4;
+  border-left:2px solid var(--green);padding-left:10px;
+}
+.result-icd{
+  font-size:0.78rem;font-weight:700;color:var(--green);
+  letter-spacing:.05em;margin-bottom:2px;
+}
+.result-desc{
+  font-size:0.9rem;font-weight:600;color:#fff;
+  margin-bottom:10px;line-height:1.4;
+}
+.result-wisdom{
+  font-size:0.78rem;color:rgba(255,255,255,.5);
+  font-style:italic;line-height:1.5;
+  border-top:1px solid rgba(255,255,255,0.08);
+  padding-top:8px;
+}
+.copy-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(139,197,63,0.15);border:1px solid rgba(139,197,63,0.3);
+  border-radius:100px;padding:5px 12px;
+  font-size:0.72rem;font-weight:600;color:var(--green);
+  cursor:pointer;border-style:solid;font-family:'Poppins',sans-serif;
+  transition:all .2s;margin-top:8px;
+}
+.copy-btn:hover{background:rgba(139,197,63,0.25);}
+
+/* ── HISTORY PANEL ── */
+.history-wrap{
+  width:100%;margin-top:8px;
+}
+.history-label{
+  font-size:0.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.history-list{
+  display:flex;flex-direction:column;gap:6px;
+  max-height:200px;overflow-y:auto;
+}
+.history-item{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px;padding:9px 12px;
+  display:flex;align-items:flex-start;gap:10px;
+  font-size:0.78rem;animation:fadeIn .3s ease-out;
+}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.history-num{
+  background:rgba(139,197,63,0.15);color:var(--green);
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;font-weight:700;flex-shrink:0;margin-top:1px;
+}
+.history-text{line-height:1.4;}
+.history-code{font-weight:700;color:var(--green);font-size:0.72rem;display:block;}
+.history-desc{color:rgba(255,255,255,.65);}
+.history-empty{
+  font-size:0.8rem;color:rgba(255,255,255,.2);
+  text-align:center;padding:16px;font-style:italic;
+}
+
+/* ── DISCLAIMER ── */
+.disclaimer{
+  margin-top:20px;
+  font-size:0.72rem;color:rgba(255,255,255,.25);
+  text-align:center;font-style:italic;max-width:380px;line-height:1.5;
+}
+
+/* ── SCROLL ── */
+.history-list::-webkit-scrollbar{width:4px;}
+.history-list::-webkit-scrollbar-track{background:transparent;}
+.history-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+
+@media(max-width:400px){
+  .question-row{flex-direction:column;}
+  .result-desc{font-size:0.82rem;}
+}
+</style>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="addie-badge">
+      <div class="badge-mark">A</div>
+      <span class="badge-text">addie<span> Break Room</span></span>
+    </div>
+    <h1>🎱 Magic <em>8 Ball</em></h1>
+    <p class="header-sub">ICD-10 Oracle for the Weary Case Manager</p>
+  </div>
+
+  <!-- QUESTION INPUT -->
+  <div class="question-wrap">
+    <div class="question-label">Ask the Oracle</div>
+    <div class="question-row">
+      <input type="text" id="questionInput" placeholder="Will my prior auth get approved?" maxlength="120"/>
+      <button class="ask-btn" onclick="shakeAndReveal()">Ask ✦</button>
+    </div>
+    <div class="question-display" id="questionDisplay"></div>
+  </div>
+
+  <!-- THE BALL -->
+  <div class="ball-wrap">
+    <div class="ball" id="ball" onclick="shakeAndReveal()">
+      <div class="ball-gloss"></div>
+      <div class="ball-eight">8</div>
+      <div class="answer-window" id="answerWindow">
+        <div class="answer-idle" id="answerIdle">Tap me!</div>
+        <div class="loading-dots" id="loadingDots">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <div class="answer-result" id="answerResult">
+          <div class="answer-code" id="ansCode"></div>
+          <div class="answer-desc" id="ansDesc"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="tap-hint" id="tapHint">Click the ball or type a question above</p>
+
+  <!-- RESULT CARD -->
+  <div class="result-card" id="resultCard">
+    <div class="result-card-label">🔮 The Oracle Speaks</div>
+    <div class="result-question" id="rcQuestion" style="display:none"></div>
+    <div class="result-icd" id="rcCode"></div>
+    <div class="result-desc" id="rcDesc"></div>
+    <div class="result-wisdom" id="rcWisdom"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResult()">📋 Copy Code</button>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-wrap" id="historyWrap" style="display:none;">
+    <div class="history-label">📜 Recent Readings</div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <p class="disclaimer">For entertainment purposes only. All ICD-10 codes are real — the ICD-10 system really went there. Not for actual medical coding or billing.</p>
+
+</div>
+
+<script>
+(function(){
+  var c=document.getElementById('bgCanvas');
+  var ctx=c.getContext('2d');
+  var W,H,pts=[];
+  var pal=[[139,197,63],[24,87,147],[13,74,138],[111,160,48],[58,127,193],[93,168,50]];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  function mkPt(){
+    var col=pal[Math.floor(Math.random()*pal.length)];
+    return{x:Math.random()*W,y:Math.random()*H,vx:0,vy:0,
+      r:col[0],g:col[1],b:col[2],
+      a:Math.random()*0.18+0.03,sz:Math.random()*1.4+0.6};
+  }
+  for(var i=0;i<350;i++)pts.push(mkPt());
+  window.addEventListener('resize',resize);
+  var t=0;
+  function loop(){
+    requestAnimationFrame(loop);
+    ctx.fillStyle='rgba(8,24,41,0.18)';
+    ctx.fillRect(0,0,W,H);
+    t+=0.0025;
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      var angle=(Math.cos(p.x*0.0042)+Math.sin(p.y*0.0042))*Math.PI+t;
+      p.vx+=Math.cos(angle)*0.25;p.vy+=Math.sin(angle)*0.25;
+      p.vx*=0.93;p.vy*=0.93;
+      p.x+=p.vx*0.7;p.y+=p.vy*0.7;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
+      ctx.fillStyle='rgba('+p.r+','+p.g+','+p.b+','+p.a+')';ctx.fill();
+      if(p.x<-20||p.x>W+20||p.y<-20||p.y>H+20){
+        var np=mkPt();np.x=Math.random()<.5?-5:W+5;np.y=Math.random()*H;pts[i]=np;
+      }
+    }
+  }
+  resize();loop();
+})();
+
+var CODES=[
+  {code:'V97.33XD',desc:'Sucked into jet engine, subsequent encounter',wisdom:'The discharge coordinator did not anticipate this level of urgency.'},
+  {code:'W51.XXXA',desc:'Accidental striking against or bumped into by another person, sequela',wisdom:'Apparently "watch where you\'re going" is now a billable event.'},
+  {code:'V00.01XD',desc:'Pedestrian on foot injured in collision with roller-skater, subsequent encounter',wisdom:'The sidewalk was not wide enough for everyone\'s care plan.'},
+  {code:'Y93.D',desc:'Activities involved arts and handcrafts',wisdom:'Occupational therapy gone sideways. Document thoroughly.'},
+  {code:'Z99.89',desc:'Dependence on enabling machines and devices, not elsewhere classified',wisdom:'We call this "modern healthcare." Not a diagnosis — a condition of existence.'},
+  {code:'Y92.146',desc:'Swimming-pool of prison as place of occurrence of the external cause',wisdom:'The utilization review committee had questions. Many questions.'},
+  {code:'S10.87XA',desc:'Other superficial bite of other specified part of neck, initial encounter',wisdom:'The discharge instructions specifically said "avoid vampire-adjacent situations."'},
+  {code:'W55.41XA',desc:'Bitten by pig, initial encounter',wisdom:'Prior authorization was denied. The pig had no in-network providers.'},
+  {code:'W61.62XD',desc:'Struck by duck, subsequent encounter',wisdom:'This is the SECOND encounter. The patient did not learn from the first.'},
+  {code:'Z63.1',desc:'Problems in relationship with in-laws',wisdom:'Social determinants of health. We do not question the coding. We facilitate discharge.'},
+  {code:'W22.01XD',desc:'Walked into lamppost, subsequent encounter',wisdom:'Again. The patient walked into a lamppost again. Add to the care plan.'},
+  {code:'V91.07XD',desc:'Burn due to water-skis on fire, subsequent encounter',wisdom:'The safety assessment did not include aquatic combustion scenarios. It does now.'},
+  {code:'W55.29XA',desc:'Other contact with cow, initial encounter',wisdom:'Unspecified but concerning. The care team requests clarification.'},
+  {code:'V95.43XS',desc:'Spacecraft collision injuring occupant, sequela',wisdom:'The long-term effects are, as yet, poorly researched. Refer to specialists.'},
+  {code:'W61.12XA',desc:'Struck by macaw, initial encounter',wisdom:'The bird was not a covered provider. Claim denied on appeal.'},
+  {code:'R46.1',desc:'Bizarre personal appearance',wisdom:'This is a real code. The oracle does not judge. The coder, however, raised an eyebrow.'},
+  {code:'W59.22XA',desc:'Struck by turtle, initial encounter',wisdom:'Patience is a virtue. This particular turtle had none.'},
+  {code:'Z62.891',desc:'Sibling rivalry',wisdom:'This appeared in the patient\'s social history. The case manager nodded knowingly.'},
+  {code:'W22.02XD',desc:'Walked into wall, subsequent encounter',wisdom:'The patient\'s spatial awareness score has not improved between encounters.'},
+  {code:'Y93.J1',desc:'Activity, walking an animal',wisdom:'Who was walking whom remains unclear. Document accordingly.'},
+  {code:'Z60.2',desc:'Problems related to living alone',wisdom:'The oracle sees you. The care team sees you. Have you tried calling your case manager?'},
+  {code:'V00.311A',desc:'Fall from snowboard, initial encounter',wisdom:'The surgeon was not surprised. The insurer was not pleased. The snowboard had no comment.'},
+  {code:'W46.0XXA',desc:'Contact with hypodermic needle, initial encounter',wisdom:'How it started vs. how it ended. The clinical picture was not what anyone expected.'},
+  {code:'V91.00XA',desc:'Burn due to canoe or kayak on fire, initial encounter',wisdom:'The patient\'s plan to "just paddle away from the flames" did not succeed.'}
+];
+
+var WISDOM_OVERRIDES=[
+  {keywords:['prior auth','authorization','auth'],wisdom:'The oracle sees only red tape and a fax machine from 2004.'},
+  {keywords:['discharge','placing','placement'],wisdom:'The SNF said no. The family said no. The oracle suggests trying the canoe.'},
+  {keywords:['readmission','readmit'],wisdom:'The 30-day window is watching. It is always watching.'},
+  {keywords:['insurance','payer','claim','denied'],wisdom:'The claim has been denied for reasons that defy logic. Resubmit with more paperwork.'},
+  {keywords:['boss','manager','supervisor','director'],wisdom:'What happens in case management stays in case management. Mostly.'},
+  {keywords:['burnout','tired','exhausted','stress'],wisdom:'The oracle sees your caseload. The oracle is concerned. Please take a lunch break.'},
+  {keywords:['epic','ehr','charting','documentation'],wisdom:'There are seventeen clicks between you and the answer. The oracle wishes you strength.'},
+  {keywords:['family','family member','patient\'s family'],wisdom:'Z63.1 may apply. The oracle does not elaborate further.'},
+  {keywords:['snf','skilled nursing','nursing home','facility'],wisdom:'All beds are full. The bed you seek does not exist in this dimension. Try adjacent ones.'},
+  {keywords:['medicaid','medicare','cms'],wisdom:'The regulations have changed again. They will change once more before you finish reading this.'}
+];
+
+var isShaking=false,oracleHistory=[],lastCode=null;
+
+function getWisdom(question,code){
+  if(question){
+    var q=question.toLowerCase();
+    for(var i=0;i<WISDOM_OVERRIDES.length;i++){
+      var ov=WISDOM_OVERRIDES[i];
+      for(var j=0;j<ov.keywords.length;j++){
+        if(q.indexOf(ov.keywords[j])!==-1)return ov.wisdom;
+      }
+    }
+  }
+  return code.wisdom;
+}
+
+function shakeAndReveal(){
+  if(isShaking)return;
+  isShaking=true;
+  var question=document.getElementById('questionInput').value.trim();
+  var ball=document.getElementById('ball');
+  var ansIdle=document.getElementById('answerIdle');
+  var loadingDots=document.getElementById('loadingDots');
+  var ansResult=document.getElementById('answerResult');
+  var tapHint=document.getElementById('tapHint');
+  var qDisplay=document.getElementById('questionDisplay');
+  ansIdle.style.display='none';
+  ansResult.style.display='none';
+  loadingDots.style.display='flex';
+  tapHint.style.opacity='0';
+  if(question){qDisplay.style.display='block';qDisplay.innerHTML='<strong>You asked:</strong> '+escHtml(question);}
+  else{qDisplay.style.display='none';}
+  ball.classList.add('shaking');
+  setTimeout(function(){ball.classList.remove('shaking');},1500);
+  setTimeout(function(){
+    var pool=CODES.filter(function(c){return !lastCode||c.code!==lastCode.code;});
+    var picked=pool[Math.floor(Math.random()*pool.length)];
+    lastCode=picked;
+    var wisdom=getWisdom(question,picked);
+    loadingDots.style.display='none';
+    document.getElementById('ansCode').textContent=picked.code;
+    document.getElementById('ansDesc').textContent=picked.desc;
+    ansResult.style.display='flex';
+    var rcQ=document.getElementById('rcQuestion');
+    if(question){rcQ.style.display='block';rcQ.textContent='"'+question+'"';}
+    else{rcQ.style.display='none';}
+    document.getElementById('rcCode').textContent=picked.code;
+    document.getElementById('rcDesc').textContent=picked.desc;
+    document.getElementById('rcWisdom').textContent=wisdom;
+    var rc=document.getElementById('resultCard');
+    rc.classList.remove('show');
+    void rc.offsetWidth;
+    rc.classList.add('show');
+    addToHistory(question,picked);
+    tapHint.style.opacity='1';
+    tapHint.textContent='Click again to consult the oracle';
+    isShaking=false;
+  },1500);
+  playMysticSound();
+}
+
+function addToHistory(question,code){
+  oracleHistory.unshift({question:question,code:code});
+  if(oracleHistory.length>8)oracleHistory.pop();
+  var wrap=document.getElementById('historyWrap');
+  var list=document.getElementById('historyList');
+  wrap.style.display='block';
+  list.innerHTML='';
+  oracleHistory.forEach(function(item,i){
+    var div=document.createElement('div');
+    div.className='history-item';
+    div.innerHTML='<div class="history-num">'+(i+1)+'</div>'+
+      '<div class="history-text">'+
+      (item.question?'<span style="color:rgba(255,255,255,.45);font-size:.72rem;font-style:italic;">'+escHtml(item.question)+' →</span><br/>':'')+
+      '<span class="history-code">'+item.code.code+'</span>'+
+      '<span class="history-desc"> '+item.code.desc+'</span>'+
+      '</div>';
+    list.appendChild(div);
+  });
+}
+
+function copyResult(){
+  if(!lastCode)return;
+  var q=document.getElementById('questionInput').value.trim();
+  var text=lastCode.code+': '+lastCode.desc;
+  if(q)text='"'+q+'" → '+text;
+  try{
+    navigator.clipboard.writeText(text);
+    var btn=document.getElementById('copyBtn');
+    btn.textContent='✅ Copied!';
+    setTimeout(function(){btn.innerHTML='📋 Copy Code';},2000);
+  }catch(e){}
+}
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('questionInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter')shakeAndReveal();
+});
+
+function playMysticSound(){
+  try{
+    var ctx2=new(window.AudioContext||window.webkitAudioContext)();
+    var osc=ctx2.createOscillator();
+    var gain=ctx2.createGain();
+    osc.connect(gain);gain.connect(ctx2.destination);
+    osc.type='sine';
+    osc.frequency.setValueAtTime(220,ctx2.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(110,ctx2.currentTime+0.8);
+    gain.gain.setValueAtTime(0,ctx2.currentTime);
+    gain.gain.linearRampToValueAtTime(0.18,ctx2.currentTime+0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.9);
+    osc.start(ctx2.currentTime);osc.stop(ctx2.currentTime+0.9);
+    var osc2=ctx2.createOscillator();
+    var gain2=ctx2.createGain();
+    osc2.connect(gain2);gain2.connect(ctx2.destination);
+    osc2.type='sine';
+    osc2.frequency.setValueAtTime(880,ctx2.currentTime+0.1);
+    osc2.frequency.exponentialRampToValueAtTime(440,ctx2.currentTime+0.6);
+    gain2.gain.setValueAtTime(0,ctx2.currentTime+0.1);
+    gain2.gain.linearRampToValueAtTime(0.08,ctx2.currentTime+0.15);
+    gain2.gain.exponentialRampToValueAtTime(0.001,ctx2.currentTime+0.7);
+    osc2.start(ctx2.currentTime+0.1);osc2.stop(ctx2.currentTime+0.7);
+  }catch(e){}
+}
+</script>

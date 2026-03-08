@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request a Demo — Addie by PEP Inc.</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Tokens ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#081829;
+  --navy-mid:#0d2e52;
+  --navy-light:#133d72;
+  --blue:#185793;
+  --green:#8BC53F;
+  --green-dark:#6fa030;
+  --white:#ffffff;
+  --text-muted:rgba(255,255,255,.55);
+  --text-sub:rgba(255,255,255,.72);
+  --border:rgba(255,255,255,.1);
+  --card-bg:rgba(255,255,255,.04);
+  --radius:16px;
+  --radius-sm:10px;
+  --transition:.2s ease;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Poppins',sans-serif;
+  background:var(--navy);
+  color:var(--white);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── Stub Nav ───────────────────────────────────────────── */
+.nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;height:68px;
+  background:rgba(8,24,41,.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav__logo{font-size:22px;font-weight:800;color:var(--white);text-decoration:none;letter-spacing:-.02em}
+.nav__logo span{color:var(--green)}
+.nav__links{display:flex;align-items:center;gap:32px}
+.nav__link{font-size:13px;font-weight:500;color:var(--text-sub);text-decoration:none;transition:color var(--transition)}
+.nav__link:hover{color:var(--white)}
+.nav__cta{
+  background:var(--green);color:var(--navy);
+  font-size:13px;font-weight:700;
+  padding:9px 22px;border-radius:50px;
+  text-decoration:none;
+  transition:background var(--transition),transform var(--transition);
+}
+.nav__cta:hover{background:#9ed648;transform:translateY(-1px)}
+
+/* ── Page Layout ────────────────────────────────────────── */
+.page{
+  display:grid;
+  grid-template-columns:1fr 520px;
+  gap:0;
+  min-height:calc(100vh - 68px);
+}
+
+/* ── LEFT PANEL ─────────────────────────────────────────── */
+.left{
+  position:relative;
+  padding:72px 56px 72px 64px;
+  background:linear-gradient(145deg,var(--navy) 0%,var(--navy-mid) 60%,var(--navy-light) 100%);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+/* Dot-grid texture */
+.left::before{
+  content:'';
+  position:absolute;inset:0;
+  background-image:radial-gradient(circle,rgba(139,197,63,.1) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;
+}
+/* Glow orbs */
+.glow-tr{
+  position:absolute;width:560px;height:560px;border-radius:50%;
+  background:radial-gradient(circle,rgba(24,87,147,.3) 0%,transparent 70%);
+  top:-200px;right:-200px;pointer-events:none;
+}
+.glow-bl{
+  position:absolute;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(139,197,63,.08) 0%,transparent 70%);
+  bottom:-160px;left:-120px;pointer-events:none;
+}
+
+.left__inner{position:relative;z-index:1;max-width:520px}
+
+/* Eyebrow */
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(139,197,63,.12);
+  border:1px solid rgba(139,197,63,.25);
+  color:var(--green);
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:6px 14px;border-radius:40px;
+  margin-bottom:24px;
+}
+.eyebrow__dot{
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+
+.left h1{
+  font-size:clamp(28px,3.5vw,46px);
+  font-weight:800;line-height:1.1;
+  letter-spacing:-.02em;
+  margin-bottom:18px;
+}
+.left h1 em{font-style:normal;color:var(--green)}
+
+.left__sub{
+  font-size:16px;font-weight:400;
+  color:var(--text-sub);
+  line-height:1.65;
+  max-width:460px;
+  margin-bottom:44px;
+}
+
+/* What you'll see */
+.demo-preview{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--radius);
+  padding:28px 28px 24px;
+  margin-bottom:40px;
+}
+.demo-preview__label{
+  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-muted);
+  margin-bottom:18px;
+}
+.demo-item{
+  display:flex;align-items:flex-start;gap:12px;
+  margin-bottom:16px;
+}
+.demo-item:last-child{margin-bottom:0}
+.demo-item__icon{
+  flex-shrink:0;
+  width:32px;height:32px;border-radius:8px;
+  background:rgba(139,197,63,.12);
+  border:1px solid rgba(139,197,63,.2);
+  display:flex;align-items:center;justify-content:center;
+  margin-top:2px;
+}
+.demo-item__icon svg{stroke:var(--green)}
+.demo-item__title{font-size:13px;font-weight:600;color:var(--white);margin-bottom:2px}
+.demo-item__desc{font-size:12px;font-weight:400;color:var(--text-muted);line-height:1.5}
+
+/* Social proof strip */
+.proof{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.proof__stat{text-align:center}
+.proof__num{font-size:22px;font-weight:800;color:var(--green)}
+.proof__label{font-size:11px;color:var(--text-muted);font-weight:500}
+.proof__divider{width:1px;height:36px;background:rgba(255,255,255,.12)}
+
+/* Logos */
+.logos{
+  margin-top:32px;
+  padding-top:24px;
+  border-top:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+}
+.logos__label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);white-space:nowrap}
+.logo-pill{
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  padding:5px 12px;border-radius:20px;white-space:nowrap;
+}
+
+/* ── RIGHT PANEL – FORM ─────────────────────────────────── */
+.right{
+  background:#f4f6f9;
+  padding:56px 52px 56px 48px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  position:relative;
+}
+.right::before{
+  content:'';
+  position:absolute;top:0;left:0;
+  width:1px;height:100%;
+  background:linear-gradient(to bottom,transparent,rgba(8,24,41,.12),rgba(8,24,41,.2),rgba(8,24,41,.12),transparent);
+}
+
+.form-head{margin-bottom:32px}
+.form-head__title{
+  font-size:22px;font-weight:800;
+  color:var(--navy);
+  letter-spacing:-.02em;
+  margin-bottom:6px;
+}
+.form-head__sub{font-size:13px;font-weight:400;color:#5a6a7e;line-height:1.5}
+
+/* Step indicators */
+.steps{
+  display:flex;align-items:center;gap:6px;
+  margin-bottom:32px;
+}
+.step-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#d0d8e4;
+  transition:all .3s;
+}
+.step-dot.active{background:var(--navy);width:24px;border-radius:4px}
+.step-dot.done{background:var(--green)}
+.steps__label{font-size:11px;color:#8a9ab0;font-weight:500;margin-left:8px}
+
+/* Form sections */
+.form-section{display:none}
+.form-section.active{display:block}
+
+/* Field groups */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.field-row.single{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{
+  font-size:11px;font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase;
+  color:#4a5a6e;
+}
+.field label .req{color:#e05252}
+.field input,.field select,.field textarea{
+  font-family:'Poppins',sans-serif;
+  font-size:13px;font-weight:500;
+  color:var(--navy);
+  background:#fff;
+  border:1.5px solid #d4dce8;
+  border-radius:10px;
+  padding:11px 14px;
+  transition:border-color .2s,box-shadow .2s;
+  outline:none;
+  width:100%;
+  appearance:none;
+}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23081829' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  padding-right:36px;
+}
+.field textarea{resize:vertical;min-height:90px;line-height:1.5}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(24,87,147,.1);
+}
+.field input.error,.field select.error{border-color:#e05252;box-shadow:0 0 0 3px rgba(224,82,82,.08)}
+.field__hint{font-size:11px;color:#8a9ab0;margin-top:3px}
+.field__error{font-size:11px;color:#e05252;margin-top:3px;display:none}
+.field__error.show{display:block}
+
+/* Persona radio cards */
+.persona-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:14px;
+}
+.persona-card{
+  position:relative;
+  cursor:pointer;
+}
+.persona-card input[type="radio"]{
+  position:absolute;opacity:0;width:0;height:0;
+}
+.persona-card__inner{
+  border:1.5px solid #d4dce8;
+  border-radius:10px;
+  padding:14px 10px;
+  text-align:center;
+  background:#fff;
+  transition:border-color .2s,background .2s,box-shadow .2s;
+  user-select:none;
+}
+.persona-card input:checked + .persona-card__inner{
+  border-color:var(--blue);
+  background:rgba(24,87,147,.04);
+  box-shadow:0 0 0 3px rgba(24,87,147,.08);
+}
+.persona-card__icon{font-size:22px;margin-bottom:6px}
+.persona-card__label{font-size:11px;font-weight:700;color:var(--navy);line-height:1.3}
+.persona-card__sub{font-size:10px;color:#8a9ab0;margin-top:2px;font-weight:400}
+
+/* Checkbox group */
+.check-group{
+  display:flex;flex-direction:column;gap:8px;
+  margin-bottom:14px;
+}
+.check-item{
+  display:flex;align-items:center;gap:10px;
+  cursor:pointer;
+  padding:10px 14px;
+  border:1.5px solid #d4dce8;
+  border-radius:10px;
+  background:#fff;
+  transition:border-color .2s,background .2s;
+}
+.check-item:hover{border-color:#b0c0d4;background:#fafbfc}
+.check-item input[type="checkbox"]{
+  width:16px;height:16px;
+  accent-color:var(--blue);
+  cursor:pointer;
+  flex-shrink:0;
+}
+.check-item input:checked + .check-item__label{color:var(--navy)}
+.check-item input:checked ~ .check-item__icon{color:var(--blue)}
+.check-item__label{font-size:13px;font-weight:500;color:#4a5a6e;flex:1}
+
+/* Range slider */
+.slider-wrap{margin-bottom:14px}
+.slider-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.slider-val{
+  font-size:20px;font-weight:800;color:var(--navy);
+  min-width:60px;text-align:right;
+}
+input[type="range"]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:6px;
+  border-radius:3px;
+  background:linear-gradient(to right, var(--blue) 0%, var(--blue) 50%, #d4dce8 50%, #d4dce8 100%);
+  outline:none;
+  cursor:pointer;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:20px;height:20px;
+  border-radius:50%;
+  background:var(--navy);
+  border:3px solid #fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+  cursor:pointer;
+}
+input[type="range"]::-moz-range-thumb{
+  width:20px;height:20px;
+  border-radius:50%;
+  background:var(--navy);
+  border:3px solid #fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+  cursor:pointer;
+  border:none;
+}
+.slider-labels{display:flex;justify-content:space-between;margin-top:4px}
+.slider-labels span{font-size:10px;color:#8a9ab0;font-weight:500}
+
+/* Urgency badges */
+.urgency-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  margin-bottom:14px;
+}
+.urgency-card{
+  cursor:pointer;position:relative;
+}
+.urgency-card input[type="radio"]{position:absolute;opacity:0;width:0;height:0}
+.urgency-card__inner{
+  border:1.5px solid #d4dce8;
+  border-radius:10px;padding:12px 14px;
+  background:#fff;
+  transition:border-color .2s,background .2s,box-shadow .2s;
+}
+.urgency-card input:checked + .urgency-card__inner{
+  border-color:var(--green-dark);
+  background:rgba(139,197,63,.05);
+  box-shadow:0 0 0 3px rgba(139,197,63,.1);
+}
+.urgency-card__label{font-size:12px;font-weight:700;color:var(--navy)}
+.urgency-card__sub{font-size:10px;color:#8a9ab0;margin-top:2px;font-weight:400;line-height:1.4}
+
+/* Section divider */
+.sect-divider{
+  display:flex;align-items:center;gap:10px;
+  margin:18px 0 16px;
+}
+.sect-divider__line{flex:1;height:1px;background:#e4ecf4}
+.sect-divider__label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#aab8c8;white-space:nowrap}
+
+/* Navigation buttons */
+.form-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:24px;
+  gap:12px;
+}
+.btn-back{
+  font-family:'Poppins',sans-serif;
+  font-size:13px;font-weight:600;
+  color:#6a7a8e;
+  background:none;border:none;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  padding:0;
+  transition:color .2s;
+}
+.btn-back:hover{color:var(--navy)}
+.btn-next,.btn-submit{
+  flex:1;
+  font-family:'Poppins',sans-serif;
+  font-size:14px;font-weight:700;
+  color:#fff;
+  background:var(--navy);
+  border:none;border-radius:50px;
+  padding:14px 28px;
+  cursor:pointer;
+  transition:background .2s,transform .2s,box-shadow .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 20px rgba(8,24,41,.2);
+}
+.btn-next:hover,.btn-submit:hover{
+  background:#0d2e52;
+  transform:translateY(-1px);
+  box-shadow:0 8px 28px rgba(8,24,41,.28);
+}
+.btn-submit{background:var(--green-dark);color:var(--navy)}
+.btn-submit:hover{background:#5d8a27}
+
+/* Progress bar */
+.progress-bar{
+  height:3px;
+  background:#e4ecf4;
+  border-radius:2px;
+  margin-bottom:28px;
+  overflow:hidden;
+}
+.progress-bar__fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--blue),var(--green));
+  border-radius:2px;
+  transition:width .4s ease;
+}
+
+/* ── Success State ───────────────────────────────────────── */
+.success-state{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding:20px 0;
+}
+.success-state.show{display:flex}
+.success-icon{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(139,197,63,.12);
+  border:2px solid rgba(139,197,63,.3);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;
+}
+.success-icon svg{stroke:var(--green)}
+.success-title{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:10px;letter-spacing:-.02em}
+.success-sub{font-size:14px;color:#5a6a7e;line-height:1.65;max-width:340px}
+.success-timeline{
+  width:100%;
+  background:#fff;
+  border:1.5px solid #e4ecf4;
+  border-radius:var(--radius);
+  padding:20px 24px;
+  margin-top:24px;
+  text-align:left;
+}
+.success-timeline__label{
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:#8a9ab0;margin-bottom:14px;
+}
+.timeline-item{
+  display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;
+}
+.timeline-item:last-child{margin-bottom:0}
+.timeline-step{
+  flex-shrink:0;
+  width:24px;height:24px;border-radius:50%;
+  background:var(--navy);
+  color:#fff;font-size:10px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:1px;
+}
+.timeline-content__title{font-size:12px;font-weight:700;color:var(--navy)}
+.timeline-content__sub{font-size:11px;color:#8a9ab0;margin-top:1px;font-weight:400}
+.success-actions{display:flex;gap:10px;margin-top:20px;width:100%;flex-wrap:wrap}
+.btn-roi{
+  flex:1;
+  font-family:'Poppins',sans-serif;
+  font-size:13px;font-weight:700;
+  color:#fff;
+  background:var(--navy);
+  border:none;border-radius:50px;padding:12px 20px;
+  cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  transition:background .2s;
+}
+.btn-roi:hover{background:#0d2e52}
+.btn-home{
+  flex:1;
+  font-family:'Poppins',sans-serif;
+  font-size:13px;font-weight:600;
+  color:#5a6a7e;
+  background:#fff;
+  border:1.5px solid #d4dce8;border-radius:50px;padding:12px 20px;
+  cursor:pointer;text-decoration:none;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  transition:border-color .2s,color .2s;
+}
+.btn-home:hover{border-color:#b0c0d4;color:var(--navy)}
+
+/* ── Privacy note ───────────────────────────────────────── */
+.privacy-note{
+  margin-top:16px;
+  font-size:11px;color:#8a9ab0;
+  text-align:center;line-height:1.5;
+}
+.privacy-note a{color:#6a8ab0;text-decoration:none}
+.privacy-note a:hover{text-decoration:underline}
+
+/* ── Webflow hidden form ─────────────────────────────────── */
+.wf-form-wrapper{
+  position:absolute;
+  width:1px;height:1px;
+  overflow:hidden;
+  opacity:0;
+  pointer-events:none;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media(max-width:1024px){
+  .page{grid-template-columns:1fr;min-height:auto}
+  .left{padding:56px 40px}
+  .right{padding:48px 40px}
+}
+@media(max-width:640px){
+  .nav{padding:0 20px}
+  .nav__links{display:none}
+  .left{padding:40px 24px}
+  .right{padding:36px 24px}
+  .persona-grid{grid-template-columns:1fr}
+  .urgency-grid{grid-template-columns:1fr}
+  .field-row{grid-template-columns:1fr}
+  .proof{gap:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV (stub — replace with Webflow component) -->
+<nav class="nav">
+  <a href="/" class="nav__logo">addie<span>.</span></a>
+  <div class="nav__links">
+    <a href="/" class="nav__link">Home</a>
+    <a href="/platform" class="nav__link">Platform</a>
+    <a href="/about" class="nav__link">About Us</a>
+  </div>
+  <a href="/demo" class="nav__cta">Request a Demo</a>
+</nav>
+
+<!-- PAGE GRID -->
+<div class="page">
+
+  <!-- ═══ LEFT PANEL ═══════════════════════════════════════ -->
+  <div class="left">
+    <div class="glow-tr"></div>
+    <div class="glow-bl"></div>
+    <div class="left__inner">
+
+      <div class="eyebrow">
+        <span class="eyebrow__dot"></span>
+        Now Accepting New Health Systems
+      </div>
+
+      <h1>See <em>Addie</em> Work<br>in Your Hospital,<br>Live.</h1>
+
+      <p class="left__sub">
+        In 45 minutes, we'll show you exactly how Addie cuts boarding time, accelerates discharges, and matches your patients to the right post-acute care — using real data from health systems like yours.
+      </p>
+
+      <!-- What you'll see -->
+      <div class="demo-preview">
+        <div class="demo-preview__label">What you'll see in your demo</div>
+
+        <div class="demo-item">
+          <div class="demo-item__icon">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="demo-item__title">Live Predict dashboard</div>
+            <div class="demo-item__desc">Real-time discharge readiness scoring for every patient on your census — flags patients 24–48 hours before they're ready.</div>
+          </div>
+        </div>
+
+        <div class="demo-item">
+          <div class="demo-item__icon">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </div>
+          <div>
+            <div class="demo-item__title">Match engine in action</div>
+            <div class="demo-item__desc">Watch Addie rank 5,000+ PAC partners in seconds based on clinical criteria, insurance, and real-time bed availability.</div>
+          </div>
+        </div>
+
+        <div class="demo-item">
+          <div class="demo-item__icon">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="demo-item__title">Accelerate workflow</div>
+            <div class="demo-item__desc">How discharge coordinators send placements and get responses from PAC partners — all inside Epic with no extra logins.</div>
+          </div>
+        </div>
+
+        <div class="demo-item">
+          <div class="demo-item__icon">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="demo-item__title">Your ROI, calculated</div>
+            <div class="demo-item__desc">We'll model the impact for your specific bed count and boarding baseline — you leave with real numbers, not estimates.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proof stats -->
+      <div class="proof">
+        <div class="proof__stat">
+          <div class="proof__num">92%</div>
+          <div class="proof__label">Match Accuracy</div>
+        </div>
+        <div class="proof__divider"></div>
+        <div class="proof__stat">
+          <div class="proof__num">Day 1</div>
+          <div class="proof__label">Immediate Value</div>
+        </div>
+        <div class="proof__divider"></div>
+        <div class="proof__stat">
+          <div class="proof__num">30 Days</div>
+          <div class="proof__label">Go-Live</div>
+        </div>
+        <div class="proof__divider"></div>
+        <div class="proof__stat">
+          <div class="proof__num">5K+</div>
+          <div class="proof__label">PAC Partners</div>
+        </div>
+      </div>
+
+      <!-- Logo row -->
+      <div class="logos">
+        <span class="logos__label">Integrates with</span>
+        <span class="logo-pill">Epic</span>
+        <span class="logo-pill">PointClickCare</span>
+        <span class="logo-pill">Cerner</span>
+        <span class="logo-pill">MatrixCare</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ RIGHT PANEL – FORM ════════════════════════════════ -->
+  <div class="right">
+
+    <!-- Form header -->
+    <div class="form-head">
+      <div class="form-head__title">Book Your 45-Minute Demo</div>
+      <div class="form-head__sub">Personalized for your hospital. No sales pressure.</div>
+    </div>
+
+    <!-- Step indicators -->
+    <div class="steps">
+      <div class="step-dot active" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+      <span class="steps__label" id="step-label">About You</span>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="progress-bar__fill" id="progress-fill" style="width:33%"></div>
+    </div>
+
+    <!-- ── STEP 1: About You ── -->
+    <div class="form-section active" id="step1">
+
+      <!-- Persona selector -->
+      <div class="field" style="margin-bottom:14px">
+        <label>I work primarily as <span class="req">*</span></label>
+      </div>
+      <div class="persona-grid">
+        <label class="persona-card">
+          <input type="radio" name="persona" value="hospital-admin">
+          <div class="persona-card__inner">
+            <div class="persona-card__icon">🏥</div>
+            <div class="persona-card__label">Hospital Leadership</div>
+            <div class="persona-card__sub">CMO, CNO, CFO, COO, VP</div>
+          </div>
+        </label>
+        <label class="persona-card">
+          <input type="radio" name="persona" value="care-transition">
+          <div class="persona-card__inner">
+            <div class="persona-card__icon">🔄</div>
+            <div class="persona-card__label">Care Transitions</div>
+            <div class="persona-card__sub">Discharge Coordinator, Social Work</div>
+          </div>
+        </label>
+        <label class="persona-card">
+          <input type="radio" name="persona" value="it-informatics">
+          <div class="persona-card__inner">
+            <div class="persona-card__icon">💻</div>
+            <div class="persona-card__label">IT / Informatics</div>
+            <div class="persona-card__sub">CIO, CMIO, Analyst</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>First Name <span class="req">*</span></label>
+          <input type="text" id="first-name" placeholder="Sarah" autocomplete="given-name">
+          <div class="field__error" id="err-first">Required</div>
+        </div>
+        <div class="field">
+          <label>Last Name <span class="req">*</span></label>
+          <input type="text" id="last-name" placeholder="Chen" autocomplete="family-name">
+          <div class="field__error" id="err-last">Required</div>
+        </div>
+      </div>
+
+      <div class="field-row single">
+        <div class="field">
+          <label>Work Email <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="sarah@bayview.org" autocomplete="email">
+          <div class="field__hint">Please use your hospital or health system email</div>
+          <div class="field__error" id="err-email">Please enter a valid work email</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Phone <span class="req">*</span></label>
+          <input type="tel" id="phone" placeholder="(312) 555-0182" autocomplete="tel">
+          <div class="field__error" id="err-phone">Required</div>
+        </div>
+        <div class="field">
+          <label>Job Title <span class="req">*</span></label>
+          <input type="text" id="title" placeholder="VP of Patient Services" autocomplete="organization-title">
+          <div class="field__error" id="err-title">Required</div>
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <div></div>
+        <button class="btn-next" onclick="goStep(2)">
+          Continue
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── STEP 2: Your Hospital ── -->
+    <div class="form-section" id="step2">
+
+      <div class="field-row single" style="margin-bottom:14px">
+        <div class="field">
+          <label>Hospital / Health System Name <span class="req">*</span></label>
+          <input type="text" id="hospital-name" placeholder="Bayview Medical Center" autocomplete="organization">
+          <div class="field__error" id="err-hospital">Required</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>City <span class="req">*</span></label>
+          <input type="text" id="city" placeholder="Chicago" autocomplete="address-level2">
+          <div class="field__error" id="err-city">Required</div>
+        </div>
+        <div class="field">
+          <label>State <span class="req">*</span></label>
+          <select id="state" autocomplete="address-level1">
+            <option value="">Select state</option>
+            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+            <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+            <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+            <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+            <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+            <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
+            <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+            <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+            <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+            <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+            <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+            <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+            <option>WI</option><option>WY</option>
+          </select>
+          <div class="field__error" id="err-state">Required</div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Hospital Type <span class="req">*</span></label>
+          <select id="hosp-type">
+            <option value="">Select type</option>
+            <option value="acute-general">Acute Care – General</option>
+            <option value="acute-teaching">Acute Care – Teaching / Academic</option>
+            <option value="critical-access">Critical Access Hospital</option>
+            <option value="community">Community Hospital</option>
+            <option value="health-system">Multi-Hospital Health System</option>
+            <option value="va">VA / Government</option>
+            <option value="specialty">Specialty Hospital</option>
+            <option value="other">Other</option>
+          </select>
+          <div class="field__error" id="err-type">Required</div>
+        </div>
+        <div class="field">
+          <label>Licensed Beds <span class="req">*</span></label>
+          <select id="beds">
+            <option value="">Select range</option>
+            <option value="1-49">Under 50</option>
+            <option value="50-99">50 – 99</option>
+            <option value="100-199">100 – 199</option>
+            <option value="200-349">200 – 349</option>
+            <option value="350-499">350 – 499</option>
+            <option value="500-749">500 – 749</option>
+            <option value="750+">750+</option>
+          </select>
+          <div class="field__error" id="err-beds">Required</div>
+        </div>
+      </div>
+
+      <!-- EHR -->
+      <div class="sect-divider">
+        <div class="sect-divider__line"></div>
+        <div class="sect-divider__label">Current Systems</div>
+        <div class="sect-divider__line"></div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Primary EHR</label>
+          <select id="ehr">
+            <option value="">Select EHR</option>
+            <option value="epic">Epic</option>
+            <option value="cerner">Oracle Cerner</option>
+            <option value="meditech">MEDITECH</option>
+            <option value="allscripts">Allscripts</option>
+            <option value="athena">athenahealth</option>
+            <option value="other">Other</option>
+            <option value="none">No EHR</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>PAC Referral Process Today</label>
+          <select id="referral-process">
+            <option value="">Select method</option>
+            <option value="fax">Fax / phone</option>
+            <option value="spreadsheet">Spreadsheet / whiteboard</option>
+            <option value="software">Software (e.g., Aidin, Cerner PAC)</option>
+            <option value="manual">Fully manual</option>
+            <option value="mixed">Mixed / varies</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <button class="btn-back" onclick="goStep(1)">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          Back
+        </button>
+        <button class="btn-next" onclick="goStep(3)">
+          Continue
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── STEP 3: Your Priorities ── -->
+    <div class="form-section" id="step3">
+
+      <!-- Boarding time slider -->
+      <div class="field" style="margin-bottom:6px">
+        <label>Average boarding / ED hold time today (hours)</label>
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-row">
+          <span style="font-size:13px;color:#5a6a7e;font-weight:500">Current boarding</span>
+          <span class="slider-val" id="boarding-display">6h</span>
+        </div>
+        <input type="range" id="boarding-slider" min="1" max="48" value="6" step="1"
+          oninput="updateSlider(this,'boarding-display','h')">
+        <div class="slider-labels"><span>1 hr</span><span>24 hrs</span><span>48 hrs</span></div>
+      </div>
+
+      <!-- Challenges -->
+      <div class="field" style="margin-bottom:8px">
+        <label>Top challenges right now <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#8a9ab0;font-size:11px">(check all that apply)</span></label>
+      </div>
+      <div class="check-group">
+        <label class="check-item">
+          <input type="checkbox" name="challenge" value="long-los">
+          <span class="check-item__label">Extended length of stay / ED boarding</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" name="challenge" value="pac-delays">
+          <span class="check-item__label">Delays finding appropriate PAC placements</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" name="challenge" value="readmissions">
+          <span class="check-item__label">High readmission rates from PAC</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" name="challenge" value="staff-burden">
+          <span class="check-item__label">Discharge coordinator burnout / capacity</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" name="challenge" value="payer-pressure">
+          <span class="check-item__label">Payer denials / authorization delays</span>
+        </label>
+      </div>
+
+      <!-- Urgency -->
+      <div class="sect-divider">
+        <div class="sect-divider__line"></div>
+        <div class="sect-divider__label">Timeline & Scheduling</div>
+        <div class="sect-divider__line"></div>
+      </div>
+
+      <div class="field" style="margin-bottom:8px">
+        <label>How soon are you looking to implement? <span class="req">*</span></label>
+      </div>
+      <div class="urgency-grid">
+        <label class="urgency-card">
+          <input type="radio" name="urgency" value="asap">
+          <div class="urgency-card__inner">
+            <div class="urgency-card__label">🔥 ASAP</div>
+            <div class="urgency-card__sub">Active problem — need a solution now</div>
+          </div>
+        </label>
+        <label class="urgency-card">
+          <input type="radio" name="urgency" value="q1-q2">
+          <div class="urgency-card__inner">
+            <div class="urgency-card__label">📅 Next 6 months</div>
+            <div class="urgency-card__sub">Planning phase, budget cycle</div>
+          </div>
+        </label>
+        <label class="urgency-card">
+          <input type="radio" name="urgency" value="exploring">
+          <div class="urgency-card__inner">
+            <div class="urgency-card__label">🔍 Exploring</div>
+            <div class="urgency-card__sub">Early research, no timeline yet</div>
+          </div>
+        </label>
+        <label class="urgency-card">
+          <input type="radio" name="urgency" value="evaluating">
+          <div class="urgency-card__inner">
+            <div class="urgency-card__label">⚖️ Evaluating</div>
+            <div class="urgency-card__sub">Comparing vendors right now</div>
+          </div>
+        </label>
+      </div>
+      <div class="field__error" id="err-urgency" style="margin-top:-8px;margin-bottom:12px">Please select a timeline</div>
+
+      <!-- Preferred time -->
+      <div class="field-row">
+        <div class="field">
+          <label>Preferred demo day</label>
+          <select id="pref-day">
+            <option value="">No preference</option>
+            <option value="mon">Monday</option>
+            <option value="tue">Tuesday</option>
+            <option value="wed">Wednesday</option>
+            <option value="thu">Thursday</option>
+            <option value="fri">Friday</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Preferred time (CT)</label>
+          <select id="pref-time">
+            <option value="">No preference</option>
+            <option value="morning">Morning (8am – 12pm)</option>
+            <option value="afternoon">Afternoon (12pm – 4pm)</option>
+            <option value="late">Late afternoon (4pm – 6pm)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="field-row single">
+        <div class="field">
+          <label>Anything else you'd like us to know?</label>
+          <textarea id="notes" placeholder="e.g., We're also evaluating Aidin. Our CFO will be in the call. We're a 6-hospital system across 3 states."></textarea>
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <button class="btn-back" onclick="goStep(2)">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          Back
+        </button>
+        <button class="btn-submit" onclick="submitForm()">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Book My Demo
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── SUCCESS STATE ── -->
+    <div class="success-state" id="success">
+      <div class="success-icon">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div class="success-title">You're on the calendar!</div>
+      <div class="success-sub">Our team will reach out within 1 business day to confirm your personalized demo time.</div>
+
+      <div class="success-timeline">
+        <div class="success-timeline__label">What happens next</div>
+        <div class="timeline-item">
+          <div class="timeline-step">1</div>
+          <div class="timeline-content">
+            <div class="timeline-content__title">Confirmation email</div>
+            <div class="timeline-content__sub">Within the next hour, from your dedicated rep</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-step">2</div>
+          <div class="timeline-content">
+            <div class="timeline-content__title">Personalization call (15 min)</div>
+            <div class="timeline-content__sub">We customize the demo to your hospital size, EHR, and boarding challenges</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-step">3</div>
+          <div class="timeline-content">
+            <div class="timeline-content__title">Your 45-minute live demo</div>
+            <div class="timeline-content__sub">See Addie's full Predict → Match → Accelerate workflow with your data</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-step">4</div>
+          <div class="timeline-content">
+            <div class="timeline-content__title">Custom ROI report</div>
+            <div class="timeline-content__sub">Sent after the demo — modeled on your actual bed count and boarding baseline</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <a href="/roi-calculator" class="btn-roi">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 13h.01M13 13h.01M13 17h.01M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
+          </svg>
+          Calculate Your ROI
+        </a>
+        <a href="/" class="btn-home">← Back to Home</a>
+      </div>
+    </div>
+
+    <!-- Privacy note -->
+    <div class="privacy-note" id="privacy-note">
+      🔒 HIPAA-aligned data handling. No spam, ever. <a href="/privacy">Privacy policy</a>.
+    </div>
+
+    <!-- ═══ Webflow native form (hidden — captures all data) ═══ -->
+    <div class="wf-form-wrapper">
+      <form
+        id="wf-demo-form"
+        data-name="Addie Demo Request"
+        name="Addie Demo Request"
+        method="post"
+        data-wf-page-id=""
+        data-wf-element-id=""
+      >
+        <!-- Contact info -->
+        <input type="hidden" name="First Name"         id="wf-first-name">
+        <input type="hidden" name="Last Name"          id="wf-last-name">
+        <input type="hidden" name="Email"              id="wf-email">
+        <input type="hidden" name="Phone"              id="wf-phone">
+        <input type="hidden" name="Job Title"          id="wf-title">
+        <input type="hidden" name="Persona"            id="wf-persona">
+        <!-- Hospital info -->
+        <input type="hidden" name="Hospital Name"      id="wf-hospital">
+        <input type="hidden" name="City"               id="wf-city">
+        <input type="hidden" name="State"              id="wf-state">
+        <input type="hidden" name="Hospital Type"      id="wf-hosp-type">
+        <input type="hidden" name="Bed Range"          id="wf-beds">
+        <input type="hidden" name="Primary EHR"        id="wf-ehr">
+        <input type="hidden" name="Referral Process"   id="wf-referral">
+        <!-- Priorities -->
+        <input type="hidden" name="Avg Boarding Hours" id="wf-boarding">
+        <input type="hidden" name="Challenges"         id="wf-challenges">
+        <input type="hidden" name="Implementation Timeline" id="wf-urgency">
+        <input type="hidden" name="Preferred Day"      id="wf-day">
+        <input type="hidden" name="Preferred Time"     id="wf-time">
+        <input type="hidden" name="Notes"              id="wf-notes">
+        <!-- Meta -->
+        <input type="hidden" name="Lead Score"         id="wf-score">
+        <input type="hidden" name="Source Page"        id="wf-source">
+        <input type="hidden" name="Submitted At"       id="wf-submitted-at">
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+
+  </div><!-- /right -->
+</div><!-- /page -->
+
+<script>
+// ── State ──────────────────────────────────────────────────
+var currentStep = 1;
+var TOTAL_STEPS = 3;
+
+// ── Step Navigation ─────────────────────────────────────────
+function goStep(n) {
+  if (n > currentStep && !validateStep(currentStep)) return;
+
+  document.getElementById('step' + currentStep).classList.remove('active');
+  currentStep = n;
+  document.getElementById('step' + currentStep).classList.add('active');
+  updateIndicators();
+  document.querySelector('.right').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateIndicators() {
+  var labels = ['About You', 'Your Hospital', 'Your Priorities'];
+  document.getElementById('step-label').textContent = labels[currentStep - 1];
+
+  for (var i = 1; i <= TOTAL_STEPS; i++) {
+    var dot = document.getElementById('dot-' + i);
+    dot.className = 'step-dot';
+    if (i < currentStep) dot.classList.add('done');
+    else if (i === currentStep) dot.classList.add('active');
+  }
+
+  var pct = Math.round((currentStep / TOTAL_STEPS) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// ── Validation ──────────────────────────────────────────────
+function showErr(id, show) {
+  var el = document.getElementById(id);
+  if (el) { el.classList[show ? 'add' : 'remove']('show'); }
+}
+function markField(id, error) {
+  var el = document.getElementById(id);
+  if (el) { el.classList[error ? 'add' : 'remove']('error'); }
+}
+
+function validateStep(step) {
+  var ok = true;
+
+  if (step === 1) {
+    var persona = document.querySelector('input[name="persona"]:checked');
+    if (!persona) {
+      // just highlight the section softly — persona not hard required
+    }
+    var first = document.getElementById('first-name').value.trim();
+    var last  = document.getElementById('last-name').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var phone = document.getElementById('phone').value.trim();
+    var title = document.getElementById('title').value.trim();
+
+    if (!first)  { markField('first-name', true); showErr('err-first', true); ok = false; }
+    else         { markField('first-name', false); showErr('err-first', false); }
+
+    if (!last)   { markField('last-name', true); showErr('err-last', true); ok = false; }
+    else         { markField('last-name', false); showErr('err-last', false); }
+
+    var emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRx.test(email)) {
+      markField('email', true); showErr('err-email', true); ok = false;
+    } else {
+      markField('email', false); showErr('err-email', false);
+    }
+
+    if (!phone)  { markField('phone', true); showErr('err-phone', true); ok = false; }
+    else         { markField('phone', false); showErr('err-phone', false); }
+
+    if (!title)  { markField('title', true); showErr('err-title', true); ok = false; }
+    else         { markField('title', false); showErr('err-title', false); }
+  }
+
+  if (step === 2) {
+    var hosp  = document.getElementById('hospital-name').value.trim();
+    var city  = document.getElementById('city').value.trim();
+    var state = document.getElementById('state').value;
+    var type  = document.getElementById('hosp-type').value;
+    var beds  = document.getElementById('beds').value;
+
+    if (!hosp)  { markField('hospital-name', true); showErr('err-hospital', true); ok = false; }
+    else        { markField('hospital-name', false); showErr('err-hospital', false); }
+
+    if (!city)  { markField('city', true); showErr('err-city', true); ok = false; }
+    else        { markField('city', false); showErr('err-city', false); }
+
+    if (!state) { markField('state', true); showErr('err-state', true); ok = false; }
+    else        { markField('state', false); showErr('err-state', false); }
+
+    if (!type)  { markField('hosp-type', true); showErr('err-type', true); ok = false; }
+    else        { markField('hosp-type', false); showErr('err-type', false); }
+
+    if (!beds)  { markField('beds', true); showErr('err-beds', true); ok = false; }
+    else        { markField('beds', false); showErr('err-beds', false); }
+  }
+
+  if (step === 3) {
+    var urgency = document.querySelector('input[name="urgency"]:checked');
+    if (!urgency) { showErr('err-urgency', true); ok = false; }
+    else          { showErr('err-urgency', false); }
+  }
+
+  return ok;
+}
+
+// ── Slider ──────────────────────────────────────────────────
+function updateSlider(slider, displayId, suffix) {
+  document.getElementById(displayId).textContent = slider.value + suffix;
+  // Update gradient fill
+  var pct = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+  slider.style.background = 'linear-gradient(to right, #185793 0%, #185793 ' + pct + '%, #d4dce8 ' + pct + '%, #d4dce8 100%)';
+}
+
+// Initialize slider on load
+window.addEventListener('DOMContentLoaded', function() {
+  var s = document.getElementById('boarding-slider');
+  updateSlider(s, 'boarding-display', 'h');
+});
+
+// ── Lead Scoring ────────────────────────────────────────────
+function calcLeadScore() {
+  var score = 0;
+
+  // Persona
+  var persona = document.querySelector('input[name="persona"]:checked');
+  if (persona) {
+    if (persona.value === 'hospital-admin') score += 30;
+    else if (persona.value === 'care-transition') score += 20;
+    else score += 10;
+  }
+
+  // Urgency
+  var urgency = document.querySelector('input[name="urgency"]:checked');
+  if (urgency) {
+    if (urgency.value === 'asap') score += 40;
+    else if (urgency.value === 'evaluating') score += 30;
+    else if (urgency.value === 'q1-q2') score += 20;
+    else score += 10;
+  }
+
+  // Bed size
+  var beds = document.getElementById('beds').value;
+  if (beds === '750+') score += 25;
+  else if (beds === '500-749') score += 20;
+  else if (beds === '350-499') score += 15;
+  else if (beds === '200-349') score += 10;
+  else if (beds) score += 5;
+
+  // EHR (Epic = easiest integration)
+  var ehr = document.getElementById('ehr').value;
+  if (ehr === 'epic') score += 15;
+  else if (ehr === 'cerner') score += 12;
+  else if (ehr) score += 5;
+
+  // Number of challenges
+  var challenges = document.querySelectorAll('input[name="challenge"]:checked').length;
+  score += challenges * 5;
+
+  // Boarding hours > 8 = bigger pain
+  var boarding = parseInt(document.getElementById('boarding-slider').value);
+  if (boarding >= 12) score += 20;
+  else if (boarding >= 6) score += 10;
+
+  return Math.min(score, 100);
+}
+
+// ── Submit ──────────────────────────────────────────────────
+function submitForm() {
+  if (!validateStep(3)) return;
+
+  // Gather challenges
+  var cbs = document.querySelectorAll('input[name="challenge"]:checked');
+  var challenges = Array.from(cbs).map(function(c){ return c.value; }).join(', ');
+
+  // Gather persona
+  var personaEl = document.querySelector('input[name="persona"]:checked');
+  var persona = personaEl ? personaEl.value : '';
+
+  // Urgency
+  var urgencyEl = document.querySelector('input[name="urgency"]:checked');
+  var urgency = urgencyEl ? urgencyEl.value : '';
+
+  // Populate Webflow hidden fields
+  document.getElementById('wf-first-name').value = document.getElementById('first-name').value.trim();
+  document.getElementById('wf-last-name').value  = document.getElementById('last-name').value.trim();
+  document.getElementById('wf-email').value       = document.getElementById('email').value.trim();
+  document.getElementById('wf-phone').value       = document.getElementById('phone').value.trim();
+  document.getElementById('wf-title').value       = document.getElementById('title').value.trim();
+  document.getElementById('wf-persona').value     = persona;
+
+  document.getElementById('wf-hospital').value   = document.getElementById('hospital-name').value.trim();
+  document.getElementById('wf-city').value        = document.getElementById('city').value.trim();
+  document.getElementById('wf-state').value       = document.getElementById('state').value;
+  document.getElementById('wf-hosp-type').value  = document.getElementById('hosp-type').value;
+  document.getElementById('wf-beds').value        = document.getElementById('beds').value;
+  document.getElementById('wf-ehr').value         = document.getElementById('ehr').value;
+  document.getElementById('wf-referral').value    = document.getElementById('referral-process').value;
+
+  document.getElementById('wf-boarding').value   = document.getElementById('boarding-slider').value + ' hrs';
+  document.getElementById('wf-challenges').value = challenges;
+  document.getElementById('wf-urgency').value     = urgency;
+  document.getElementById('wf-day').value         = document.getElementById('pref-day').value;
+  document.getElementById('wf-time').value        = document.getElementById('pref-time').value;
+  document.getElementById('wf-notes').value       = document.getElementById('notes').value.trim();
+  document.getElementById('wf-score').value       = calcLeadScore();
+  document.getElementById('wf-source').value      = window.location.href;
+  document.getElementById('wf-submitted-at').value = new Date().toISOString();
+
+  // Submit Webflow form
+  var form = document.getElementById('wf-demo-form');
+
+  // Listen for Webflow success
+  var done = false;
+  document.addEventListener('wf-form-done', function() {
+    if (!done) { done = true; showSuccess(); }
+  });
+
+  // Fallback timer (if not in Webflow context)
+  setTimeout(function() {
+    if (!done) { done = true; showSuccess(); }
+  }, 1400);
+
+  form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+}
+
+function showSuccess() {
+  // Hide form sections
+  document.querySelectorAll('.form-section').forEach(function(s){ s.style.display='none'; });
+  document.querySelector('.form-head').style.display = 'none';
+  document.querySelector('.steps').style.display = 'none';
+  document.querySelector('.progress-bar').style.display = 'none';
+  document.getElementById('privacy-note').style.display = 'none';
+
+  document.getElementById('success').classList.add('show');
+}
+</script>
+
+</body>
+</html>

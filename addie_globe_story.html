@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Addie — Care Coordination Story · PEP Inc.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy:  #081829;
+      --green: #8BC53F;
+      --blue:  #185793;
+      --white: #ffffff;
+      --gray:  #6b7280;
+      --font:  'Poppins', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+      color: var(--navy);
+    }
+
+    /* ── Demo helpers (remove in Webflow) ── */
+    .demo-bar {
+      background: var(--navy); color: rgba(255,255,255,0.55);
+      font-size: 11px; font-family: var(--font); padding: 8px 28px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .demo-bar strong { color: var(--green); }
+    .demo-hint {
+      background: rgba(139,197,63,0.06);
+      border-bottom: 1px solid rgba(139,197,63,0.14);
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 9px 24px;
+      font-size: 11px; color: var(--gray); font-family: var(--font);
+    }
+    .hint-arr {
+      width: 13px; height: 13px; flex-shrink: 0;
+      border-right: 2px solid var(--green); border-bottom: 2px solid var(--green);
+      transform: rotate(45deg);
+      animation: bounce 1.5s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: rotate(45deg) translateY(0); }
+      50%      { transform: rotate(45deg) translateY(4px); }
+    }
+
+    /* ═══════════════════════════════════════════════
+       SCROLL SECTION
+       Paste from <section id="addie-story"> onward
+    ═══════════════════════════════════════════════ */
+    #addie-story {
+      position: relative;
+      height: 560vh;
+    }
+
+    .story-sticky {
+      position: sticky; top: 0;
+      height: 100vh;
+      display: flex; align-items: center;
+      overflow: hidden; background: var(--white);
+    }
+
+    .story-inner {
+      display: flex; width: 100%; max-width: 1380px;
+      margin: 0 auto; padding: 0 80px;
+      align-items: center; height: 100%; gap: 40px;
+    }
+
+    /* ── Left panel ── */
+    .story-left { flex: 0 0 44%; position: relative; padding-right: 20px; }
+
+    .stage-pips {
+      display: flex; align-items: center; gap: 6px; margin-bottom: 40px;
+      transition: opacity 0.5s ease;
+    }
+    .stage-pips.hidden { opacity: 0; pointer-events: none; }
+
+    .pip {
+      height: 3px; border-radius: 2px;
+      background: rgba(8,24,41,0.1);
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1), background 0.5s ease;
+      width: 28px;
+    }
+    .pip.done    { background: rgba(139,197,63,0.5); width: 28px; }
+    .pip.current { background: var(--green); width: 52px; }
+    .pip-label   { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: var(--gray); margin-left: 6px; }
+
+    .panels-wrap { position: relative; min-height: 460px; }
+
+    .panel {
+      position: absolute; top: 0; left: 0; width: 100%;
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.4,0,0.2,1);
+      pointer-events: none;
+    }
+    .panel.active {
+      opacity: 1; transform: translateY(0); pointer-events: auto; position: relative;
+    }
+    .panel-eyebrow {
+      display: block; font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 2.5px; color: var(--green); margin-bottom: 16px;
+    }
+
+    /* Hero panel */
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(139,197,63,0.09); border: 1px solid rgba(139,197,63,0.28);
+      color: #4d7d18; padding: 5px 14px; border-radius: 100px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+      text-transform: uppercase; margin-bottom: 22px;
+    }
+    .edot {
+      width: 6px; height: 6px; background: var(--green); border-radius: 50%;
+      animation: epulse 2s ease-in-out infinite;
+    }
+    @keyframes epulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.7)} }
+
+    .hero-h1 {
+      font-size: clamp(38px, 4.8vw, 68px); font-weight: 800;
+      line-height: 1.05; letter-spacing: -1.5px; color: var(--navy); margin-bottom: 14px;
+    }
+    .hero-h1 .dot    { color: rgba(8,24,41,0.18); }
+    .hero-h1 .accent { color: var(--green); }
+    .hero-h2 {
+      font-size: clamp(15px, 1.8vw, 21px); font-weight: 500;
+      color: var(--blue); margin-bottom: 20px; letter-spacing: -0.2px;
+    }
+    .hero-body {
+      font-size: 14px; color: #4a5568; line-height: 1.8;
+      max-width: 400px; margin-bottom: 32px;
+    }
+    .hero-ctas { display: flex; gap: 11px; flex-wrap: wrap; margin-bottom: 36px; }
+    .btn-p {
+      background: var(--green); color: white; padding: 12px 24px; border-radius: 7px;
+      font-size: 13px; font-weight: 700; text-decoration: none; font-family: var(--font);
+      transition: background .2s, transform .15s; box-shadow: 0 4px 16px rgba(139,197,63,.28);
+    }
+    .btn-p:hover { background: #78b030; transform: translateY(-1px); }
+    .btn-g {
+      background: transparent; color: var(--navy); padding: 12px 20px; border-radius: 7px;
+      font-size: 13px; font-weight: 600; text-decoration: none; font-family: var(--font);
+      border: 1.5px solid rgba(8,24,41,0.16); transition: border-color .2s, transform .15s;
+    }
+    .btn-g:hover { border-color: var(--navy); transform: translateY(-1px); }
+    .hero-proof {
+      display: flex; gap: 32px; padding-top: 26px;
+      border-top: 1px solid rgba(8,24,41,0.08);
+    }
+    .proof-num {
+      font-size: 24px; font-weight: 800; color: var(--navy); display: block; line-height: 1;
+    }
+    .proof-num .acc { color: var(--green); }
+    .proof-lbl {
+      font-size: 10px; color: var(--gray); margin-top: 4px;
+      display: block; line-height: 1.4; max-width: 105px;
+    }
+
+    /* Story panels 1–3 */
+    .panel h2 {
+      font-size: clamp(24px, 2.7vw, 40px); font-weight: 800;
+      line-height: 1.1; letter-spacing: -0.5px; color: var(--navy); margin-bottom: 18px;
+    }
+    .panel h2 .hg { color: var(--green); }
+    .panel h2 .hb { color: var(--blue); }
+    .panel p { font-size: 14px; color: #4a5568; line-height: 1.8; max-width: 390px; margin-bottom: 28px; }
+    .stat-chip {
+      display: inline-flex; flex-direction: column;
+      background: rgba(139,197,63,0.07); border: 1px solid rgba(139,197,63,0.18);
+      border-radius: 13px; padding: 15px 20px;
+    }
+    .cnum  { font-size: 46px; font-weight: 800; color: var(--navy); line-height: 1; }
+    .cnum .accent { color: var(--green); }
+    .cnum.sm { font-size: 26px; line-height: 1.2; }
+    .clbl  { font-size: 10px; color: var(--gray); margin-top: 4px; line-height: 1.4; max-width: 195px; }
+    .cta-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--green); color: white; text-decoration: none;
+      padding: 12px 22px; border-radius: 7px; font-size: 13px; font-weight: 700;
+      font-family: var(--font); margin-top: 6px; transition: background .2s, transform .15s;
+    }
+    .cta-link:hover { background: #78b030; transform: translateY(-1px); }
+
+    /* ── Right visual ── */
+    .story-right {
+      flex: 0 0 56%; height: 100%;
+      display: flex; align-items: center; justify-content: center; position: relative;
+    }
+
+    /* Globe wrapper — morphs out on Stage 4 */
+    .globe-wrap {
+      position: absolute; width: 580px; height: 580px;
+      transition: opacity 0.7s ease, transform 0.85s cubic-bezier(0.4,0,0.2,1);
+      transform-origin: center;
+    }
+    .globe-wrap.morph-out {
+      transform: scale(0.08);
+      opacity: 0;
+    }
+
+    #globe-canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+    #globe-canvas:active { cursor: grabbing; }
+
+    .globe-legend {
+      position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 9px; opacity: 0; transition: opacity 0.6s ease; white-space: nowrap;
+    }
+    .globe-legend.show { opacity: 1; }
+    .leg-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 9px; font-weight: 600; color: var(--gray); font-family: var(--font);
+      background: rgba(255,255,255,0.92); border: 1px solid rgba(0,0,0,0.07);
+      border-radius: 100px; padding: 3px 9px;
+    }
+    .leg-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .ld-b { background: var(--blue); }
+    .ld-g { background: var(--green); }
+
+    .scroll-cue {
+      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      opacity: 0; transition: opacity 0.6s ease;
+    }
+    .scroll-cue.show { opacity: 1; }
+    .sc-line {
+      width: 1px; height: 32px;
+      background: linear-gradient(to bottom, rgba(8,24,41,0.3), transparent);
+      animation: scline 1.8s ease-in-out infinite;
+    }
+    @keyframes scline {
+      0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
+      50%  { opacity: 1; }
+      100% { transform: scaleY(1); transform-origin: top; opacity: 0; }
+    }
+    .sc-txt {
+      font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: rgba(8,24,41,0.3); font-family: var(--font);
+    }
+
+    /* ── UI Reveal — morphs in from center ── */
+    .ui-reveal {
+      position: absolute; width: 520px;
+      opacity: 0;
+      transform: scale(0.06);
+      transform-origin: center center;
+      transition: opacity 0.7s ease 0.5s,
+                  transform 0.75s cubic-bezier(0.34, 1.45, 0.64, 1) 0.5s;
+      pointer-events: none;
+    }
+    .ui-reveal.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+    .ui-window {
+      background: white; border-radius: 14px;
+      box-shadow: 0 20px 80px rgba(8,24,41,0.16), 0 0 0 1px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .ui-bar {
+      background: var(--navy); padding: 10px 15px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .ui-dots { display: flex; gap: 4px; }
+    .ui-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .ud-r{background:#ff5f57;} .ud-y{background:#febc2e;} .ud-g{background:#28c840;}
+    .ui-title { font-size: 10px; color: rgba(255,255,255,0.38); margin-left: 8px; font-family: var(--font); }
+    .ui-body { padding: 16px; background: #f8fafd; }
+    .ui-hrow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 11px; }
+    .ui-hrow h4 { font-size: 11px; font-weight: 700; color: var(--navy); font-family: var(--font); }
+    .tag-g {
+      font-size: 8px; font-weight: 700; letter-spacing: 0.4px;
+      background: rgba(139,197,63,0.15); color: #4e7e19;
+      padding: 2px 8px; border-radius: 100px; text-transform: uppercase; font-family: var(--font);
+    }
+    .pt-row {
+      background: white; border-radius: 7px; padding: 8px 11px; margin-bottom: 5px;
+      display: flex; align-items: center; gap: 9px;
+      border: 1px solid rgba(0,0,0,0.052);
+    }
+    .av {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 700; color: white; flex-shrink: 0; font-family: var(--font);
+    }
+    .av1{background:linear-gradient(135deg,#185793,#081829);}
+    .av2{background:linear-gradient(135deg,#8BC53F,#185793);}
+    .av3{background:linear-gradient(135deg,#081829,#185793);}
+    .av4{background:linear-gradient(135deg,#185793,#8BC53F);}
+    .pt-info{flex:1;min-width:0;}
+    .pt-name{font-size:10px;font-weight:600;color:var(--navy);font-family:var(--font);}
+    .pt-meta{font-size:8px;color:var(--gray);font-family:var(--font);}
+    .pt-flag{
+      font-size:7px;font-weight:700;padding:2px 6px;border-radius:3px;
+      text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;flex-shrink:0;font-family:var(--font);
+    }
+    .f-snf {background:rgba(24,87,147,.12);color:var(--blue);}
+    .f-home{background:rgba(8,24,41,.08);color:var(--navy);}
+    .f-iru {background:rgba(139,197,63,.12);color:#3d6e15;}
+    .f-pac {background:rgba(139,197,63,.15);color:#4e7e19;}
+    .ai-bar {
+      background:linear-gradient(135deg,rgba(24,87,147,.06),rgba(139,197,63,.05));
+      border:1px solid rgba(139,197,63,.18); border-radius:7px;
+      padding:8px 11px; margin-top:9px; display:flex; align-items:center; gap:8px;
+    }
+    .ai-icon {
+      width:22px;height:22px;background:linear-gradient(135deg,var(--blue),var(--green));
+      border-radius:4px;display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;font-size:9px;font-weight:700;color:white;font-family:var(--font);
+    }
+    .ai-txt{font-size:9px;color:var(--navy);line-height:1.5;font-family:var(--font);}
+    .ai-txt strong{color:var(--blue);}
+
+    /* Responsive */
+    @media(max-width:960px){
+      .story-inner{flex-direction:column;padding:76px 28px 28px;gap:14px;justify-content:center;}
+      .story-left{flex:none;width:100%;padding-right:0;}
+      .story-right{flex:none;width:100%;min-height:300px;}
+      .globe-wrap{width:290px;height:290px;}
+      .ui-reveal{width:310px;}
+      .hero-h1{font-size:32px;}
+    }
+    @media(max-width:600px){
+      .demo-bar,.demo-hint{display:none;}
+      .story-inner{padding:64px 18px 24px;}
+      .globe-wrap{width:252px;height:252px;}
+      .ui-reveal{width:280px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- Demo helpers — remove in Webflow -->
+<div class="demo-bar">
+  <strong>Addie Globe Story</strong> · 10 hospitals · 21 PAC providers · 27 connections · 5 stages
+</div>
+<div class="demo-hint">
+  <div class="hint-arr"></div>
+  Scroll through: Hero → Predict (prediction flashes) → Match (bidirectional flow) → Accelerate (full network) → Platform UI morph
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PASTE FROM HERE INTO WEBFLOW
+════════════════════════════════════════════════════ -->
+<section id="addie-story">
+  <div class="story-sticky">
+    <div class="story-inner">
+
+      <!-- LEFT -->
+      <div class="story-left">
+        <div class="stage-pips hidden" id="stage-pips">
+          <div class="pip current" id="pip-1"></div>
+          <div class="pip" id="pip-2"></div>
+          <div class="pip" id="pip-3"></div>
+          <span class="pip-label" id="pip-lbl">Step 1 of 3</span>
+        </div>
+
+        <div class="panels-wrap">
+
+          <!-- Panel 0: Hero -->
+          <div class="panel active" id="panel-0">
+            <div class="hero-pill"><span class="edot"></span>Mayo Clinic Platform Partner</div>
+            <h1 class="hero-h1">
+              Predict<span class="dot">.</span>
+              Match<span class="dot">.</span>
+              <span class="accent">Accelerate.</span>
+            </h1>
+            <div class="hero-h2">Addie: AI-Powered Care Transitions</div>
+            <p class="hero-body">
+              Eliminate discharge delays, reduce costly boarding, and connect patients to the right post-acute care — identified at the moment of admission. Addie integrates with Epic so nothing changes except your outcomes.
+            </p>
+            <div class="hero-ctas">
+              <a href="/contact" class="btn-p">Book a Demo →</a>
+              <a href="#" class="btn-g" id="scroll-cta">See How It Works ↓</a>
+            </div>
+            <div class="hero-proof">
+              <div>
+                <span class="proof-num">92<span class="acc">%</span></span>
+                <span class="proof-lbl">Accuracy predicting PAC need at admission</span>
+              </div>
+              <div>
+                <span class="proof-num">Day <span class="acc">1</span></span>
+                <span class="proof-lbl">Planning starts at admission, not discharge</span>
+              </div>
+              <div>
+                <span class="proof-num">Epic<span class="acc">+</span></span>
+                <span class="proof-lbl">Native EHR integration, zero new workflows</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 1: Predict -->
+          <div class="panel" id="panel-1">
+            <span class="panel-eyebrow">Step 01 — Predict</span>
+            <h2><span class="hg">92% Accuracy.</span><br>Before the Discharge<br>Conversation Starts.</h2>
+            <p>The moment a patient is admitted, Addie analyzes clinical data and flags who will need post-acute care. Not on discharge day — at admission. That head start changes everything.</p>
+            <div class="stat-chip">
+              <span class="cnum">92<span class="accent">%</span></span>
+              <span class="clbl">Predictive accuracy at time of admission — not discharge</span>
+            </div>
+          </div>
+
+          <!-- Panel 2: Match -->
+          <div class="panel" id="panel-2">
+            <span class="panel-eyebrow">Step 02 — Match</span>
+            <h2>The Right Provider,<br>at the Right Time,<br><span class="hb">Every Time.</span></h2>
+            <p>Addie maps each patient to available post-acute providers in real time — filtered by clinical capability, bed availability, location, and payer. Referrals go out automatically. No phone tag.</p>
+            <div class="stat-chip">
+              <span class="cnum sm">Real-Time</span>
+              <span class="clbl">Provider matching across your entire PAC network</span>
+            </div>
+          </div>
+
+          <!-- Panel 3: Accelerate -->
+          <div class="panel" id="panel-3">
+            <span class="panel-eyebrow">Step 03 — Accelerate</span>
+            <h2>From Boarding<br>to Placed —<br><span class="hg">Days Earlier.</span></h2>
+            <p>Acceptances come back in hours. Case managers see every referral in one view. Patients move. Beds open. Boarding costs drop when placement starts at admission — not discharge day.</p>
+            <div class="stat-chip">
+              <span class="cnum">Day <span class="accent">1</span></span>
+              <span class="clbl">PAC planning begins at the moment of admission</span>
+            </div>
+          </div>
+
+          <!-- Panel 4: UI Reveal -->
+          <div class="panel" id="panel-4">
+            <span class="panel-eyebrow">The Platform</span>
+            <h2>Built for How<br>Case Managers<br><span class="hg">Actually Work.</span></h2>
+            <p>Addie surfaces inside Epic — no new system, no duplicate data entry. PAC predictions, provider matches, and referral status in one unified view your team will actually use.</p>
+            <a href="/contact" class="cta-link">Book a Live Demo →</a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="story-right">
+
+        <!-- Globe -->
+        <div class="globe-wrap" id="globe-wrap">
+          <canvas id="globe-canvas"></canvas>
+          <div class="globe-legend" id="globe-legend">
+            <div class="leg-item"><span class="leg-dot ld-b"></span>Hospital</div>
+            <div class="leg-item"><span class="leg-dot ld-g"></span>PAC Provider</div>
+          </div>
+          <div class="scroll-cue show" id="scroll-cue">
+            <span class="sc-txt">Scroll to explore</span>
+            <div class="sc-line"></div>
+          </div>
+        </div>
+
+        <!-- UI Reveal -->
+        <div class="ui-reveal" id="ui-reveal">
+          <div class="ui-window">
+            <div class="ui-bar">
+              <div class="ui-dots">
+                <div class="ui-dot ud-r"></div><div class="ui-dot ud-y"></div><div class="ui-dot ud-g"></div>
+              </div>
+              <span class="ui-title">Addie — Care Transitions Dashboard</span>
+            </div>
+            <div class="ui-body">
+              <div class="ui-hrow">
+                <h4>Active Patients — PAC Flagged Today</h4>
+                <span class="tag-g">4 Need Action</span>
+              </div>
+              <div class="pt-row">
+                <div class="av av1">DM</div>
+                <div class="pt-info"><div class="pt-name">Demo Patient 1</div><div class="pt-meta">Admitted 2d · Orthopedics · Flagged Day 0</div></div>
+                <span class="pt-flag f-snf">SNF Match Ready</span>
+              </div>
+              <div class="pt-row">
+                <div class="av av2">DP</div>
+                <div class="pt-info"><div class="pt-name">Demo Patient 2</div><div class="pt-meta">Admitted 1d · Cardiology · Flagged Day 0</div></div>
+                <span class="pt-flag f-home">Home Health</span>
+              </div>
+              <div class="pt-row">
+                <div class="av av3">DS</div>
+                <div class="pt-info"><div class="pt-name">Demo Patient 3</div><div class="pt-meta">Admitted 3d · Neurology · Flagged Day 0</div></div>
+                <span class="pt-flag f-iru">IRU Referred</span>
+              </div>
+              <div class="pt-row">
+                <div class="av av4">DT</div>
+                <div class="pt-info"><div class="pt-name">Demo Patient 4</div><div class="pt-meta">Admitted today · Medicine · New Flag</div></div>
+                <span class="pt-flag f-pac">PAC Predicted</span>
+              </div>
+              <div class="ai-bar">
+                <div class="ai-icon">AI</div>
+                <div class="ai-txt"><strong>Addie:</strong> 3 referrals ready to send. 2 SNF acceptances received. <strong>Review →</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Following section -->
+<div style="height:100vh;background:#f7f9fc;display:flex;align-items:center;justify-content:center;font-family:var(--font,'Poppins',sans-serif);color:#6b7280;font-size:13px;">
+  ↑ Story section ends — next page section follows
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     GLOBE ENGINE
+     Canvas 2D · No external deps · 5-stage scroll system
+     Based on 21st.dev/YadHakim/interactive-globe
+     PEP Inc. adaptation: 10 hospitals · 21 PACs · morph
+═══════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── Colors ── */
+  var BL = { r:24,  g:87,  b:147 }; /* #185793 */
+  var GR = { r:139, g:197, b:63  }; /* #8BC53F */
+
+  function rgba(c,a){ a=Math.min(1,Math.max(0,a)); return 'rgba('+c.r+','+c.g+','+c.b+','+a.toFixed(3)+')'; }
+
+  /* ══════════════════════════════════════════════
+     NETWORK — 10 hospitals, 21 PAC providers
+  ══════════════════════════════════════════════ */
+  var HOSP = [
+    { lat: 44,  lng:-100 },  /* 0  Central US          */
+    { lat: 34,  lng:-118 },  /* 1  Los Angeles          */
+    { lat: 51,  lng:  -1 },  /* 2  United Kingdom       */
+    { lat: 52,  lng:  13 },  /* 3  Central Europe       */
+    { lat: -26, lng:  28 },  /* 4  South Africa         */
+    { lat: 37,  lng: 127 },  /* 5  South Korea          */
+    { lat: 36,  lng: 138 },  /* 6  Japan                */
+    { lat: 22,  lng:  80 },  /* 7  India                */
+    { lat: 25,  lng:  55 },  /* 8  UAE                  */
+    { lat:-12,  lng: -52 },  /* 9  Brazil               */
+  ];
+
+  var PAC = [
+    { lat: 40,  lng: -74  }, /* 0  New York             */
+    { lat: 41,  lng: -87  }, /* 1  Chicago              */
+    { lat: 29,  lng: -95  }, /* 2  Houston              */
+    { lat: 47,  lng:-122  }, /* 3  Seattle              */
+    { lat: 45,  lng: -73  }, /* 4  Montreal             */
+    { lat:-23,  lng: -43  }, /* 5  Rio de Janeiro       */
+    { lat:-34,  lng: -58  }, /* 6  Buenos Aires         */
+    { lat: 53,  lng:  -6  }, /* 7  Dublin               */
+    { lat: 48,  lng:   2  }, /* 8  Paris                */
+    { lat: 59,  lng:  18  }, /* 9  Stockholm            */
+    { lat: 60,  lng:  25  }, /* 10 Helsinki             */
+    { lat: 55,  lng:  37  }, /* 11 Moscow               */
+    { lat: 41,  lng:  29  }, /* 12 Istanbul             */
+    { lat:  6,  lng:   3  }, /* 13 Lagos                */
+    { lat: 19,  lng:  73  }, /* 14 Mumbai               */
+    { lat: 13,  lng: 100  }, /* 15 Bangkok              */
+    { lat: 31,  lng: 121  }, /* 16 Shanghai             */
+    { lat:  1,  lng: 104  }, /* 17 Singapore            */
+    { lat:-33,  lng: 151  }, /* 18 Sydney               */
+    { lat:-36,  lng: 175  }, /* 19 Auckland             */
+    { lat: 43,  lng: -79  }, /* 20 Toronto              */
+  ];
+
+  /* 27 connections — regional + cross-continental for visual spread */
+  var CONN = [
+    /* North America cluster */
+    {h:0,p:0}, {h:0,p:1}, {h:0,p:3}, {h:0,p:20},
+    {h:1,p:2}, {h:1,p:3},
+    /* South America */
+    {h:9,p:5}, {h:9,p:6}, {h:9,p:0},
+    /* Europe cluster */
+    {h:2,p:7}, {h:2,p:8},
+    {h:3,p:8}, {h:3,p:9}, {h:3,p:10}, {h:3,p:11},
+    /* Africa + Middle East */
+    {h:4,p:13}, {h:4,p:12},
+    {h:8,p:12}, {h:8,p:14},
+    /* Asia Pacific */
+    {h:5,p:16}, {h:5,p:17},
+    {h:6,p:16}, {h:6,p:18}, {h:6,p:19},
+    {h:7,p:14}, {h:7,p:15}, {h:7,p:17},
+  ];
+
+  /* ── Globe Math (from 21st.dev component) ── */
+  function toXYZ(lat,lng,r){
+    var ph=((90-lat)*Math.PI)/180, th=((lng+180)*Math.PI)/180;
+    return [-(r*Math.sin(ph)*Math.cos(th)), r*Math.cos(ph), r*Math.sin(ph)*Math.sin(th)];
+  }
+  function rx(x,y,z,a){ var c=Math.cos(a),s=Math.sin(a); return [x,y*c-z*s,y*s+z*c]; }
+  function ry(x,y,z,a){ var c=Math.cos(a),s=Math.sin(a); return [x*c+z*s,y,-x*s+z*c]; }
+  function pr(x,y,z,cx,cy,fv){ var sc=fv/(fv+z); return [x*sc+cx,y*sc+cy]; }
+
+  /* Fibonacci sphere dots */
+  var DOTS=(function(){
+    var d=[],gr=(1+Math.sqrt(5))/2;
+    for(var i=0;i<1200;i++){
+      var t=(2*Math.PI*i)/gr, p=Math.acos(1-(2*(i+.5))/1200);
+      d.push([Math.cos(t)*Math.sin(p),Math.cos(p),Math.sin(t)*Math.sin(p)]);
+    }
+    return d;
+  })();
+
+  /* ── State ── */
+  var rotY=0.45, rotX=0.2, autoSpin=true, spd=0.0022, T=0, RAF=0;
+  var drag={on:false,sx:0,sy:0,ry:0,rx:0};
+  var stage=0;
+
+  /* Per-hospital prediction flash timers (Stage 1) */
+  var HFLASH=HOSP.map(function(_,i){
+    return { phase: Math.random()*Math.PI*2, period: 1.4+Math.random()*1.6, ring: 0 };
+  });
+
+  /* Animated state — lerped toward target each frame */
+  var S={
+    globeOpacity:1, hospAlpha:.4, pacAlpha:0,
+    arcAlpha:0, retArcAlpha:0,
+    pAlpha:0, retPAlpha:0,
+    flashPulse:0, scatter:0
+  };
+
+  /* Stage targets */
+  var TG={
+    0:{ globeOpacity:1, hospAlpha:.4,  pacAlpha:0,    arcAlpha:0,    retArcAlpha:0,    pAlpha:0,    retPAlpha:0,    flashPulse:0, scatter:0 },
+    1:{ globeOpacity:1, hospAlpha:1,   pacAlpha:0,    arcAlpha:0,    retArcAlpha:0,    pAlpha:0,    retPAlpha:0,    flashPulse:1, scatter:0 },
+    2:{ globeOpacity:1, hospAlpha:1,   pacAlpha:0.85, arcAlpha:0.62, retArcAlpha:0.35, pAlpha:1,    retPAlpha:0.65, flashPulse:0, scatter:0 },
+    3:{ globeOpacity:1, hospAlpha:1,   pacAlpha:1,    arcAlpha:0.78, retArcAlpha:0.68, pAlpha:1,    retPAlpha:1,    flashPulse:0, scatter:0 },
+    4:{ globeOpacity:0, hospAlpha:0,   pacAlpha:0,    arcAlpha:0,    retArcAlpha:0,    pAlpha:0,    retPAlpha:0,    flashPulse:0, scatter:1 },
+  };
+
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function tick(){
+    var tg=TG[stage]||TG[3], sp=0.036;
+    for(var k in tg){ if(k in S) S[k]=lerp(S[k],tg[k],sp); }
+    var ts=stage===0?.0022:stage===1?.002:stage===2?.0016:stage===3?.0012:.0007;
+    spd=lerp(spd,ts,.03);
+  }
+
+  /* ── Draw ── */
+  var canvas=document.getElementById('globe-canvas');
+  var gw=document.getElementById('globe-wrap');
+
+  function draw(){
+    var dpr=window.devicePixelRatio||1;
+    var W=gw.clientWidth, H=gw.clientHeight;
+    canvas.width=W*dpr; canvas.height=H*dpr;
+    canvas.style.width=W+'px'; canvas.style.height=H+'px';
+    var ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+    var cx=W/2, cy=H/2, rad=Math.min(W,H)*.39, fv=600;
+
+    if(autoSpin&&!drag.on) rotY+=spd;
+    T+=0.016;
+    tick();
+    ctx.clearRect(0,0,W,H);
+
+    /* Glow */
+    var gl=ctx.createRadialGradient(cx,cy,rad*.68,cx,cy,rad*1.72);
+    gl.addColorStop(0,'rgba(24,87,147,0.045)');
+    gl.addColorStop(.45,'rgba(139,197,63,0.02)');
+    gl.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=gl; ctx.fillRect(0,0,W,H);
+
+    /* Outline */
+    ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2);
+    ctx.strokeStyle='rgba(24,87,147,0.07)'; ctx.lineWidth=1; ctx.stroke();
+
+    var sc=S.scatter;
+
+    /* ── Dots ── */
+    for(var i=0;i<DOTS.length;i++){
+      var sr=rad*(1+sc*.55);
+      var v=rx(DOTS[i][0]*sr,DOTS[i][1]*sr,DOTS[i][2]*sr,rotX);
+      v=ry(v[0],v[1],v[2],rotY);
+      if(v[2]>0) continue;
+      var sp2=pr(v[0],v[1],v[2],cx,cy,fv);
+      var dep=Math.max(.07,1-(v[2]+rad)/(2*rad));
+      var al=dep*(1-sc*.88)*.5;
+      ctx.beginPath(); ctx.arc(sp2[0],sp2[1],.8+dep*.65,0,Math.PI*2);
+      ctx.fillStyle=rgba(i%3===0?GR:BL,al); ctx.fill();
+    }
+
+    /* ── Arcs + particles ── */
+    for(var ci=0;ci<CONN.length;ci++){
+      var conn=CONN[ci];
+      var h=HOSP[conn.h], p2=PAC[conn.p];
+      var hv=rx.apply(null,toXYZ(h.lat,h.lng,rad).concat([rotX]));
+      hv=ry(hv[0],hv[1],hv[2],rotY);
+      var pv=rx.apply(null,toXYZ(p2.lat,p2.lng,rad).concat([rotX]));
+      pv=ry(pv[0],pv[1],pv[2],rotY);
+      if(hv[2]>rad*.22&&pv[2]>rad*.22) continue;
+      var s1=pr(hv[0],hv[1],hv[2],cx,cy,fv);
+      var s2=pr(pv[0],pv[1],pv[2],cx,cy,fv);
+      var mx=(hv[0]+pv[0])/2, my=(hv[1]+pv[1])/2, mz=(hv[2]+pv[2])/2;
+      var ml=Math.sqrt(mx*mx+my*my+mz*mz);
+      if(ml<.001) continue;
+      var ah=rad*1.3;
+      var cp=pr((mx/ml)*ah,(my/ml)*ah,(mz/ml)*ah,cx,cy,fv);
+
+      /* Outbound arc H→P (blue) */
+      if(S.arcAlpha>.01){
+        ctx.beginPath(); ctx.moveTo(s1[0],s1[1]); ctx.quadraticCurveTo(cp[0],cp[1],s2[0],s2[1]);
+        ctx.strokeStyle=rgba(BL,S.arcAlpha*.5); ctx.lineWidth=1.1; ctx.stroke();
+        if(S.pAlpha>.01){
+          var t1=((T*.72+conn.h*.68+conn.p*.38)%1), m1=1-t1;
+          var px=m1*m1*s1[0]+2*m1*t1*cp[0]+t1*t1*s2[0];
+          var py=m1*m1*s1[1]+2*m1*t1*cp[1]+t1*t1*s2[1];
+          ctx.beginPath(); ctx.arc(px,py,2.4,0,Math.PI*2);
+          ctx.fillStyle=rgba(GR,S.pAlpha*.9); ctx.fill();
+          ctx.beginPath(); ctx.arc(px,py,4.5,0,Math.PI*2);
+          ctx.fillStyle=rgba(GR,S.pAlpha*.15); ctx.fill();
+        }
+      }
+
+      /* Return arc P→H (green) */
+      if(S.retArcAlpha>.01){
+        ctx.beginPath(); ctx.moveTo(s2[0],s2[1]); ctx.quadraticCurveTo(cp[0],cp[1],s1[0],s1[1]);
+        ctx.strokeStyle=rgba(GR,S.retArcAlpha*.44); ctx.lineWidth=.95; ctx.stroke();
+        if(S.retPAlpha>.01){
+          var t2=((T*.85+conn.p*.54+conn.h*.36+.5)%1), m2=1-t2;
+          var rpx=m2*m2*s2[0]+2*m2*t2*cp[0]+t2*t2*s1[0];
+          var rpy=m2*m2*s2[1]+2*m2*t2*cp[1]+t2*t2*s1[1];
+          ctx.beginPath(); ctx.arc(rpx,rpy,2,0,Math.PI*2);
+          ctx.fillStyle=rgba(GR,S.retPAlpha*.82); ctx.fill();
+        }
+      }
+    }
+
+    /* ── Hospital markers ── */
+    for(var hi=0;hi<HOSP.length;hi++){
+      var hm=HOSP[hi];
+      var hmv=rx.apply(null,toXYZ(hm.lat,hm.lng,rad).concat([rotX]));
+      hmv=ry(hmv[0],hmv[1],hmv[2],rotY);
+      if(hmv[2]>rad*.1) continue;
+      var hs=pr(hmv[0],hmv[1],hmv[2],cx,cy,fv);
+      var ha=S.hospAlpha;
+
+      /* Standard slow pulse */
+      var pulse=(Math.sin(T*2.3+hi*1.1)+1)/2;
+
+      /* ── Prediction flash rings (Stage 1) ──
+         Each hospital fires bright rings independently
+         at ~2-3 Hz to simulate real-time predictions   */
+      if(S.flashPulse>.01){
+        var fl=HFLASH[hi];
+        /* Fast oscillation unique to each hospital */
+        var fv2=Math.pow(Math.max(0,(Math.sin(T*(5+hi*.4)+fl.phase)+1)/2),2);
+
+        /* Outer flash ring — expands rapidly */
+        if(fv2>.15){
+          var fR=4+((1-fv2)*16);
+          ctx.beginPath(); ctx.arc(hs[0],hs[1],fR,0,Math.PI*2);
+          ctx.strokeStyle=rgba(BL,S.flashPulse*fv2*.55);
+          ctx.lineWidth=1.2; ctx.stroke();
+        }
+        /* Second ring at offset phase for double-flash effect */
+        var fv3=Math.pow(Math.max(0,(Math.sin(T*(5+hi*.4)+fl.phase+Math.PI*.6)+1)/2),2);
+        if(fv3>.15){
+          var fR2=3+((1-fv3)*10);
+          ctx.beginPath(); ctx.arc(hs[0],hs[1],fR2,0,Math.PI*2);
+          ctx.strokeStyle=rgba(BL,S.flashPulse*fv3*.4);
+          ctx.lineWidth=1; ctx.stroke();
+        }
+        /* Brief white-bright center flash */
+        if(fv2>.7){
+          ctx.beginPath(); ctx.arc(hs[0],hs[1],3,0,Math.PI*2);
+          ctx.fillStyle='rgba(255,255,255,'+(S.flashPulse*(fv2-.7)*2.5).toFixed(3)+')';
+          ctx.fill();
+        }
+      }
+
+      /* Standard marker rings */
+      ctx.beginPath(); ctx.arc(hs[0],hs[1],6+pulse*5.5,0,Math.PI*2);
+      ctx.strokeStyle=rgba(BL,ha*(.12+pulse*.09)); ctx.lineWidth=1; ctx.stroke();
+      ctx.beginPath(); ctx.arc(hs[0],hs[1],3+pulse*2,0,Math.PI*2);
+      ctx.strokeStyle=rgba(BL,ha*(.18+pulse*.08)); ctx.lineWidth=.8; ctx.stroke();
+      ctx.beginPath(); ctx.arc(hs[0],hs[1],3,0,Math.PI*2);
+      ctx.fillStyle=rgba(BL,ha); ctx.fill();
+      ctx.beginPath(); ctx.arc(hs[0],hs[1],1.4,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,'+(ha*.9).toFixed(3)+')'; ctx.fill();
+    }
+
+    /* ── PAC markers ── */
+    for(var pi=0;pi<PAC.length;pi++){
+      var pa=S.pacAlpha;
+      if(pa<.01) continue;
+      var pm=PAC[pi];
+      var pmv=rx.apply(null,toXYZ(pm.lat,pm.lng,rad).concat([rotX]));
+      pmv=ry(pmv[0],pmv[1],pmv[2],rotY);
+      if(pmv[2]>rad*.1) continue;
+      var ps=pr(pmv[0],pmv[1],pmv[2],cx,cy,fv);
+      var ppulse=(Math.sin(T*1.9+pi*.85+1.7)+1)/2;
+      ctx.beginPath(); ctx.arc(ps[0],ps[1],4.5+ppulse*4.2,0,Math.PI*2);
+      ctx.strokeStyle=rgba(GR,pa*(.14+ppulse*.09)); ctx.lineWidth=1; ctx.stroke();
+      ctx.beginPath(); ctx.arc(ps[0],ps[1],2.5,0,Math.PI*2);
+      ctx.fillStyle=rgba(GR,pa); ctx.fill();
+      ctx.beginPath(); ctx.arc(ps[0],ps[1],1.1,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,'+(pa*.84).toFixed(3)+')'; ctx.fill();
+    }
+
+    gw.style.opacity=Math.max(0,S.globeOpacity).toFixed(3);
+    RAF=requestAnimationFrame(draw);
+  }
+
+  /* ── Drag ── */
+  canvas.addEventListener('pointerdown',function(e){
+    drag={on:true,sx:e.clientX,sy:e.clientY,ry:rotY,rx:rotX};
+    canvas.setPointerCapture(e.pointerId); autoSpin=false;
+  });
+  canvas.addEventListener('pointermove',function(e){
+    if(!drag.on) return;
+    rotY=drag.ry+(e.clientX-drag.sx)*.005;
+    rotX=Math.max(-.75,Math.min(.75,drag.rx+(e.clientY-drag.sy)*.005));
+  });
+  canvas.addEventListener('pointerup',   function(){ drag.on=false; setTimeout(function(){autoSpin=true;},2200); });
+  canvas.addEventListener('pointerleave',function(){ if(drag.on){drag.on=false;setTimeout(function(){autoSpin=true;},2200);} });
+
+  /* ── Scroll Driver ── */
+  var sec   =document.getElementById('addie-story');
+  var uiRev =document.getElementById('ui-reveal');
+  var legend=document.getElementById('globe-legend');
+  var scue  =document.getElementById('scroll-cue');
+  var spips =document.getElementById('stage-pips');
+  var p1=document.getElementById('pip-1');
+  var p2=document.getElementById('pip-2');
+  var p3=document.getElementById('pip-3');
+  var plbl=document.getElementById('pip-lbl');
+  var PANELS={
+    0:document.getElementById('panel-0'),
+    1:document.getElementById('panel-1'),
+    2:document.getElementById('panel-2'),
+    3:document.getElementById('panel-3'),
+    4:document.getElementById('panel-4'),
+  };
+  var lastStage=-1, morphed=false;
+
+  function pips(s){
+    if(s===0){ spips.classList.add('hidden'); return; }
+    spips.classList.remove('hidden');
+    p1.className='pip '+(s>1?'done':s===1?'current':'');
+    p2.className='pip '+(s>2?'done':s===2?'current':'');
+    p3.className='pip '+(s>3?'done':s===3?'current':'');
+    var lb={1:'Step 1 of 3',2:'Step 2 of 3',3:'Step 3 of 3',4:'Complete'};
+    plbl.textContent=lb[s]||'';
+  }
+
+  function setStage(s){
+    if(s===lastStage) return;
+    lastStage=s; stage=s;
+    for(var k in PANELS){ var pn=PANELS[k]; if(pn) pn.classList.toggle('active',parseInt(k)===s); }
+    pips(s);
+    scue.classList.toggle('show',s===0);
+    legend.classList.toggle('show',s===2||s===3);
+
+    /* Globe-to-UI morph */
+    if(s===4 && !morphed){
+      morphed=true;
+      gw.classList.add('morph-out');
+      /* UI springs into view after globe has mostly contracted */
+      setTimeout(function(){ uiRev.classList.add('show'); }, 480);
+    } else if(s<4 && morphed){
+      morphed=false;
+      gw.classList.remove('morph-out');
+      uiRev.classList.remove('show');
+    }
+  }
+
+  function onScroll(){
+    var rect=sec.getBoundingClientRect();
+    var tot=sec.offsetHeight-window.innerHeight;
+    var pct=tot>0?Math.min(1,Math.max(0,-rect.top)/tot):0;
+    /* Breakpoints:
+       0.00-0.13 = Stage 0 (Hero)
+       0.13-0.35 = Stage 1 (Predict + flashes)
+       0.35-0.57 = Stage 2 (Match + bidirectional)
+       0.57-0.77 = Stage 3 (Accelerate + full network)
+       0.77-1.00 = Stage 4 (Morph → UI)             */
+    setStage(pct<.13?0:pct<.35?1:pct<.57?2:pct<.77?3:4);
+  }
+
+  /* "See How It Works" → scroll to Predict */
+  var scrollCta=document.getElementById('scroll-cta');
+  if(scrollCta) scrollCta.addEventListener('click',function(e){
+    e.preventDefault();
+    window.scrollTo({top:sec.offsetTop+(sec.offsetHeight*.16),behavior:'smooth'});
+  });
+
+  window.addEventListener('scroll',onScroll,{passive:true});
+  setStage(0);
+  RAF=requestAnimationFrame(draw);
+  window.addEventListener('beforeunload',function(){cancelAnimationFrame(RAF);});
+})();
+</script>
+
+</body>
+</html>

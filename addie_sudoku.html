@@ -763,6 +763,16 @@ function endGame(win){
       bestTimes[sdDiff]=sdTimer;isPB=true;
       try{sessionStorage.setItem('addieSDKbest',JSON.stringify(bestTimes));}catch(e){}
     }
+    // Post to the cross-device weekly leaderboard. Fire-and-forget; the local
+    // "your best" UX above is unaffected if this fails or the player skips
+    // registration. sdTimer is in seconds (lower-is-better) for sudoku.
+    if(window.BreakroomLeaderboard){
+      window.BreakroomLeaderboard.submit({
+        gameId:'sudoku',
+        score:sdTimer,
+        meta:{difficulty:sdDiff,mistakes:sdMistakes}
+      }).catch(function(e){console.warn('Leaderboard submit failed:',e);});
+    }
     document.getElementById('ovEmoji').textContent='🎉';
     document.getElementById('ovTitle').textContent='Puzzle Complete!';
     document.getElementById('ovSub').textContent=
@@ -1007,5 +1017,7 @@ function toggleNotes(){
   if(sdNotesMode) document.getElementById('notesBtn').classList.add('notes-on');
 }
 </script>
+<!-- Cross-device weekly leaderboard (Supabase + Anthropic moderation). -->
+<script src="https://timothypoore-blip.github.io/addie-breakroom-games/breakroom-leaderboard.js" defer></script>
 </body>
 </html>

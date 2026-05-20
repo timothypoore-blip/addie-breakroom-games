@@ -717,6 +717,15 @@
     if(isNewHS) state.highScores[state.diff]=state.score;
     try{sessionStorage.setItem('addieBedsHS',JSON.stringify(state.highScores));}catch(e){}
 
+    // Cross-device weekly leaderboard. Fire-and-forget.
+    if(window.BreakroomLeaderboard){
+      window.BreakroomLeaderboard.submit({
+        gameId:'bed_locator',
+        score:state.score,
+        meta:{difficulty:state.diff,maxCombo:state.maxCombo}
+      }).catch(function(e){console.warn('Leaderboard submit failed:',e);});
+    }
+
     // Results
     var s = state.score;
     var grade, title, msg;

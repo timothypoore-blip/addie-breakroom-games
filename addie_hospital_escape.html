@@ -2275,6 +2275,15 @@ function triggerWin(){
   if(newHigh) sessionHighScore = score;
   if(!sessionBestTime || elapsed < sessionBestTime) sessionBestTime = elapsed;
 
+  // Cross-device weekly leaderboard. Fire-and-forget.
+  if(window.BreakroomLeaderboard){
+    window.BreakroomLeaderboard.submit({
+      gameId:'hospital_escape',
+      score:score,
+      meta:{outcome:'win',elapsed:elapsed,repsFired:repsFired,grade:grade}
+    }).catch(function(e){console.warn('Leaderboard submit failed:',e);});
+  }
+
   spawnConfetti();
 
   const winCfg = {
@@ -2316,6 +2325,15 @@ function triggerGameOver(reason){
   const repsFired= salesReps.filter(r=>r.collected).length;
   const newHigh  = score > sessionHighScore;
   if(newHigh) sessionHighScore = score;
+
+  // Cross-device weekly leaderboard. Every attempt counts; outcome is in meta.
+  if(window.BreakroomLeaderboard){
+    window.BreakroomLeaderboard.submit({
+      gameId:'hospital_escape',
+      score:score,
+      meta:{outcome:reason,elapsed:elapsed,repsFired:repsFired}
+    }).catch(function(e){console.warn('Leaderboard submit failed:',e);});
+  }
 
   const cfgs = {
     energy: {
@@ -2476,6 +2494,7 @@ function updateAmbDisplay(){
 })();
 
 </script>
-
+<!-- Cross-device weekly leaderboard (Supabase + Anthropic moderation). -->
+<script src="https://timothypoore-blip.github.io/addie-breakroom-games/breakroom-leaderboard.js" defer></script>
 </body>
 </html>

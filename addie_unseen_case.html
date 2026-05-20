@@ -1898,6 +1898,16 @@ function hexToRgb(h){
 
 function triggerWin(){
   G.done=true; clearInterval(G.corrInterval);
+  // Cross-device weekly leaderboard. Score = 100 minus a corruption penalty,
+  // so a clean solve (no wrong-destination picks) is 100 and a messy one trends down.
+  if(window.BreakroomLeaderboard){
+    var unseenScore = Math.max(0, 100 - Math.round(G.corrLevel * 20));
+    window.BreakroomLeaderboard.submit({
+      gameId:'unseen_case',
+      score:unseenScore,
+      meta:{case:currentCase.patientName,corrLevel:G.corrLevel,identified:G.identified,obsResolved:G.obsResolved}
+    }).catch(function(e){console.warn('Leaderboard submit failed:',e);});
+  }
   document.getElementById('destPanel').style.transform='translateY(100%)';
   const [wR,wG,wB]=hexToRgb(currentCase.winColor||'#FFFFF0');
   // Color hole from edges
@@ -2101,5 +2111,7 @@ window.addEventListener('resize',()=>{
   renderer.setSize(innerWidth,innerHeight);
 });
 </script>
+<!-- Cross-device weekly leaderboard (Supabase + Anthropic moderation). -->
+<script src="https://timothypoore-blip.github.io/addie-breakroom-games/breakroom-leaderboard.js" defer></script>
 </body>
 </html>

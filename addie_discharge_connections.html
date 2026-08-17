@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Discharge Connections — Addie Break Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#081829;
+    --blue:#185793;
+    --green:#8BC53F;
+    --green-dark:#6fa030;
+    --green-light:#a8d85a;
+    --white:#ffffff;
+    --gray-50:#f8fafc;
+    --gray-100:#f1f5f9;
+    --gray-200:#e2e8f0;
+    --gray-400:#94a3b8;
+    --gray-600:#475569;
+
+    /* Difficulty ladder — easiest to hardest */
+    --lvl0:#8BC53F;   /* green  — flat, literal category */
+    --lvl1:#F0B429;   /* amber  — needs a little domain knowledge */
+    --lvl2:#185793;   /* blue   — ambiguous, overlaps another group */
+    --lvl3:#081829;   /* navy   — wordplay or shared prefix/suffix */
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Poppins',sans-serif;
+    background:#fff;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding:20px 16px 40px;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ── FLOW FIELD BACKGROUND ── */
+  #bgCanvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    pointer-events:none;
+  }
+
+  /* ── WRAPPER ── */
+  .game-wrap{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:560px;
+  }
+
+  /* ── HEADER ── */
+  .game-header{text-align:center;margin-bottom:18px;}
+  .game-logo{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background:rgba(255,255,255,0.9);
+    border:1px solid var(--gray-200);
+    border-radius:100px;
+    padding:6px 18px 6px 10px;
+    margin-bottom:12px;
+    box-shadow:0 2px 12px rgba(8,24,41,0.08);
+  }
+  .game-logo-mark{
+    width:30px;height:30px;
+    background:linear-gradient(135deg,var(--blue),var(--green));
+    border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:800;font-size:14px;
+  }
+  .game-logo-text{font-size:0.82rem;font-weight:700;color:var(--navy);}
+  .game-logo-text span{color:var(--green-dark);}
+  .game-title{
+    font-size:clamp(1.6rem,5vw,2.2rem);
+    font-weight:900;
+    color:var(--navy);
+    line-height:1.1;
+    letter-spacing:-0.02em;
+  }
+  .game-sub{
+    font-size:0.85rem;
+    color:var(--gray-600);
+    font-weight:500;
+    margin-top:6px;
+  }
+  .puzzle-meta{
+    display:inline-block;
+    margin-top:10px;
+    font-size:0.68rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--gray-400);
+  }
+
+  /* ── BOARD CARD ── */
+  .board-card{
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(6px);
+    border:1px solid var(--gray-200);
+    border-radius:20px;
+    padding:18px;
+    box-shadow:0 4px 24px rgba(8,24,41,0.09);
+  }
+
+  /* ── SOLVED GROUPS ── */
+  #solvedWrap{display:flex;flex-direction:column;gap:8px;}
+  #solvedWrap:not(:empty){margin-bottom:8px;}
+  .solved-group{
+    border-radius:14px;
+    padding:12px 14px;
+    text-align:center;
+    color:#fff;
+    animation:solvePop .38s cubic-bezier(.34,1.4,.64,1) both;
+  }
+  .solved-group.l0{background:var(--lvl0);}
+  .solved-group.l1{background:var(--lvl1);}
+  .solved-group.l2{background:var(--lvl2);}
+  .solved-group.l3{background:var(--lvl3);}
+  .solved-name{
+    font-size:0.72rem;font-weight:800;
+    letter-spacing:.09em;text-transform:uppercase;
+    line-height:1.2;
+  }
+  .solved-terms{
+    font-size:0.8rem;font-weight:500;
+    margin-top:3px;opacity:.95;line-height:1.3;
+  }
+  @keyframes solvePop{
+    from{transform:scale(.9);opacity:0;}
+    to{transform:scale(1);opacity:1;}
+  }
+
+  /* ── GRID ── */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+  }
+  .tile{
+    background:var(--gray-100);
+    border:2px solid transparent;
+    border-radius:12px;
+    min-height:74px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:4px 3px;
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    font-family:'Poppins',sans-serif;
+    font-weight:700;
+    color:var(--navy);
+    font-size:0.78rem;
+    line-height:1.12;
+    letter-spacing:-0.01em;
+    word-break:break-word;
+    hyphens:auto;
+    transition:background .15s,transform .08s,border-color .15s;
+  }
+  .tile.len-md{font-size:0.68rem;}
+  .tile.len-lg{font-size:0.58rem;}
+  .tile:hover{background:var(--gray-200);}
+  .tile:active{transform:scale(0.94);}
+  .tile.selected{
+    background:var(--navy);
+    color:#fff;
+    border-color:var(--navy);
+  }
+  .tile.shake{animation:tileShake .45s ease;}
+  @keyframes tileShake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-6px);}
+    40%{transform:translateX(6px);}
+    60%{transform:translateX(-4px);}
+    80%{transform:translateX(4px);}
+  }
+  .tile.bump{animation:tileBump .3s ease;}
+  @keyframes tileBump{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-9px);}
+  }
+
+  /* ── MISTAKES ── */
+  .mistakes-row{
+    display:flex;align-items:center;justify-content:center;
+    gap:8px;margin:16px 0 12px;
+    font-size:0.75rem;font-weight:600;color:var(--gray-600);
+  }
+  .dot{
+    width:12px;height:12px;border-radius:50%;
+    background:var(--navy);
+    transition:background .25s,transform .25s;
+  }
+  .dot.spent{background:var(--gray-200);transform:scale(.75);}
+
+  /* ── CONTROLS ── */
+  .controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+  .btn{
+    padding:10px 20px;
+    border-radius:100px;
+    border:1.5px solid var(--gray-200);
+    background:#fff;
+    color:var(--navy);
+    font-size:0.8rem;
+    font-weight:700;
+    cursor:pointer;
+    font-family:'Poppins',sans-serif;
+    transition:all .18s;
+  }
+  .btn:hover:not(:disabled){border-color:var(--blue);color:var(--blue);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn.primary{
+    background:var(--navy);border-color:var(--navy);color:#fff;
+  }
+  .btn.primary:hover:not(:disabled){background:var(--blue);border-color:var(--blue);color:#fff;}
+  .btn.go{
+    background:linear-gradient(135deg,var(--green-dark),var(--green));
+    border-color:var(--green-dark);color:#fff;
+  }
+  .btn.go:hover:not(:disabled){filter:brightness(1.07);color:#fff;}
+
+  /* ── TOAST ── */
+  .toast{
+    position:fixed;
+    left:50%;top:24px;
+    transform:translate(-50%,-24px);
+    background:var(--navy);
+    color:#fff;
+    padding:10px 22px;
+    border-radius:100px;
+    font-size:0.82rem;
+    font-weight:700;
+    box-shadow:0 6px 22px rgba(8,24,41,.28);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .22s,transform .22s;
+    z-index:50;
+    white-space:nowrap;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+
+  /* ── RESULTS ── */
+  .results{
+    margin-top:16px;
+    background:rgba(255,255,255,0.95);
+    border:1px solid var(--gray-200);
+    border-radius:20px;
+    padding:22px 20px;
+    text-align:center;
+    box-shadow:0 4px 24px rgba(8,24,41,0.09);
+    animation:solvePop .4s cubic-bezier(.34,1.4,.64,1) both;
+  }
+  .results-emoji{font-size:2.4rem;line-height:1;}
+  .results-title{
+    font-size:1.25rem;font-weight:900;color:var(--navy);
+    margin-top:8px;letter-spacing:-0.02em;
+  }
+  .results-msg{
+    font-size:0.85rem;color:var(--gray-600);
+    margin-top:8px;line-height:1.5;
+  }
+  .results-stats{
+    display:flex;justify-content:center;gap:26px;margin:18px 0 4px;
+  }
+  .rstat-label{
+    font-size:0.6rem;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--gray-400);
+  }
+  .rstat-value{font-size:1.5rem;font-weight:900;color:var(--navy);line-height:1.1;}
+  .share-grid{
+    font-size:1.15rem;line-height:1.35;letter-spacing:2px;
+    margin:14px 0 4px;
+  }
+  .results-note{
+    font-size:0.72rem;color:var(--gray-400);margin-top:14px;line-height:1.5;
+  }
+
+  /* ── HOW TO PLAY ── */
+  .how{
+    margin-top:14px;text-align:center;
+    font-size:0.75rem;color:var(--gray-600);line-height:1.55;
+  }
+  .how b{color:var(--navy);}
+
+  @media(max-width:420px){
+    .tile{min-height:66px;font-size:0.7rem;}
+    .tile.len-md{font-size:0.6rem;}
+    .tile.len-lg{font-size:0.52rem;}
+    .board-card{padding:14px;}
+  }
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+
+<div class="game-wrap">
+
+  <div class="game-header">
+    <div class="game-logo">
+      <div class="game-logo-mark">A</div>
+      <div class="game-logo-text">Addie <span>Break Room</span></div>
+    </div>
+    <h1 class="game-title">Discharge Connections</h1>
+    <div class="game-sub">Find four groups of four. Four wrong guesses and the board wins.</div>
+    <div class="puzzle-meta" id="puzzleMeta"></div>
+  </div>
+
+  <div class="board-card">
+    <div id="solvedWrap"></div>
+    <div class="grid" id="grid"></div>
+
+    <div class="mistakes-row" id="mistakesRow">
+      <span>Mistakes remaining</span>
+      <span class="dot" data-i="0"></span>
+      <span class="dot" data-i="1"></span>
+      <span class="dot" data-i="2"></span>
+      <span class="dot" data-i="3"></span>
+    </div>
+
+    <div class="controls" id="controls">
+      <button class="btn" id="btnShuffle" type="button">Shuffle</button>
+      <button class="btn" id="btnDeselect" type="button">Deselect all</button>
+      <button class="btn go" id="btnSubmit" type="button" disabled>Submit</button>
+    </div>
+  </div>
+
+  <div class="how" id="howBox">
+    Tap four tiles that share something, then <b>Submit</b>.
+    Groups run <b>easiest to trickiest</b> — the last one is usually wordplay.
+    New board every day at midnight Eastern.
+  </div>
+
+  <div id="resultsSlot"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════
+   PEP FLOW FIELD BG
+══════════════════════ */
+(function(){
+  var c=document.getElementById('bgCanvas');
+  var ctx=c.getContext('2d');
+  var W,H,pts=[],mouse={x:-1e4,y:-1e4};
+  var PAL=[[139,197,63],[24,87,147],[13,74,138],[111,160,48],[58,127,193],[93,168,50]];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  function mkPt(){
+    var col=PAL[Math.floor(Math.random()*PAL.length)];
+    return{x:Math.random()*W,y:Math.random()*H,vx:0,vy:0,
+      r:col[0],g:col[1],b:col[2],age:0,life:Math.random()*200+100};
+  }
+  resize();
+  for(var i=0;i<500;i++)pts.push(mkPt());
+  window.addEventListener('resize',resize);
+  window.addEventListener('mousemove',function(e){mouse.x=e.clientX;mouse.y=e.clientY;});
+  window.addEventListener('mouseleave',function(){mouse.x=-1e4;mouse.y=-1e4;});
+  var t=0;
+  function loop(){
+    requestAnimationFrame(loop);
+    ctx.fillStyle='rgba(255,255,255,0.12)';
+    ctx.fillRect(0,0,W,H);
+    t+=0.003;
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      var angle=(Math.cos(p.x*0.005)+Math.sin(p.y*0.005))*Math.PI+t;
+      p.vx+=Math.cos(angle)*0.22;p.vy+=Math.sin(angle)*0.22;
+      var dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<150){var f=(150-d)/150;p.vx-=dx*f*0.05;p.vy-=dy*f*0.05;}
+      p.vx*=0.95;p.vy*=0.95;
+      p.x+=p.vx;p.y+=p.vy;
+      p.age++;
+      if(p.age>p.life){pts[i]=mkPt();continue;}
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      var alpha=(1-Math.abs(p.age/p.life-0.5)*2)*0.55;
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle='rgb('+p.r+','+p.g+','+p.b+')';
+      ctx.fillRect(p.x,p.y,1.5,1.5);
+    }
+    ctx.globalAlpha=1;
+  }
+  loop();
+})();
+
+
+/* ══════════════════════════════════════════════════════════════════
+   PUZZLE BANK — 30 daily boards
+
+   Each board has four groups. `level` is the difficulty ladder and
+   drives the color: 0 green (flat/literal) → 1 amber → 2 blue
+   (ambiguous, overlaps another group on the board) → 3 navy
+   (wordplay, shared prefix/suffix, or the joke).
+
+   TO ADD A BOARD: append an object with four groups of four terms.
+   Terms must be unique WITHIN a board — the misdirection comes from
+   a term plausibly *reading* as another group, never from repeating
+   it. Keep terms short; anything over ~14 characters auto-shrinks.
+══════════════════════════════════════════════════════════════════ */
+var PUZZLES = [
+  { groups:[
+    {level:0,name:"Post-acute settings",terms:["SNF","LTACH","HOSPICE","REHAB"]},
+    {level:1,name:"Reasons the bed fell through",terms:["WEEKEND","NO BEDS","REFUSED","BEHAVIORS"]},
+    {level:2,name:"Medicaid vocabulary",terms:["PENDING","SPEND DOWN","LOOK BACK","WAIVER"]},
+    {level:3,name:"___ of care",terms:["LEVEL","PLAN","EPISODE","CONTINUITY"]}
+  ]},
+  { groups:[
+    {level:0,name:"Therapy disciplines",terms:["PT","OT","SPEECH","RESPIRATORY"]},
+    {level:1,name:"Prior auth outcomes",terms:["APPROVED","DENIED","PEER TO PEER","PENDED"]},
+    {level:2,name:"Words after SKILLED",terms:["NURSING","CARE","NEED","FACILITY"]},
+    {level:3,name:"Things a case manager carries",terms:["PAGER","CASELOAD","COFFEE","GUILT"]}
+  ]},
+  { groups:[
+    {level:0,name:"Hospice and palliative",terms:["COMFORT","RESPITE","BEREAVEMENT","SYMPTOM"]},
+    {level:1,name:"Words before PLANNING",terms:["DISCHARGE","CARE","ADVANCE","FAMILY"]},
+    {level:2,name:"Income and disability programs",terms:["SSI","SSDI","LTD","SNAP"]},
+    {level:3,name:"Medicare Part A gotchas",terms:["THREE MIDNIGHT","BENEFIT PERIOD","LIFETIME RESERVE","COINSURANCE"]}
+  ]},
+  { groups:[
+    {level:0,name:"Insurance plan types",terms:["HMO","PPO","MCO","ACO"]},
+    {level:1,name:"Documents you chase",terms:["FACE SHEET","H AND P","PASRR","MOLST"]},
+    {level:2,name:"Home health words",terms:["HOMEBOUND","INTERMITTENT","SKILLED","RECERT"]},
+    {level:3,name:"Things that expire",terms:["AUTH","ELIGIBILITY","PATIENCE","GOODWILL"]}
+  ]},
+  { groups:[
+    {level:0,name:"Discharge dispositions",terms:["HOME","SNF","AMA","EXPIRED"]},
+    {level:1,name:"Wound care terms",terms:["VAC","DEBRIDE","STAGE","PACKING"]},
+    {level:2,name:"Words before HOME",terms:["NURSING","GROUP","FUNERAL","GOING"]},
+    {level:3,name:"Barriers with no easy fix",terms:["HOMELESS","UNDOCUMENTED","NO PAYOR","NO FAMILY"]}
+  ]},
+  { groups:[
+    {level:0,name:"Patient status",terms:["INPATIENT","OBSERVATION","OUTPATIENT","BOARDER"]},
+    {level:1,name:"Utilization review vocabulary",terms:["MEDICAL NECESSITY","INTERQUAL","CODE 44","AVOIDABLE DAY"]},
+    {level:2,name:"Things that trigger a denial",terms:["LATE NOTE","NO ORDER","WRONG STATUS","NO AUTH"]},
+    {level:3,name:"Case management verbs",terms:["ADVOCATE","ESCALATE","DOCUMENT","BEG"]}
+  ]},
+  { groups:[
+    {level:0,name:"Social work assessments",terms:["PSYCHOSOCIAL","SAFETY","SUBSTANCE","CAPACITY"]},
+    {level:1,name:"The guardianship path",terms:["PETITION","HEARING","GUARDIAN","WARD"]},
+    {level:2,name:"SNF payment sources",terms:["PDPM","PART A","MEDICAID PENDING","PRIVATE PAY"]},
+    {level:3,name:"Words before NEGLECT",terms:["SELF","ELDER","CHILD","MEDICAL"]}
+  ]},
+  { groups:[
+    {level:0,name:"CMS notices",terms:["IMM","MOON","ABN","NOMNC"]},
+    {level:1,name:"Inpatient rehab requirements",terms:["THREE HOURS","TWO DISCIPLINES","PHYSIATRIST","TOLERANCE"]},
+    {level:2,name:"Goals of care words",terms:["PROGNOSIS","DNR","SIX MONTHS","TRAJECTORY"]},
+    {level:3,name:"What the family says",terms:["DO EVERYTHING","A FIGHTER","MORE TIME","SECOND OPINION"]}
+  ]},
+  { groups:[
+    {level:0,name:"DME items",terms:["WALKER","HOSPITAL BED","NEBULIZER","COMMODE"]},
+    {level:1,name:"Private duty words",terms:["HOURLY","LIVE IN","OUT OF POCKET","AGENCY"]},
+    {level:2,name:"Denial letter phrases",terms:["NOT COVERED","NOT NECESSARY","OUT OF NETWORK","EXHAUSTED"]},
+    {level:3,name:"Custodial, not skilled",terms:["BATHING","DRESSING","FEEDING","TOILETING"]}
+  ]},
+  { groups:[
+    {level:0,name:"Hospital units",terms:["ICU","TELE","MED SURG","STEPDOWN"]},
+    {level:1,name:"Transitions of care",terms:["WARM HANDOFF","MED REC","TEACH BACK","FOLLOW UP"]},
+    {level:2,name:"Readmission risks",terms:["POLYPHARMACY","NO PCP","LOW LITERACY","NO TRANSPORT"]},
+    {level:3,name:"Words before REVIEW",terms:["PEER","UTILIZATION","CHART","PERFORMANCE"]}
+  ]},
+  { groups:[
+    {level:0,name:"Social Security programs",terms:["SSI","SSDI","PASS","REP PAYEE"]},
+    {level:1,name:"Documents Medicaid wants",terms:["BANK STATEMENTS","LIFE INSURANCE","DEED","TAX RETURN"]},
+    {level:2,name:"Words after LONG TERM",terms:["CARE","ACUTE","DISABILITY","GOALS"]},
+    {level:3,name:"Reasons the family is angry",terms:["NO CALL BACK","SURPRISE BILL","NEW FACE","SHORT NOTICE"]}
+  ]},
+  { groups:[
+    {level:0,name:"Behavioral health placement",terms:["PSYCH","DETOX","CRISIS","RESIDENTIAL"]},
+    {level:1,name:"Discharge paperwork",terms:["AVS","SCRIPTS","EQUIPMENT","INSTRUCTIONS"]},
+    {level:2,name:"Things that make a SNF say no",terms:["BEHAVIORS","VENT","BARIATRIC","NO PAYOR"]},
+    {level:3,name:"Words before PLAN",terms:["CARE","TREATMENT","SAFETY","EXIT"]}
+  ]},
+  { groups:[
+    {level:0,name:"Hospice levels of care",terms:["ROUTINE","RESPITE","GIP","CONTINUOUS"]},
+    {level:1,name:"Types of grief",terms:["ANTICIPATORY","COMPLICATED","ACUTE","DELAYED"]},
+    {level:2,name:"Types of capacity",terms:["DECISIONAL","FUNCTIONAL","BED","LEGAL"]},
+    {level:3,name:"Signs you need a day off",terms:["CYNICISM","EXHAUSTION","DETACHMENT","DREAD"]}
+  ]},
+  { groups:[
+    {level:0,name:"Payer types",terms:["MEDICARE","MEDICAID","COMMERCIAL","SELF PAY"]},
+    {level:1,name:"Words after MEDICARE",terms:["ADVANTAGE","PART D","SAVINGS","SET ASIDE"]},
+    {level:2,name:"The appeals ladder",terms:["RECONSIDERATION","ALJ","QIO","EXPEDITED"]},
+    {level:3,name:"Said at 4:45 on a Friday",terms:["ONE MORE","QUICK QUESTION","JUST DISCHARGED","CAN YOU CALL"]}
+  ]},
+  { groups:[
+    {level:0,name:"Assessment tools",terms:["PASRR","MDS","OASIS","BIMS"]},
+    {level:1,name:"Fall and skin risk",terms:["BRADEN","MORSE","FOOTWEAR","TURNS"]},
+    {level:2,name:"Words before BED",terms:["HOSPITAL","BARIATRIC","LOW AIR","DAY"]},
+    {level:3,name:"Always pending",terms:["MEDICAID","AUTH","BED OFFER","LABS"]}
+  ]},
+  { groups:[
+    {level:0,name:"Transport options",terms:["AMBULANCE","WHEELCHAIR VAN","MEDICAR","FAMILY"]},
+    {level:1,name:"Activities of daily living",terms:["BATHING","EATING","TRANSFER","GROOMING"]},
+    {level:2,name:"Why discharge slipped a day",terms:["NO RIDE","NO SCRIPT","NO SIGNATURE","NO BED"]},
+    {level:3,name:"Words before INJURY",terms:["MORAL","PERSONAL","BRAIN","SPINAL"]}
+  ]},
+  { groups:[
+    {level:0,name:"Types of denial",terms:["TECHNICAL","CLINICAL","ADMINISTRATIVE","RETROSPECTIVE"]},
+    {level:1,name:"Conditions of Participation topics",terms:["DISCHARGE PLANNING","PATIENT RIGHTS","QAPI","INFECTION"]},
+    {level:2,name:"Words after CARE",terms:["PLAN","TEAM","GAP","GIVER"]},
+    {level:3,name:"Stages of a peer to peer",terms:["SCHEDULE","WAIT","PLEAD","LOSE"]}
+  ]},
+  { groups:[
+    {level:0,name:"Senior living levels",terms:["SKILLED","INTERMEDIATE","MEMORY CARE","ASSISTED"]},
+    {level:1,name:"Dementia care terms",terms:["SUNDOWNING","WANDERING","REDIRECT","ELOPEMENT"]},
+    {level:2,name:"Words before LIVING",terms:["INDEPENDENT","SUPPORTIVE","GROUP","COST OF"]},
+    {level:3,name:"What families say about mom",terms:["SHE'S FINE","SHE FORGETS","SHE FELL","SHE REFUSES"]}
+  ]},
+  { groups:[
+    {level:0,name:"Needs a skilled nurse",terms:["PICC","IV ANTIBIOTICS","TRACH","TPN"]},
+    {level:1,name:"Home health visit types",terms:["START OF CARE","RESUMPTION","RECERT","DISCHARGE"]},
+    {level:2,name:"Words before AUTHORIZATION",terms:["PRIOR","RETRO","CONCURRENT","VERBAL"]},
+    {level:3,name:"Things you do on hold",terms:["CHART","EAT","CRY","STARE"]}
+  ]},
+  { groups:[
+    {level:0,name:"Case management credentials",terms:["RN","MSW","LCSW","ACM"]},
+    {level:1,name:"Left before discharge",terms:["AMA","ELOPED","WALKED OUT","REFUSED"]},
+    {level:2,name:"Observation status problems",terms:["TWO MIDNIGHT","MOON","PART B","NO SNF"]},
+    {level:3,name:"Words before WORKER",terms:["SOCIAL","CASE","HEALTH","CO"]}
+  ]},
+  { groups:[
+    {level:0,name:"Medicaid waiver services",terms:["RESPITE","ADULT DAY","PERSONAL CARE","HOMEMAKER"]},
+    {level:1,name:"Mandated reporting",terms:["REPORT","INVESTIGATE","SUBSTANTIATE","HOTLINE"]},
+    {level:2,name:"Words after ADULT",terms:["PROTECTIVE","FOSTER","CHILD","ONSET"]},
+    {level:3,name:"In the discharge lounge",terms:["CHAIRS","TV","BAGGED LUNCH","NOBODY"]}
+  ]},
+  { groups:[
+    {level:0,name:"Rehab potential words",terms:["MOTIVATED","TOLERATED","PLATEAU","PROGRESS"]},
+    {level:1,name:"Who the insurer sends",terms:["REVIEWER","MEDICAL DIRECTOR","LIAISON","ANALYST"]},
+    {level:2,name:"Types of review",terms:["CONCURRENT","RETROSPECTIVE","PEER","PROSPECTIVE"]},
+    {level:3,name:"Why the SNF sent them back",terms:["FEVER","FALL","CONFUSION","NO ORDERS"]}
+  ]},
+  { groups:[
+    {level:0,name:"Advance directives",terms:["LIVING WILL","POA","DNR","POLST"]},
+    {level:1,name:"Signed at admission",terms:["CONSENT","HIPAA","IMM","INVENTORY"]},
+    {level:2,name:"Words before CARE",terms:["SELF","RESPITE","CUSTODIAL","URGENT"]},
+    {level:3,name:"Doesn't fit in the EMR",terms:["NUANCE","CONTEXT","THE TRUTH","TIME"]}
+  ]},
+  { groups:[
+    {level:0,name:"Discharge to home needs",terms:["CAREGIVER","RAMP","MEDS","FOLLOW UP"]},
+    {level:1,name:"Fall prevention at home",terms:["GRAB BARS","LIGHTING","RUGS","FOOTWEAR"]},
+    {level:2,name:"Words before PLANNER",terms:["DISCHARGE","FINANCIAL","WEDDING","MEAL"]},
+    {level:3,name:"Arrives after discharge",terms:["BILL","SUMMARY","DME","REGRET"]}
+  ]},
+  { groups:[
+    {level:0,name:"Symptom management",terms:["MORPHINE","ATIVAN","OXYGEN","ANTIEMETIC"]},
+    {level:1,name:"Palliative referral triggers",terms:["WEIGHT LOSS","READMITS","PAIN","DECLINE"]},
+    {level:2,name:"Serious illness conversation",terms:["HOPE","WORRY","PREPARE","WISH"]},
+    {level:3,name:"Things you can't fix",terms:["POVERTY","ADDICTION","ESTRANGEMENT","TIME"]}
+  ]},
+  { groups:[
+    {level:0,name:"Beds you can never find",terms:["PSYCH","VENT","BARIATRIC","MEDICAID"]},
+    {level:1,name:"What home health asks",terms:["INSURANCE","ADDRESS","STAIRS","PETS"]},
+    {level:2,name:"Words before HEALTH",terms:["HOME","BEHAVIORAL","PUBLIC","MENTAL"]},
+    {level:3,name:"Why you're still here at six",terms:["CHARTING","CALLBACK","MEETING","ONE MORE"]}
+  ]},
+  { groups:[
+    {level:0,name:"At interdisciplinary rounds",terms:["HOSPITALIST","PHARMACIST","THERAPIST","CASE MANAGER"]},
+    {level:1,name:"Handoff tools",terms:["SBAR","I PASS","HUDDLE","WARM HANDOFF"]},
+    {level:2,name:"Words before ROUNDS",terms:["TABLE","GRAND","WALKING","DAILY"]},
+    {level:3,name:"Happens after you leave",terms:["READMIT","DENIAL","NO SHOW","THANK YOU"]}
+  ]},
+  { groups:[
+    {level:0,name:"VA benefits",terms:["AID AND ATTENDANCE","CHAMPVA","VSO","SERVICE CONNECTED"]},
+    {level:1,name:"Pays for long term care",terms:["MEDICAID","LTC INSURANCE","PRIVATE PAY","VA"]},
+    {level:2,name:"Words after NURSING",terms:["HOME","FACILITY","NOTE","SHORTAGE"]},
+    {level:3,name:"Takes forever",terms:["GUARDIANSHIP","SSDI","APPEAL","RECORDS"]}
+  ]},
+  { groups:[
+    {level:0,name:"Case management models",terms:["DYAD","TRIAD","UNIT BASED","POPULATION"]},
+    {level:1,name:"Metrics they track",terms:["LOS","READMITS","AVOIDABLE DAYS","DENIALS"]},
+    {level:2,name:"Words before MANAGEMENT",terms:["CASE","CARE","UTILIZATION","PAIN"]},
+    {level:3,name:"Nobody tracks these",terms:["PHONE CALLS","TEARS","MIRACLES","RELATIONSHIPS"]}
+  ]},
+  { groups:[
+    {level:0,name:"Words before ROOM",terms:["BREAK","WAITING","OPERATING","EMERGENCY"]},
+    {level:1,name:"Break room realities",terms:["COLD COFFEE","OLD DONUTS","ONE CHAIR","NO WINDOWS"]},
+    {level:2,name:"Five minutes is enough to",terms:["BREATHE","SIT","TEXT","NOTHING"]},
+    {level:3,name:"Why the job is worth it",terms:["THE THANK YOU","THE SAVE","THE TEAM","THE PATIENT"]}
+  ]}
+];
+
+
+/* ══════════════════════
+   GAME ENGINE
+══════════════════════ */
+(function(){
+  'use strict';
+
+  var GAME_ID  = 'discharge_connections';
+  var MAX_MISS = 4;
+  var STORE_PREFIX = 'addie_dc_';
+
+  /* ── Daily puzzle selection (Eastern time) ───────────────────
+     Everyone gets the same board on the same calendar day in
+     America/New_York, so a mistakes-based leaderboard compares
+     like to like. ────────────────────────────────────────────── */
+  function etDateKey(){
+    try{
+      return new Date().toLocaleDateString('en-CA',{timeZone:'America/New_York'});
+    }catch(e){
+      var d=new Date();
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    }
+  }
+  function dayNumber(key){
+    var p=key.split('-');
+    return Math.floor(Date.UTC(+p[0],+p[1]-1,+p[2])/86400000);
+  }
+
+  /* Seeded PRNG so the tile layout is identical for every player. */
+  function mulberry32(a){
+    return function(){
+      a|=0;a=a+0x6D2B79F5|0;
+      var t=Math.imul(a^a>>>15,1|a);
+      t=t+Math.imul(t^t>>>7,61|t)^t;
+      return((t^t>>>14)>>>0)/4294967296;
+    };
+  }
+  function seededShuffle(arr,seed){
+    var rnd=mulberry32(seed),a=arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j=Math.floor(rnd()*(i+1));
+      var tmp=a[i];a[i]=a[j];a[j]=tmp;
+    }
+    return a;
+  }
+
+  var DATE_KEY = etDateKey();
+  var DAY_NUM  = dayNumber(DATE_KEY);
+  var P_INDEX  = ((DAY_NUM % PUZZLES.length) + PUZZLES.length) % PUZZLES.length;
+  var PUZZLE   = PUZZLES[P_INDEX];
+
+  /* Flatten to tiles, tagged with their owning group. */
+  var ALL_TILES = [];
+  PUZZLE.groups.forEach(function(g,gi){
+    g.terms.forEach(function(term){
+      ALL_TILES.push({term:term,gi:gi,level:g.level});
+    });
+  });
+
+  var state = {
+    board:      seededShuffle(ALL_TILES, DAY_NUM * 2654435761 % 2147483647),
+    selected:   [],
+    solvedIdx:  [],
+    mistakes:   0,
+    guesses:    [],   /* history of level-arrays, for the share grid */
+    oneAways:   0,
+    past:       [],   /* previously submitted term-sets, to block repeats */
+    over:       false,
+    startedAt:  Date.now(),
+    posted:     false
+  };
+
+  /* ── DOM ── */
+  var elGrid    = document.getElementById('grid');
+  var elSolved  = document.getElementById('solvedWrap');
+  var elToast   = document.getElementById('toast');
+  var elMeta    = document.getElementById('puzzleMeta');
+  var elResults = document.getElementById('resultsSlot');
+  var elControls= document.getElementById('controls');
+  var elMissRow = document.getElementById('mistakesRow');
+  var elHow     = document.getElementById('howBox');
+  var btnSubmit = document.getElementById('btnSubmit');
+  var btnShuf   = document.getElementById('btnShuffle');
+  var btnDesel  = document.getElementById('btnDeselect');
+
+  elMeta.textContent = 'Board #' + (P_INDEX + 1) + ' · ' + prettyDate(DATE_KEY);
+
+  function prettyDate(key){
+    var p=key.split('-');
+    var d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2]));
+    var M=['January','February','March','April','May','June','July',
+           'August','September','October','November','December'];
+    return M[d.getUTCMonth()]+' '+d.getUTCDate()+', '+d.getUTCFullYear();
+  }
+
+  function toast(msg){
+    elToast.textContent = msg;
+    elToast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){elToast.classList.remove('show');}, 1500);
+  }
+
+  function sizeClass(term){
+    if(term.length > 15) return ' len-lg';
+    if(term.length > 10) return ' len-md';
+    return '';
+  }
+
+  /* ── RENDER ── */
+  function renderSolved(){
+    elSolved.innerHTML = '';
+    state.solvedIdx.forEach(function(gi){
+      var g = PUZZLE.groups[gi];
+      var div = document.createElement('div');
+      div.className = 'solved-group l' + g.level;
+      div.innerHTML = '<div class="solved-name">' + esc(g.name) + '</div>' +
+                      '<div class="solved-terms">' + g.terms.map(esc).join(' · ') + '</div>';
+      elSolved.appendChild(div);
+    });
+  }
+
+  function renderGrid(){
+    elGrid.innerHTML = '';
+    state.board.forEach(function(tile){
+      if(state.solvedIdx.indexOf(tile.gi) !== -1) return;  /* locked away above */
+      var btn = document.createElement('div');
+      btn.className = 'tile' + sizeClass(tile.term) +
+                      (state.selected.indexOf(tile) !== -1 ? ' selected' : '');
+      btn.textContent = tile.term;
+      btn.setAttribute('role','button');
+      btn.setAttribute('tabindex','0');
+      btn.addEventListener('click', function(){ toggle(tile, btn); });
+      btn.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(tile, btn); }
+      });
+      tile._el = btn;
+      elGrid.appendChild(btn);
+    });
+    syncSubmit();
+  }
+
+  function renderMistakes(){
+    var dots = elMissRow.querySelectorAll('.dot');
+    for(var i = 0; i < dots.length; i++){
+      dots[i].classList.toggle('spent', i < state.mistakes);
+    }
+  }
+
+  function syncSubmit(){
+    btnSubmit.disabled = state.over || state.selected.length !== 4;
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  /* ── INTERACTION ── */
+  function toggle(tile){
+    if(state.over) return;
+    var i = state.selected.indexOf(tile);
+    if(i !== -1){
+      state.selected.splice(i, 1);
+    }else{
+      if(state.selected.length >= 4) return;
+      state.selected.push(tile);
+    }
+    renderGrid();
+  }
+
+  btnShuf.addEventListener('click', function(){
+    if(state.over) return;
+    /* Player-initiated shuffle is random — only the *starting* layout
+       needs to be identical across players. */
+    var remaining = state.board.filter(function(t){
+      return state.solvedIdx.indexOf(t.gi) === -1;
+    });
+    for(var i = remaining.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = remaining[i]; remaining[i] = remaining[j]; remaining[j] = tmp;
+    }
+    var solvedTiles = state.board.filter(function(t){
+      return state.solvedIdx.indexOf(t.gi) !== -1;
+    });
+    state.board = solvedTiles.concat(remaining);
+    renderGrid();
+  });
+
+  btnDesel.addEventListener('click', function(){
+    if(state.over) return;
+    state.selected = [];
+    renderGrid();
+  });
+
+  btnSubmit.addEventListener('click', submitGuess);
+
+  function submitGuess(){
+    if(state.over || state.selected.length !== 4) return;
+
+    var picked = state.selected.slice();
+    var key = picked.map(function(t){return t.term;}).sort().join('|');
+
+    if(state.past.indexOf(key) !== -1){
+      toast('Already guessed that one');
+      picked.forEach(function(t){ shake(t._el); });
+      return;
+    }
+    state.past.push(key);
+
+    /* Count how many belong to each group. */
+    var counts = {};
+    picked.forEach(function(t){ counts[t.gi] = (counts[t.gi] || 0) + 1; });
+    var best = 0, bestGi = null;
+    Object.keys(counts).forEach(function(gi){
+      if(counts[gi] > best){ best = counts[gi]; bestGi = +gi; }
+    });
+
+    state.guesses.push(picked.map(function(t){ return t.level; }));
+
+    if(best === 4){
+      /* Correct group. */
+      picked.forEach(function(t, i){
+        setTimeout(function(){ bump(t._el); }, i * 70);
+      });
+      setTimeout(function(){
+        state.solvedIdx.push(bestGi);
+        state.selected = [];
+        renderSolved();
+        renderGrid();
+        if(state.solvedIdx.length === 4) finish(true);
+      }, 380);
+    }else{
+      /* Wrong. */
+      state.mistakes++;
+      picked.forEach(function(t){ shake(t._el); });
+      if(best === 3){
+        state.oneAways++;
+        toast('One away…');
+      }
+      renderMistakes();
+      setTimeout(function(){
+        state.selected = [];
+        renderGrid();
+        if(state.mistakes >= MAX_MISS) finish(false);
+      }, 500);
+    }
+  }
+
+  function shake(el){
+    if(!el) return;
+    el.classList.remove('shake');
+    void el.offsetWidth;
+    el.classList.add('shake');
+  }
+  function bump(el){
+    if(!el) return;
+    el.classList.remove('bump');
+    void el.offsetWidth;
+    el.classList.add('bump');
+  }
+
+  /* ── END OF GAME ── */
+  function finish(solved){
+    state.over = true;
+    var seconds = Math.round((Date.now() - state.startedAt) / 1000);
+
+    /* On a loss, reveal the groups the player never got. */
+    if(!solved){
+      PUZZLE.groups.forEach(function(g, gi){
+        if(state.solvedIdx.indexOf(gi) === -1) state.solvedIdx.push(gi);
+      });
+      renderSolved();
+    }
+    renderGrid();
+
+    /* Session best, matching the pattern the other games use. */
+    try{
+      sessionStorage.setItem('addie_dc_last', JSON.stringify({
+        date: DATE_KEY, solved: solved, mistakes: state.mistakes, seconds: seconds
+      }));
+    }catch(e){}
+
+    /* Persist so a refresh shows the result instead of a fresh board. */
+    saveState(solved, seconds);
+
+    /* ── LEADERBOARD ──────────────────────────────────────────
+       Score is mistakes made, lower_is_better. Only a solve
+       posts: a board of 4s tells the hub nothing, and the fourth
+       mistake ends the game, so postable scores run 0–3. ───── */
+    if(solved && !state.posted && window.BreakroomLeaderboard){
+      state.posted = true;
+      window.BreakroomLeaderboard.submit({
+        gameId: GAME_ID,
+        score:  state.mistakes,
+        meta:   {
+          puzzle_date:    DATE_KEY,
+          puzzle_index:   P_INDEX,
+          solve_seconds:  seconds,
+          mistakes:       state.mistakes,
+          one_away_count: state.oneAways
+        }
+      }).catch(function(e){ console.warn('Leaderboard submit failed:', e); });
+    }
+
+    showResults(solved, seconds);
+  }
+
+  function showResults(solved, seconds){
+    elControls.style.display = 'none';
+    elMissRow.style.display  = 'none';
+    elHow.style.display      = 'none';
+
+    var emoji, title, msg;
+    if(solved && state.mistakes === 0){
+      emoji = '🏆'; title = 'Flawless board';
+      msg = 'Four for four, no mistakes. Somewhere a utilization review nurse felt a disturbance in the force.';
+    }else if(solved && state.mistakes === 1){
+      emoji = '⭐'; title = 'One slip, still solved';
+      msg = 'Clean work. One wrong grab is the cost of doing business — you recovered and closed it out.';
+    }else if(solved && state.mistakes === 2){
+      emoji = '🎯'; title = 'Solved it';
+      msg = 'Two misfires and you still got there. That is basically every discharge you have ever planned.';
+    }else if(solved){
+      emoji = '😮‍💨'; title = 'Down to the wire';
+      msg = 'Three mistakes and one guess left. Solved is solved — take the win and go refill the coffee.';
+    }else{
+      emoji = '📋'; title = 'The board wins today';
+      msg = 'Four mistakes and it kept its secrets. The groups are revealed above — come back tomorrow for a new board.';
+    }
+
+    var share = state.guesses.map(function(row){
+      return row.map(function(lvl){
+        return ['🟩','🟨','🟦','⬛'][lvl];
+      }).join('');
+    }).join('<br>');
+
+    var mm = Math.floor(seconds / 60), ss = seconds % 60;
+    var timeStr = mm + ':' + String(ss).padStart(2, '0');
+
+    var scoreBlock = solved
+      ? '<div><div class="rstat-label">Mistakes</div><div class="rstat-value">' + state.mistakes + '</div></div>' +
+        '<div><div class="rstat-label">Time</div><div class="rstat-value">' + timeStr + '</div></div>'
+      : '<div><div class="rstat-label">Groups found</div><div class="rstat-value">' +
+        state.guesses.filter(function(r){
+          return r[0] === r[1] && r[1] === r[2] && r[2] === r[3];
+        }).length + '</div></div>' +
+        '<div><div class="rstat-label">Time</div><div class="rstat-value">' + timeStr + '</div></div>';
+
+    var note = solved
+      ? 'Your score posts to this week&rsquo;s Break Room leaderboard. Fewer mistakes ranks higher.'
+      : 'Only solved boards post to the leaderboard — no shame wall here. Try again tomorrow.';
+
+    elResults.innerHTML =
+      '<div class="results">' +
+        '<div class="results-emoji">' + emoji + '</div>' +
+        '<div class="results-title">' + title + '</div>' +
+        '<div class="results-msg">' + msg + '</div>' +
+        '<div class="results-stats">' + scoreBlock + '</div>' +
+        '<div class="share-grid">' + share + '</div>' +
+        '<div class="results-note">' + note + '</div>' +
+      '</div>';
+  }
+
+  /* ── PERSISTENCE ──────────────────────────────────────────────
+     One board per day. Storing the finished result means closing
+     the tab and returning shows what happened rather than a fresh
+     grid to farm for a better score. ─────────────────────────── */
+  function storeKey(){ return STORE_PREFIX + DATE_KEY; }
+
+  function saveState(solved, seconds){
+    try{
+      localStorage.setItem(storeKey(), JSON.stringify({
+        v: 1,
+        solved:   solved,
+        mistakes: state.mistakes,
+        seconds:  seconds,
+        guesses:  state.guesses,
+        posted:   state.posted
+      }));
+    }catch(e){}
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(storeKey());
+      if(!raw) return null;
+      var d = JSON.parse(raw);
+      return (d && d.v === 1) ? d : null;
+    }catch(e){ return null; }
+  }
+
+  /* Clean up prior days so localStorage doesn't grow forever. */
+  (function pruneOldDays(){
+    try{
+      var kill = [];
+      for(var i = 0; i < localStorage.length; i++){
+        var k = localStorage.key(i);
+        if(k && k.indexOf(STORE_PREFIX) === 0 && k !== storeKey()) kill.push(k);
+      }
+      kill.forEach(function(k){ localStorage.removeItem(k); });
+    }catch(e){}
+  })();
+
+  /* ── BOOT ── */
+  var prior = loadState();
+  if(prior){
+    /* Already played today — replay the outcome, don't re-post a score. */
+    state.mistakes = prior.mistakes;
+    state.guesses  = prior.guesses || [];
+    state.posted   = true;
+    state.over     = true;
+    PUZZLE.groups.forEach(function(g, gi){ state.solvedIdx.push(gi); });
+    renderSolved();
+    renderGrid();
+    renderMistakes();
+    showResults(prior.solved, prior.seconds || 0);
+    var already = document.createElement('div');
+    already.className = 'results-note';
+    already.style.textAlign = 'center';
+    already.style.marginTop = '12px';
+    already.textContent = 'You already played today’s board. A new one lands at midnight Eastern.';
+    elResults.appendChild(already);
+  }else{
+    renderSolved();
+    renderGrid();
+    renderMistakes();
+  }
+
+})();
+</script>
+
+<!-- Cross-device weekly leaderboard (Supabase + Anthropic moderation). -->
+<script src="https://timothypoore-blip.github.io/addie-breakroom-games/breakroom-leaderboard.js" defer></script>
+</body>
+</html>

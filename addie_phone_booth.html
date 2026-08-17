@@ -492,9 +492,14 @@
   'use strict';
 
   var SUPABASE_URL = 'https://sxpyphlqnpjncxtckivm.supabase.co';
+  /* Public publishable key, same one breakroom-leaderboard.js uses.
+     Not a secret — it just means the endpoints can require a caller
+     to at least be using the platform's own key rather than being a
+     wide-open LLM proxy. */
+  var SUPABASE_ANON_KEY = 'sb_publishable_r25bJMDW37MwfozuHou5Jw_wf12bgGn';
   var CHAT_ENDPOINT = SUPABASE_URL + '/functions/v1/booth-chat';
   var MOOD_ENDPOINT = SUPABASE_URL + '/functions/v1/booth-mood';
-  var MAX_TURNS = 30;
+  var MAX_TURNS = 20;
 
   /* ── state ── */
   var progress = 0;          /* 0..1 walk toward the booth */
@@ -696,11 +701,17 @@
 
     var r = await fetch(CHAT_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
       body: JSON.stringify({ messages: messages })
     });
-    if(!r.ok) throw new Error('HTTP ' + r.status);
-    var body = await r.json();
+    var body = await r.json().catch(function(){ return {}; });
+    /* Rate limits and declines still carry a line to say, so the booth
+       never shows the caller a raw error. */
+    if(!r.ok && !body.text) throw new Error('HTTP ' + r.status);
     return { text: body.text, concern: !!body.concern };
   }
 
@@ -738,7 +749,11 @@
     try{
       fetch(MOOD_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        },
         body: JSON.stringify({
           mood_before: moodBefore,
           mood_after: moodAfter,

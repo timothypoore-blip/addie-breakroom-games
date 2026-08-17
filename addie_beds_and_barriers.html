@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Beds &amp; Barriers — Addie Break Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#081829; --blue:#185793; --green:#8BC53F; --green-dark:#6fa030;
+    --gray-50:#f8fafc; --gray-100:#f1f5f9; --gray-200:#e2e8f0;
+    --gray-400:#94a3b8; --gray-600:#475569;
+    --amb:#e05a4f; --bed:#185793; --cht:#8BC53F; --med:#F0B429; --phn:#7c3aed;
+    --danger:#dc2626;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Poppins',sans-serif;background:#fff;min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;
+    padding:16px 10px 30px;overflow-x:hidden;position:relative;
+  }
+  #bgCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+  .wrap{position:relative;z-index:1;width:100%;max-width:560px;}
+
+  /* ── HEADER ── */
+  .game-header{text-align:center;margin-bottom:12px;}
+  .game-logo{
+    display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,0.9);
+    border:1px solid var(--gray-200);border-radius:100px;padding:5px 16px 5px 8px;
+    margin-bottom:9px;box-shadow:0 2px 12px rgba(8,24,41,0.08);
+  }
+  .game-logo-mark{
+    width:26px;height:26px;background:linear-gradient(135deg,var(--blue),var(--green));
+    border-radius:7px;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:800;font-size:12px;
+  }
+  .game-logo-text{font-size:0.76rem;font-weight:700;color:var(--navy);}
+  .game-logo-text span{color:var(--green-dark);}
+  .game-title{font-size:clamp(1.4rem,4.6vw,1.95rem);font-weight:900;color:var(--navy);line-height:1.1;letter-spacing:-0.02em;}
+  .game-sub{font-size:0.78rem;color:var(--gray-600);font-weight:500;margin-top:4px;}
+
+  /* ── STATUS ── */
+  .status{
+    display:flex;align-items:center;gap:10px;margin:12px 0 10px;
+    background:rgba(255,255,255,0.92);border:1px solid var(--gray-200);
+    border-radius:14px;padding:9px 12px;box-shadow:0 2px 12px rgba(8,24,41,0.06);
+  }
+  .wave-chip{
+    background:var(--navy);color:#fff;border-radius:100px;padding:4px 12px;
+    font-size:0.66rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;
+  }
+  .los-wrap{flex:1;}
+  .los-top{display:flex;justify-content:space-between;font-size:0.62rem;font-weight:700;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--gray-400);margin-bottom:3px;}
+  .los-bar{height:9px;background:var(--gray-100);border-radius:100px;overflow:hidden;}
+  .los-fill{height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--med));
+    border-radius:100px;transition:width .35s ease,background .35s ease;}
+  .los-fill.warn{background:linear-gradient(90deg,var(--med),var(--amb));}
+  .los-fill.crit{background:linear-gradient(90deg,var(--amb),var(--danger));}
+  .score-chip{font-size:0.62rem;font-weight:700;color:var(--gray-400);
+    letter-spacing:.06em;text-transform:uppercase;text-align:right;white-space:nowrap;}
+  .score-chip b{display:block;font-size:1.05rem;color:var(--navy);letter-spacing:0;}
+
+  /* ── BARRIERS ── */
+  .barrier-zone{margin-bottom:12px;}
+  .barrier-row{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;}
+  .barrier{
+    background:var(--navy);border-radius:10px;padding:6px 5px 5px;
+    color:#fff;text-align:center;position:relative;overflow:hidden;
+    border:2px solid transparent;transition:opacity .35s,transform .35s,filter .2s;
+  }
+  .barrier .bname{
+    font-size:0.5rem;font-weight:800;letter-spacing:.03em;line-height:1.15;
+    text-transform:uppercase;margin-bottom:3px;
+  }
+  .barrier .bmeta{display:flex;align-items:center;justify-content:center;gap:5px;font-size:0.58rem;font-weight:700;}
+  .barrier .weak{font-size:0.72rem;line-height:1;}
+  .barrier .timer{
+    background:rgba(255,255,255,0.16);border-radius:100px;padding:1px 6px;font-size:0.55rem;
+  }
+  .barrier .timer.imminent{background:var(--danger);animation:pulse .8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+  .barrier .hpbar{height:5px;background:rgba(255,255,255,0.18);border-radius:100px;margin-top:5px;overflow:hidden;}
+  .barrier .hpfill{height:100%;background:var(--green);border-radius:100px;transition:width .3s ease;}
+  .barrier.hit{animation:bhit .3s ease;}
+  @keyframes bhit{0%,100%{transform:translateY(0);}40%{transform:translateY(-5px);filter:brightness(1.5);}}
+  .barrier.dead{opacity:.18;filter:grayscale(1);transform:scale(.95);}
+  .barrier .dmgfloat{
+    position:absolute;top:2px;left:50%;transform:translateX(-50%);
+    font-size:0.78rem;font-weight:900;color:var(--green);
+    text-shadow:0 1px 3px rgba(0,0,0,.5);pointer-events:none;
+    animation:floatUp .8s ease-out forwards;
+  }
+  .barrier .dmgfloat.weakhit{color:var(--med);}
+  @keyframes floatUp{0%{opacity:1;top:10px;}100%{opacity:0;top:-14px;}}
+
+  /* ── BOARD ── */
+  .board{
+    display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
+    background:rgba(255,255,255,0.9);border:1px solid var(--gray-200);
+    border-radius:14px;padding:7px;box-shadow:0 4px 20px rgba(8,24,41,0.08);
+  }
+  .tile{
+    aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-size:clamp(1.1rem,4.6vw,1.55rem);cursor:pointer;user-select:none;
+    -webkit-tap-highlight-color:transparent;position:relative;
+    transition:transform .12s,box-shadow .12s,opacity .18s;
+  }
+  .tile.AMB{background:rgba(224,90,79,0.16);}
+  .tile.BED{background:rgba(24,87,147,0.14);}
+  .tile.CHT{background:rgba(139,197,63,0.20);}
+  .tile.MED{background:rgba(240,180,41,0.20);}
+  .tile.PHN{background:rgba(124,58,237,0.14);}
+  .tile:active{transform:scale(0.9);}
+  .tile.sel{box-shadow:0 0 0 3px var(--navy) inset;transform:scale(1.06);}
+  .tile.drop{animation:drop .22s ease-out;}
+  @keyframes drop{from{transform:translateY(-38%);opacity:.3;}to{transform:translateY(0);opacity:1;}}
+  .tile.clearing{animation:clear .26s ease-in forwards;}
+  @keyframes clear{0%{transform:scale(1);}45%{transform:scale(1.22);}100%{transform:scale(0);opacity:0;}}
+  .tile.nudge{animation:nudge .34s ease;}
+  @keyframes nudge{0%,100%{transform:translateX(0);}30%{transform:translateX(-5px);}70%{transform:translateX(5px);}}
+  .tile .badge{
+    position:absolute;bottom:1px;right:2px;font-size:0.42rem;font-weight:900;
+    background:var(--navy);color:#fff;border-radius:4px;padding:0 3px;letter-spacing:.03em;
+  }
+  .tile.special{box-shadow:0 0 0 2px var(--navy) inset;}
+
+  /* ── CHAIN BANNER ── */
+  .chain{
+    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);
+    font-size:2rem;font-weight:900;color:var(--navy);opacity:0;pointer-events:none;z-index:40;
+    text-shadow:0 3px 14px rgba(255,255,255,.9);
+  }
+  .chain.show{animation:chainPop .75s ease-out;}
+  @keyframes chainPop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.6);}
+    30%{opacity:1;transform:translate(-50%,-50%) scale(1.1);}
+    100%{opacity:0;transform:translate(-50%,-90%) scale(1);}
+  }
+
+  /* ── LEGEND ── */
+  .legend{
+    display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:11px;
+    font-size:0.6rem;font-weight:600;color:var(--gray-600);
+  }
+  .legend span{
+    background:rgba(255,255,255,.85);border:1px solid var(--gray-200);
+    border-radius:100px;padding:3px 9px;white-space:nowrap;
+  }
+
+  /* ── TOAST / RESULTS ── */
+  .toast{
+    position:fixed;left:50%;top:18px;transform:translate(-50%,-18px);
+    background:var(--navy);color:#fff;padding:9px 20px;border-radius:100px;
+    font-size:0.78rem;font-weight:700;box-shadow:0 6px 22px rgba(8,24,41,.28);
+    opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;white-space:nowrap;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+  .results{
+    margin-top:14px;background:rgba(255,255,255,0.96);border:1px solid var(--gray-200);
+    border-radius:20px;padding:20px 18px;text-align:center;
+    box-shadow:0 4px 24px rgba(8,24,41,0.09);animation:rpop .4s cubic-bezier(.34,1.4,.64,1) both;
+  }
+  @keyframes rpop{from{transform:scale(.93);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .results-emoji{font-size:2.2rem;line-height:1;}
+  .results-title{font-size:1.15rem;font-weight:900;color:var(--navy);margin-top:6px;letter-spacing:-0.02em;}
+  .results-msg{font-size:0.8rem;color:var(--gray-600);margin-top:7px;line-height:1.5;}
+  .results-stats{display:flex;justify-content:center;gap:20px;margin:15px 0 4px;flex-wrap:wrap;}
+  .rstat-label{font-size:0.55rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gray-400);}
+  .rstat-value{font-size:1.35rem;font-weight:900;color:var(--navy);line-height:1.1;}
+  .results-note{font-size:0.68rem;color:var(--gray-400);margin-top:11px;line-height:1.5;}
+  .btn{
+    margin-top:14px;padding:10px 24px;border-radius:100px;border:none;
+    background:linear-gradient(135deg,var(--green-dark),var(--green));color:#fff;
+    font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:800;cursor:pointer;
+  }
+  .btn:hover{filter:brightness(1.07);}
+
+  @media(max-width:430px){
+    .barrier .bname{font-size:0.44rem;}
+    .barrier .bmeta{font-size:0.52rem;}
+  }
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+
+<div class="wrap">
+  <div class="game-header">
+    <div class="game-logo">
+      <div class="game-logo-mark">A</div>
+      <div class="game-logo-text">Addie <span>Break Room</span></div>
+    </div>
+    <h1 class="game-title">Beds &amp; Barriers</h1>
+    <div class="game-sub">Match supplies to break what's keeping them here.</div>
+  </div>
+
+  <div class="status">
+    <div class="wave-chip" id="waveChip">Wave 1</div>
+    <div class="los-wrap">
+      <div class="los-top"><span>Length of stay</span><span id="losText">0 / 40 days</span></div>
+      <div class="los-bar"><div class="los-fill" id="losFill"></div></div>
+    </div>
+    <div class="score-chip">Score<b id="scoreVal">0</b></div>
+  </div>
+
+  <div class="barrier-zone">
+    <div class="barrier-row" id="barrierRowA"></div>
+    <div class="barrier-row" id="barrierRowB"></div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="legend">
+    <span>🚑 Transport</span><span>🛏️ Placement</span><span>📋 Documentation</span>
+    <span>💊 Clinical</span><span>📞 Payer</span>
+  </div>
+  <div class="legend" style="margin-top:6px;">
+    <span>Match on a seam to hit two barriers</span>
+    <span>Match 4 → STAT</span>
+    <span>Match 5 → ORDER</span>
+  </div>
+
+  <div id="resultsSlot"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="chain" id="chainBanner"></div>
+
+<script>
+/* ══════════════════════
+   PEP FLOW FIELD BG
+══════════════════════ */
+(function(){
+  var c=document.getElementById('bgCanvas');
+  var ctx=c.getContext('2d');
+  var W,H,pts=[],mouse={x:-1e4,y:-1e4};
+  var PAL=[[139,197,63],[24,87,147],[13,74,138],[111,160,48],[58,127,193],[93,168,50]];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  function mkPt(){
+    var col=PAL[Math.floor(Math.random()*PAL.length)];
+    return{x:Math.random()*W,y:Math.random()*H,vx:0,vy:0,
+      r:col[0],g:col[1],b:col[2],age:0,life:Math.random()*200+100};
+  }
+  resize();
+  for(var i=0;i<450;i++)pts.push(mkPt());
+  window.addEventListener('resize',resize);
+  window.addEventListener('mousemove',function(e){mouse.x=e.clientX;mouse.y=e.clientY;});
+  window.addEventListener('mouseleave',function(){mouse.x=-1e4;mouse.y=-1e4;});
+  var t=0;
+  function loop(){
+    requestAnimationFrame(loop);
+    ctx.fillStyle='rgba(255,255,255,0.12)';ctx.fillRect(0,0,W,H);
+    t+=0.003;
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      var angle=(Math.cos(p.x*0.005)+Math.sin(p.y*0.005))*Math.PI+t;
+      p.vx+=Math.cos(angle)*0.22;p.vy+=Math.sin(angle)*0.22;
+      var dx=mouse.x-p.x,dy=mouse.y-p.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<150){var f=(150-d)/150;p.vx-=dx*f*0.05;p.vy-=dy*f*0.05;}
+      p.vx*=0.95;p.vy*=0.95;p.x+=p.vx;p.y+=p.vy;p.age++;
+      if(p.age>p.life){pts[i]=mkPt();continue;}
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      var alpha=(1-Math.abs(p.age/p.life-0.5)*2)*0.5;
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle='rgb('+p.r+','+p.g+','+p.b+')';
+      ctx.fillRect(p.x,p.y,1.5,1.5);
+    }
+    ctx.globalAlpha=1;
+  }
+  loop();
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   BEDS & BARRIERS — core engine, no DOM.
+   Kept free of rendering so it can be simulated headlessly and
+   balanced before any UI exists. The game file embeds this verbatim.
+══════════════════════════════════════════════════════════════════ */
+
+var BB = (function () {
+  'use strict';
+
+  var COLS = 7, ROWS = 5;
+  var TILES = ['AMB', 'BED', 'CHT', 'MED', 'PHN'];
+
+  /* Barrier column footprints. Five barriers over seven columns:
+     2 + 2 + 3 + 2 + 2 = 11 slots, so they overlap at columns 1,2,4,5.
+     A match in column 3 reaches only the middle barrier. */
+  var SPANS = [[0, 1], [1, 2], [2, 3, 4], [4, 5], [5, 6]];
+
+  /* Which barrier slots cover a given column. */
+  var COL_TO_SLOTS = (function () {
+    var m = [];
+    for (var c = 0; c < COLS; c++) {
+      m[c] = [];
+      for (var s = 0; s < SPANS.length; s++) {
+        if (SPANS[s].indexOf(c) !== -1) m[c].push(s);
+      }
+    }
+    return m;
+  })();
+
+  /* ── deterministic RNG so runs can be replayed in tests ── */
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function idx(r, c) { return r * COLS + c; }
+
+  /* ── board creation ─────────────────────────────────────────────
+     Deals a board with no pre-existing matches by rejecting any tile
+     that would complete a line of three as it fills. ───────────── */
+  function makeBoard(rnd) {
+    var b = new Array(ROWS * COLS);
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        var banned = {};
+        if (c >= 2 && b[idx(r, c - 1)] === b[idx(r, c - 2)]) banned[b[idx(r, c - 1)]] = 1;
+        if (r >= 2 && b[idx(r - 1, c)] === b[idx(r - 2, c)]) banned[b[idx(r - 1, c)]] = 1;
+        var pool = TILES.filter(function (t) { return !banned[t]; });
+        b[idx(r, c)] = pool[Math.floor(rnd() * pool.length)];
+      }
+    }
+    return b;
+  }
+
+  /* ── match detection ────────────────────────────────────────────
+     Returns groups, each carrying its cells, length and axis, so the
+     caller can both award damage per column and decide which special
+     tile a 4- or 5-run creates. ───────────────────────────────── */
+  function findMatches(b) {
+    var groups = [];
+    var r, c, run, i;
+
+    for (r = 0; r < ROWS; r++) {
+      run = [idx(r, 0)];
+      for (c = 1; c <= COLS; c++) {
+        var same = c < COLS && b[idx(r, c)] && b[idx(r, c)] === b[idx(r, c - 1)];
+        if (same) { run.push(idx(r, c)); }
+        else {
+          if (run.length >= 3) groups.push({ cells: run.slice(), axis: 'row', type: b[run[0]] });
+          run = c < COLS ? [idx(r, c)] : [];
+        }
+      }
+    }
+    for (c = 0; c < COLS; c++) {
+      run = [idx(0, c)];
+      for (r = 1; r <= ROWS; r++) {
+        var same2 = r < ROWS && b[idx(r, c)] && b[idx(r, c)] === b[idx(r - 1, c)];
+        if (same2) { run.push(idx(r, c)); }
+        else {
+          if (run.length >= 3) groups.push({ cells: run.slice(), axis: 'col', type: b[run[0]] });
+          run = r < ROWS ? [idx(r, c)] : [];
+        }
+      }
+    }
+    return groups;
+  }
+
+  /* ── gravity + refill ─────────────────────────────────────────
+     `meta` is an optional parallel array (special-tile markers) that
+     moves in lockstep with the tiles so a STAT tile falls with the
+     tile it was attached to. ─────────────────────────────────── */
+  function collapse(b, rnd, meta) {
+    for (var c = 0; c < COLS; c++) {
+      var write = ROWS - 1;
+      for (var r = ROWS - 1; r >= 0; r--) {
+        if (b[idx(r, c)] !== null) {
+          b[idx(write, c)] = b[idx(r, c)];
+          if (meta) meta[idx(write, c)] = meta[idx(r, c)];
+          if (write !== r) {
+            b[idx(r, c)] = null;
+            if (meta) meta[idx(r, c)] = null;
+          }
+          write--;
+        }
+      }
+      for (; write >= 0; write--) {
+        b[idx(write, c)] = TILES[Math.floor(rnd() * TILES.length)];
+        if (meta) meta[idx(write, c)] = null;
+      }
+    }
+  }
+
+  function swap(b, a, z) { var t = b[a]; b[a] = b[z]; b[z] = t; }
+
+  function adjacent(a, z) {
+    var ra = Math.floor(a / COLS), ca = a % COLS;
+    var rz = Math.floor(z / COLS), cz = z % COLS;
+    return Math.abs(ra - rz) + Math.abs(ca - cz) === 1;
+  }
+
+  /* Would this swap produce at least one match? */
+  function isLegalSwap(b, a, z) {
+    if (!adjacent(a, z)) return false;
+    swap(b, a, z);
+    var ok = findMatches(b).length > 0;
+    swap(b, a, z);
+    return ok;
+  }
+
+  function anyLegalMove(b) {
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        if (c + 1 < COLS && isLegalSwap(b, idx(r, c), idx(r, c + 1))) return true;
+        if (r + 1 < ROWS && isLegalSwap(b, idx(r, c), idx(r + 1, c))) return true;
+      }
+    }
+    return false;
+  }
+
+  function reshuffle(b, rnd) {
+    var guard = 0;
+    do {
+      var copy = makeBoard(rnd);
+      for (var i = 0; i < b.length; i++) b[i] = copy[i];
+      guard++;
+    } while (!anyLegalMove(b) && guard < 50);
+    return b;
+  }
+
+  /* ── damage routing ─────────────────────────────────────────────
+     Each matched tile pays damage into the column it sat in. A column
+     covered by two living barriers splits evenly; if one of the pair
+     is already dead the survivor takes the whole amount, and a column
+     with no living barrier wastes it. ─────────────────────────── */
+  var BASE = 10;
+  function cascadeMult(chain) { return chain === 1 ? 1 : (chain === 2 ? 1.5 : 2); }
+
+  function routeDamage(groups, barriers, chain) {
+    var out = new Array(barriers.length).fill(0);
+    var mult = cascadeMult(chain);
+
+    groups.forEach(function (g) {
+      g.cells.forEach(function (cell) {
+        var col = cell % COLS;
+        var live = COL_TO_SLOTS[col].filter(function (s) {
+          return barriers[s] && barriers[s].hp > 0;
+        });
+        if (!live.length) return;
+        var share = 1 / live.length;
+        live.forEach(function (s) {
+          var weak = barriers[s].weak === g.type ? 2 : 1;
+          out[s] += BASE * mult * weak * share;
+        });
+      });
+    });
+
+    return out.map(function (v) { return Math.round(v); });
+  }
+
+  /* ── resolve a swap: matches, cascades, damage ── */
+  function resolve(b, barriers, rnd) {
+    var chain = 0;
+    var totals = new Array(barriers.length).fill(0);
+    var steps = [];
+    var specials = [];
+
+    while (true) {
+      var groups = findMatches(b);
+      if (!groups.length) break;
+      chain++;
+
+      groups.forEach(function (g) {
+        if (g.cells.length === 4) specials.push({ kind: 'STAT', axis: g.axis, at: g.cells[0] });
+        else if (g.cells.length >= 5) specials.push({ kind: 'ORDER', type: g.type, at: g.cells[0] });
+      });
+
+      var dmg = routeDamage(groups, barriers, chain);
+      for (var i = 0; i < dmg.length; i++) {
+        if (barriers[i] && barriers[i].hp > 0) {
+          barriers[i].hp = Math.max(0, barriers[i].hp - dmg[i]);
+          totals[i] += dmg[i];
+        }
+      }
+
+      steps.push({ chain: chain, groups: groups.map(function (g) {
+        return { cells: g.cells.slice(), type: g.type, axis: g.axis };
+      }), damage: dmg });
+
+      groups.forEach(function (g) {
+        g.cells.forEach(function (cell) { b[cell] = null; });
+      });
+      collapse(b, rnd);
+    }
+
+    return { chain: chain, totals: totals, steps: steps, specials: specials };
+  }
+
+  return {
+    COLS: COLS, ROWS: ROWS, TILES: TILES, SPANS: SPANS,
+    COL_TO_SLOTS: COL_TO_SLOTS, BASE: BASE,
+    mulberry32: mulberry32, idx: idx,
+    makeBoard: makeBoard, findMatches: findMatches, collapse: collapse,
+    swap: swap, adjacent: adjacent, isLegalSwap: isLegalSwap,
+    anyLegalMove: anyLegalMove, reshuffle: reshuffle,
+    routeDamage: routeDamage, resolve: resolve, cascadeMult: cascadeMult
+  };
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   WAVES — three rows of five. Slot 2 is the three-wide middle
+   barrier in every wave, so it soaks damage from columns 2, 3 and 4.
+   HP and timing values are the output of a headless balance sweep
+   (bb_sim.js): they put a casual player near a 40% win rate, a
+   competent one near 65%.
+══════════════════════════════════════════════════════════════════ */
+var WAVES = [
+  {
+    label: 'Wave 1 · An ordinary Tuesday',
+    barriers: [
+      { name:'NO RIDE HOME',        hp:60,  weak:'AMB', cd:4, dmg:1 },
+      { name:'SIGNATURE MISSING',   hp:60,  weak:'CHT', cd:4, dmg:1 },
+      { name:'AUTH PENDING',        hp:120, weak:'PHN', cd:3, dmg:1 },
+      { name:'NO BED OFFER',        hp:60,  weak:'BED', cd:4, dmg:1 },
+      { name:'MEDS NOT RECONCILED', hp:60,  weak:'MED', cd:4, dmg:1 }
+    ]
+  },
+  {
+    label: 'Wave 2 · It compounds',
+    barriers: [
+      { name:'INSURANCE LAPSED',    hp:90,  weak:'PHN', cd:3, dmg:1 },
+      { name:'NO PCP FOLLOW UP',    hp:90,  weak:'CHT', cd:3, dmg:1 },
+      { name:'FAMILY DISAGREES',    hp:180, weak:'PHN', cd:3, dmg:2 },
+      { name:'STAIRS AT HOME',      hp:90,  weak:'BED', cd:3, dmg:1 },
+      { name:'WOUND VAC PENDING',   hp:90,  weak:'MED', cd:3, dmg:1 }
+    ]
+  },
+  {
+    label: 'Wave 3 · The ones that don’t move',
+    barriers: [
+      { name:'GUARDIANSHIP',        hp:120, weak:'CHT', cd:3, dmg:2 },
+      { name:'NO PAYOR SOURCE',     hp:120, weak:'PHN', cd:3, dmg:2 },
+      { name:'MEDICAID PENDING',    hp:300, weak:null,  cd:2, dmg:2 },
+      { name:'HOMELESS',            hp:120, weak:'BED', cd:3, dmg:2 },
+      { name:'BEHAVIORS',           hp:120, weak:'MED', cd:3, dmg:2 }
+    ]
+  }
+];
+
+var GLYPH = { AMB:'🚑', BED:'🛏️', CHT:'📋', MED:'💊', PHN:'📞' };
+var LOS_LIMIT = 40;
+
+/* ══════════════════════
+   GAME / UI
+══════════════════════ */
+(function(){
+  'use strict';
+
+  var GAME_ID = 'beds_and_barriers';
+
+  var elBoard   = document.getElementById('board');
+  var elRowA    = document.getElementById('barrierRowA');
+  var elRowB    = document.getElementById('barrierRowB');
+  var elWave    = document.getElementById('waveChip');
+  var elLosText = document.getElementById('losText');
+  var elLosFill = document.getElementById('losFill');
+  var elScore   = document.getElementById('scoreVal');
+  var elToast   = document.getElementById('toast');
+  var elChain   = document.getElementById('chainBanner');
+  var elResults = document.getElementById('resultsSlot');
+
+  var rnd, board, special, barriers, waveIdx;
+  var los, score, damageTotal, defeated, bestChain, busy, sel, moves;
+
+  function toast(msg){
+    elToast.textContent = msg;
+    elToast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function(){ elToast.classList.remove('show'); }, 1300);
+  }
+  function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  /* ── setup ── */
+  function start(){
+    rnd = BB.mulberry32((Math.random() * 1e9) | 0);
+    board = BB.makeBoard(rnd);
+    special = new Array(35).fill(null);
+    waveIdx = 0;
+    los = 0; score = 0; damageTotal = 0; defeated = 0; bestChain = 1; moves = 0;
+    busy = false; sel = null;
+    elResults.innerHTML = '';
+    spawnWave();
+    renderBoard();
+    updateStatus();
+  }
+
+  function spawnWave(){
+    barriers = WAVES[waveIdx].barriers.map(function(b){
+      return { name:b.name, weak:b.weak, cd:b.cd, dmg:b.dmg,
+               hp:b.hp, maxHp:b.hp, timer:b.cd };
+    });
+    elWave.textContent = 'Wave ' + (waveIdx + 1);
+    renderBarriers();
+  }
+
+  /* ── rendering ─────────────────────────────────────────────────
+     Barriers sit in two staggered rows so the overlap is visible:
+     row A holds slots 0, 2 and 4 and tiles the full width, row B
+     holds slots 1 and 3 offset beneath the seams. ─────────────── */
+  var ROW_A = [
+    { slot:0, css:'1 / 3' },
+    { slot:2, css:'3 / 6' },
+    { slot:4, css:'6 / 8' }
+  ];
+  var ROW_B = [
+    { slot:1, css:'2 / 4' },
+    { slot:3, css:'5 / 7' }
+  ];
+
+  function barrierNode(slot){
+    var b = barriers[slot];
+    var el = document.createElement('div');
+    el.className = 'barrier' + (b.hp <= 0 ? ' dead' : '');
+    el.dataset.slot = slot;
+    var pct = Math.max(0, b.hp / b.maxHp * 100);
+    el.innerHTML =
+      '<div class="bname">' + b.name + '</div>' +
+      '<div class="bmeta">' +
+        '<span class="weak">' + (b.weak ? GLYPH[b.weak] : '🚫') + '</span>' +
+        '<span class="timer' + (b.timer <= 1 ? ' imminent' : '') + '">' +
+          (b.hp > 0 ? '⏱ ' + b.timer : '—') +
+        '</span>' +
+      '</div>' +
+      '<div class="hpbar"><div class="hpfill" style="width:' + pct + '%"></div></div>';
+    return el;
+  }
+
+  function renderBarriers(){
+    elRowA.innerHTML = ''; elRowB.innerHTML = '';
+    ROW_A.forEach(function(spec){
+      var n = barrierNode(spec.slot);
+      n.style.gridColumn = spec.css;
+      elRowA.appendChild(n);
+    });
+    ROW_B.forEach(function(spec){
+      var n = barrierNode(spec.slot);
+      n.style.gridColumn = spec.css;
+      elRowB.appendChild(n);
+    });
+  }
+
+  function barrierEl(slot){
+    return document.querySelector('.barrier[data-slot="' + slot + '"]');
+  }
+
+  function renderBoard(dropAll){
+    elBoard.innerHTML = '';
+    for(var i = 0; i < board.length; i++){
+      var t = document.createElement('div');
+      t.className = 'tile ' + board[i] + (dropAll ? ' drop' : '') +
+                    (special[i] ? ' special' : '');
+      t.textContent = GLYPH[board[i]];
+      t.dataset.i = i;
+      if(special[i]){
+        var b = document.createElement('span');
+        b.className = 'badge';
+        b.textContent = special[i] === 'ORDER' ? 'ORD' : 'STAT';
+        t.appendChild(b);
+      }
+      t.addEventListener('click', onTileClick);
+      elBoard.appendChild(t);
+    }
+  }
+
+  function tileEl(i){ return elBoard.querySelector('.tile[data-i="' + i + '"]'); }
+
+  function updateStatus(){
+    var pct = Math.min(100, los / LOS_LIMIT * 100);
+    elLosFill.style.width = pct + '%';
+    elLosFill.className = 'los-fill' + (pct >= 80 ? ' crit' : (pct >= 55 ? ' warn' : ''));
+    elLosText.textContent = los + ' / ' + LOS_LIMIT + ' days';
+    elScore.textContent = liveScore();
+  }
+
+  /* Live score is what you have earned so far. The days-remaining
+     bonus is added only when the run ends — showing it up front made
+     the score open at 800 and drain, which read as losing. */
+  function liveScore(){
+    return Math.round(damageTotal / 10) + defeated * 50;
+  }
+  function finalScore(){
+    return liveScore() + Math.max(0, LOS_LIMIT - los) * 20;
+  }
+
+  /* ── input ── */
+  function onTileClick(e){
+    if(busy) return;
+    var i = +e.currentTarget.dataset.i;
+    if(sel === null){
+      sel = i;
+      e.currentTarget.classList.add('sel');
+      return;
+    }
+    if(sel === i){
+      tileEl(sel).classList.remove('sel');
+      sel = null;
+      return;
+    }
+    var a = sel;
+    var prev = tileEl(a);
+    if(prev) prev.classList.remove('sel');
+    sel = null;
+
+    if(!BB.adjacent(a, i)){
+      sel = i;
+      e.currentTarget.classList.add('sel');
+      return;
+    }
+    attemptSwap(a, i);
+  }
+
+  async function attemptSwap(a, z){
+    busy = true;
+    var aIsSpecial = special[a] || special[z];
+
+    if(!BB.isLegalSwap(board, a, z) && !aIsSpecial){
+      [a, z].forEach(function(k){
+        var el = tileEl(k);
+        if(el){ el.classList.remove('nudge'); void el.offsetWidth; el.classList.add('nudge'); }
+      });
+      toast('No match there');
+      busy = false;
+      return;
+    }
+
+    BB.swap(board, a, z);
+    var ts = special[a]; special[a] = special[z]; special[z] = ts;
+    renderBoard();
+    await wait(140);
+
+    moves++;
+    await resolveChains(aIsSpecial ? [a, z] : []);
+
+    if(barriers.every(function(b){ return b.hp <= 0; })){
+      await wait(320);
+      waveIdx++;
+      if(waveIdx >= WAVES.length){ finish(true); return; }
+      toast(WAVES[waveIdx].label);
+      spawnWave();
+      updateStatus();
+      busy = false;
+      return;
+    }
+
+    await barrierTurn();
+    if(los >= LOS_LIMIT){ finish(false); return; }
+
+    if(!BB.anyLegalMove(board)){
+      toast('No moves left — reshuffling');
+      BB.reshuffle(board, rnd);
+      special = new Array(35).fill(null);
+      renderBoard(true);
+      await wait(260);
+    }
+    busy = false;
+  }
+
+  /* ── chain resolution with animation ────────────────────────────
+     Mirrors BB.resolve but pauses between links so the player can
+     see what happened, and expands special tiles into the extra
+     cells they clear before damage is routed. ─────────────────── */
+  async function resolveChains(forcedTriggers){
+    var chain = 0;
+    var pendingTriggers = (forcedTriggers || []).filter(function(i){ return special[i]; });
+
+    while(true){
+      var groups = BB.findMatches(board);
+      if(!groups.length && !pendingTriggers.length) break;
+      chain++;
+      bestChain = Math.max(bestChain, chain);
+
+      /* union of every cell this link clears */
+      var cleared = {};
+      groups.forEach(function(g){
+        g.cells.forEach(function(c){ cleared[c] = true; });
+      });
+      pendingTriggers.forEach(function(c){ cleared[c] = true; });
+
+      /* expand special tiles caught in the clear */
+      var queue = Object.keys(cleared).map(Number);
+      while(queue.length){
+        var cell = queue.pop();
+        var sp = special[cell];
+        if(!sp) continue;
+        special[cell] = null;
+        var extra = [];
+        if(sp === 'STAT_ROW'){
+          var r = Math.floor(cell / BB.COLS);
+          for(var c = 0; c < BB.COLS; c++) extra.push(BB.idx(r, c));
+        }else if(sp === 'STAT_COL'){
+          var cc = cell % BB.COLS;
+          for(var rr = 0; rr < BB.ROWS; rr++) extra.push(BB.idx(rr, cc));
+        }else if(sp === 'ORDER'){
+          var want = board[cell];
+          for(var k = 0; k < board.length; k++) if(board[k] === want) extra.push(k);
+        }
+        extra.forEach(function(k){
+          if(!cleared[k]){ cleared[k] = true; queue.push(k); }
+        });
+      }
+      pendingTriggers = [];
+
+      /* specials created by 4- and 5-runs: the anchor tile survives */
+      var anchors = {};
+      groups.forEach(function(g){
+        if(g.cells.length < 4) return;
+        var anchor = g.cells[Math.floor(g.cells.length / 2)];
+        anchors[anchor] = g.cells.length >= 5
+          ? 'ORDER'
+          : (g.axis === 'row' ? 'STAT_ROW' : 'STAT_COL');
+      });
+
+      /* route damage over everything cleared, grouped by tile type */
+      var byType = {};
+      Object.keys(cleared).map(Number).forEach(function(c){
+        var t = board[c];
+        if(!t) return;
+        (byType[t] = byType[t] || []).push(c);
+      });
+      var pseudo = Object.keys(byType).map(function(t){
+        return { cells: byType[t], type: t, axis: 'row' };
+      });
+      var dmg = BB.routeDamage(pseudo, barriers, chain);
+
+      /* apply + animate */
+      Object.keys(cleared).map(Number).forEach(function(c){
+        var el = tileEl(c);
+        if(el && !anchors[c]) el.classList.add('clearing');
+      });
+      for(var s = 0; s < dmg.length; s++){
+        if(!dmg[s] || barriers[s].hp <= 0) continue;
+        var wasWeak = barriers[s].weak &&
+          Object.keys(byType).indexOf(barriers[s].weak) !== -1;
+        barriers[s].hp = Math.max(0, barriers[s].hp - dmg[s]);
+        damageTotal += dmg[s];
+        floatDamage(s, dmg[s], wasWeak);
+        if(barriers[s].hp === 0) defeated++;
+      }
+      if(chain >= 2) showChain(chain);
+      renderBarriers();
+      updateStatus();
+
+      await wait(chain === 1 ? 250 : 300);
+
+      /* clear, keep anchors, drop */
+      Object.keys(cleared).map(Number).forEach(function(c){
+        if(anchors[c]) return;
+        board[c] = null;
+        special[c] = null;
+      });
+      Object.keys(anchors).forEach(function(c){ special[c] = anchors[c]; });
+
+      BB.collapse(board, rnd, special);
+      renderBoard(true);
+      await wait(190);
+    }
+  }
+
+  function floatDamage(slot, amount, weak){
+    var host = barrierEl(slot);
+    if(!host) return;
+    var f = document.createElement('div');
+    f.className = 'dmgfloat' + (weak ? ' weakhit' : '');
+    f.textContent = '-' + amount + (weak ? '!' : '');
+    host.appendChild(f);
+    host.classList.remove('hit'); void host.offsetWidth; host.classList.add('hit');
+    setTimeout(function(){ if(f.parentNode) f.parentNode.removeChild(f); }, 800);
+  }
+
+  function showChain(n){
+    elChain.textContent = n + '× CHAIN';
+    elChain.classList.remove('show'); void elChain.offsetWidth;
+    elChain.classList.add('show');
+  }
+
+  /* ── barrier turn ── */
+  async function barrierTurn(){
+    var attacked = false;
+    for(var i = 0; i < barriers.length; i++){
+      var b = barriers[i];
+      if(b.hp <= 0) continue;
+      b.timer--;
+      if(b.timer <= 0){
+        los += b.dmg;
+        b.timer = b.cd;
+        attacked = true;
+        var el = barrierEl(i);
+        if(el){ el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); }
+      }
+    }
+    renderBarriers();
+    updateStatus();
+    if(attacked) await wait(220);
+  }
+
+  /* ── end of run ── */
+  function finish(won){
+    busy = true;
+    var daysLeft = Math.max(0, LOS_LIMIT - los);
+    score = finalScore();
+
+    if(window.BreakroomLeaderboard){
+      window.BreakroomLeaderboard.submit({
+        gameId: GAME_ID,
+        score: score,
+        meta: {
+          won: won,
+          waves_cleared: won ? WAVES.length : waveIdx,
+          barriers_defeated: defeated,
+          days_used: los,
+          days_left: daysLeft,
+          best_cascade: bestChain,
+          total_damage: damageTotal,
+          moves: moves
+        }
+      }).catch(function(e){ console.warn('Leaderboard submit failed:', e); });
+    }
+
+    var emoji, title, msg;
+    if(won && daysLeft >= 20){
+      emoji='🏆'; title='Discharged, and early';
+      msg='Every barrier down with ' + daysLeft + ' days to spare. Somewhere a utilization review nurse is asking how you did that.';
+    }else if(won && daysLeft >= 8){
+      emoji='⭐'; title='Discharged';
+      msg='All fifteen barriers cleared. The bed is open, the family has the paperwork, and you can go to lunch.';
+    }else if(won){
+      emoji='😮‍💨'; title='Out the door, barely';
+      msg='You got them home with ' + daysLeft + ' days left on the clock. Not pretty. Still counts.';
+    }else{
+      emoji='📋'; title='Still admitted on day ' + los;
+      msg = waveIdx >= 2
+        ? 'You made it to Medicaid Pending. Nobody beats that one on the first try either.'
+        : 'The barriers outlasted the clock. Wave ' + (waveIdx + 1) + ' is where it got away from you.';
+    }
+
+    document.getElementById('resultsSlot').innerHTML =
+      '<div class="results">' +
+        '<div class="results-emoji">' + emoji + '</div>' +
+        '<div class="results-title">' + title + '</div>' +
+        '<div class="results-msg">' + msg + '</div>' +
+        '<div class="results-stats">' +
+          '<div><div class="rstat-label">Score</div><div class="rstat-value">' + score + '</div></div>' +
+          '<div><div class="rstat-label">Barriers</div><div class="rstat-value">' + defeated + '/15</div></div>' +
+          '<div><div class="rstat-label">Days used</div><div class="rstat-value">' + los + '</div></div>' +
+          '<div><div class="rstat-label">Best chain</div><div class="rstat-value">' + bestChain + '×</div></div>' +
+        '</div>' +
+        '<button class="btn" id="againBtn" type="button">Take another case</button>' +
+        '<div class="results-note">Every run posts to this week&rsquo;s Break Room leaderboard. Your best score stands.</div>' +
+      '</div>';
+    document.getElementById('againBtn').addEventListener('click', start);
+    document.getElementById('resultsSlot').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  start();
+})();
+</script>
+
+<!-- Cross-device weekly leaderboard (Supabase + Anthropic moderation). -->
+<script src="https://timothypoore-blip.github.io/addie-breakroom-games/breakroom-leaderboard.js" defer></script>
+</body>
+</html>
